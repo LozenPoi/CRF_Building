@@ -108,11 +108,23 @@ with open(filepath, 'r') as fp:
             output = np.append(output, current_vector, axis=0)
         else:
             output = current_vector
-        print("Line {}: {}".format(count, current_vector))
-    print(dict)
+        #print("Line {}: {}".format(count, current_vector))
+    #print(dict)
 fp.close()
 
 # Store the data as a text file.
-np.savetxt('vectorized.txt', output[:-1], newline=' ', fmt="%d")
+f = open('vectorized.txt', 'w')
+for i in range(1606):
+    for j in range(14):
+        if j<13:
+            f.write(np.array2string(output[i,j].astype(int))+',')
+        else:
+            f.write(np.array2string(output[i, j].astype(int)))
+    f.write('\n')
+f.close()
 
 # Store the dictionary as a text file.
+f = open('dictionary.txt','w')
+for i in dict:
+    f.write(i + '\n')
+f.close()
