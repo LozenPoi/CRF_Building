@@ -111,3 +111,8 @@ with open(filepath, 'r') as fp:
         print("Line {}: {}".format(count, current_vector))
     print(dict)
 fp.close()
+
+# Store the data as a text file.
+np.savetxt('vectorized.txt', output[:-2], delimiter="\n", fmt="%d")
+
+# Store the dictionary as a text file.
