@@ -31,9 +31,9 @@ def assign_value(current_vector, point_name, name_part, label_part):
             dict.append('b_' + attribute_name)
             dict.append('i_' + attribute_name)
             dict_idx = len(dict) - 2
-        current_vector[idx] = dict_idx
+        current_vector[0,idx] = dict_idx
         for i in range(len(name_part)-1):
-            current_vector[idx+1+i] = dict_idx + 1
+            current_vector[0,idx+1+i] = dict_idx + 1
     else:
         # This is an attribute id.
         attribute_name = label_part[:-4]
@@ -50,12 +50,12 @@ def assign_value(current_vector, point_name, name_part, label_part):
             dict.append('i_' + attribute_name)
             dict_idx = len(dict) - 2
         if (idx> 0) & (point_name[idx-1].isdigit()):
-            current_vector[idx] = dict_idx
+            current_vector[0,idx] = dict_idx
             for i in range(len(name_part)-1):
-                current_vector[idx+1+i] = dict_idx + 1
+                current_vector[0,idx+1+i] = dict_idx + 1
         else:
             for i in range(len(name_part)):
-                current_vector[idx+i] = dict_idx + 1
+                current_vector[0,idx+i] = dict_idx + 1
 
     return current_vector
 
@@ -88,7 +88,7 @@ with open(filepath, 'r') as fp:
         label = label + ','
         # Segment and recognize the manual labels spanned by commas.
         segment = ''
-        current_vector = np.zeros(name_length)
+        current_vector = np.zeros((1,name_length))
         for i in label:
             if i == ',':
                 # The attribute and label are segmented by ":".
@@ -113,6 +113,6 @@ with open(filepath, 'r') as fp:
 fp.close()
 
 # Store the data as a text file.
-np.savetxt('vectorized.txt', output[:-2], newline='\n', fmt="%d")
+np.savetxt('vectorized.txt', output[:-1], newline=' ', fmt="%d")
 
 # Store the dictionary as a text file.
