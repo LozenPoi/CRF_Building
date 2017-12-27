@@ -113,6 +113,6 @@ with open(filepath, 'r') as fp:
 fp.close()
 
 # Store the data as a text file.
-np.savetxt('vectorized.txt', output[:-2], delimiter="\n", fmt="%d")
+np.savetxt('vectorized.txt', output[:-2], newline='\n', fmt="%d")
 
 # Store the dictionary as a text file.
