@@ -3,12 +3,14 @@
 # Date: 12/20/2017
 
 import numpy as np
+import pickle
 
 filepath = 'all_soda_labelledManually.txt'
 name_length = 14
 dict = ['o']    # Initial dictionary.
 
-def assign_value(current_vector, point_name, name_part, label_part):
+# POS tag definition: name (1), ID (2), none (0).
+def assign_value(current_vector, current_POS, point_name, name_part, label_part):
     idx = point_name.find(name_part)
     if '=' in label_part:
         # This is an attribute name.
@@ -32,8 +34,10 @@ def assign_value(current_vector, point_name, name_part, label_part):
             dict.append('i_' + attribute_name)
             dict_idx = len(dict) - 2
         current_vector[0,idx] = dict_idx
+        current_POS[0,idx] = 1
         for i in range(len(name_part)-1):
             current_vector[0,idx+1+i] = dict_idx + 1
+            current_POS[0,idx+1+i] = 1
     else:
         # This is an attribute id.
         attribute_name = label_part[:-4]
@@ -49,15 +53,18 @@ def assign_value(current_vector, point_name, name_part, label_part):
             dict.append('b_' + attribute_name)
             dict.append('i_' + attribute_name)
             dict_idx = len(dict) - 2
-        if (idx> 0) & (point_name[idx-1].isdigit()):
+        if (idx>0) & (point_name[idx-1].isdigit()):
             current_vector[0,idx] = dict_idx
+            current_POS[0,idx] = 2
             for i in range(len(name_part)-1):
                 current_vector[0,idx+1+i] = dict_idx + 1
+                current_POS[0,idx+1+i] = 2
         else:
             for i in range(len(name_part)):
                 current_vector[0,idx+i] = dict_idx + 1
+                current_POS[0,idx+i] = 2
 
-    return current_vector
+    return current_vector, current_POS
 
 with open(filepath, 'r') as fp:
     count = 0
@@ -89,6 +96,7 @@ with open(filepath, 'r') as fp:
         # Segment and recognize the manual labels spanned by commas.
         segment = ''
         current_vector = np.zeros((1,name_length))
+        current_POS = np.zeros((1,name_length))
         for i in label:
             if i == ',':
                 # The attribute and label are segmented by ":".
@@ -100,17 +108,28 @@ with open(filepath, 'r') as fp:
                         break
                     else:
                         idx = idx + 1
-                current_vector = assign_value(current_vector, point_name, name_part, label_part)
+                current_vector, current_POS = assign_value(current_vector, current_POS,
+                                                           point_name, name_part, label_part)
                 segment = ''
             else:
                 segment = segment + i
         if 'output' in locals() or 'output' in globals():
             output = np.append(output, current_vector, axis=0)
+            output_POS = np.append(output_POS, current_POS, axis=0)
         else:
             output = current_vector
-        #print("Line {}: {}".format(count, current_vector))
-    #print(dict)
+            output_POS = current_POS
+        #print("Line {}: {}".format(count, current_POS))
+    #print(len(dict))
 fp.close()
+
+# Store the data for later use.
+with open("vectorized.bin", "wb") as vector_file:
+    pickle.dump(output[:-1,:], vector_file)
+with open("pos.bin", "wb") as pos_file:
+    pickle.dump(output_POS[:-1,:], pos_file)
+with open("dict.bin", "wb") as dict_file:
+    pickle.dump(dict, dict_file)
 
 # Store the data as a text file.
 f = open('vectorized.txt', 'w')
@@ -119,7 +138,18 @@ for i in range(1606):
         if j<13:
             f.write(np.array2string(output[i,j].astype(int))+',')
         else:
-            f.write(np.array2string(output[i, j].astype(int)))
+            f.write(np.array2string(output[i,j].astype(int)))
+    f.write('\n')
+f.close()
+
+# Store the POS tag as a text file.
+f = open('POS.txt', 'w')
+for i in range(1606):
+    for j in range(14):
+        if j<13:
+            f.write(np.array2string(output_POS[i,j].astype(int))+',')
+        else:
+            f.write(np.array2string(output_POS[i, j].astype(int)))
     f.write('\n')
 f.close()
 

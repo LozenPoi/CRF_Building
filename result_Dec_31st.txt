@@ -1,0 +1,119 @@
+					    precision    recall  f1-score   support
+
+					 o      1.000     0.999     1.000      1667
+				     b_ahu      0.991     1.000     0.996       463
+                                     i_ahu      0.996     1.000     0.998       461
+                         b_air conditioner      1.000     1.000     1.000         5
+                         i_air conditioner      1.000     1.000     1.000        10
+                              b_air volume      0.400     1.000     0.571         2
+                              i_air volume      0.400     1.000     0.571         4
+                          b_alarm variable      1.000     0.562     0.720        16
+                          i_alarm variable      1.000     0.562     0.720        32
+       b_avg discharge air pressure sensor      1.000     1.000     1.000         2
+       i_avg discharge air pressure sensor      1.000     1.000     1.000        10
+                    b_building wide sensor      1.000     1.000     1.000        28
+                    i_building wide sensor      1.000     1.000     1.000        56
+            b_chilled water valve pressure      0.500     1.000     0.667         4
+            i_chilled water valve pressure      1.000     1.000     1.000         8
+            b_chilled/condensor water loop      0.976     1.000     0.988        82
+            i_chilled/condensor water loop      0.938     0.989     0.963        91
+                                 i_chiller      0.818     0.220     0.346        41
+             b_condensor return water temp      0.500     1.000     0.667         5
+             i_condensor return water temp      0.412     1.000     0.583        14
+                           b_cooling tower      1.000     0.444     0.615         9
+                           i_cooling tower      1.000     0.444     0.615         9
+                         b_current reading      0.400     1.000     0.571         2
+                         i_current reading      0.400     1.000     0.571         4
+           b_curtailment override variable      0.000     0.000     0.000         0
+           i_curtailment override variable      0.000     0.000     0.000         0
+                   b_damper economize flag      1.000     1.000     1.000         1
+                   i_damper economize flag      1.000     1.000     1.000         2
+           b_differential pressure reading      1.000     1.000     1.000         1
+           i_differential pressure reading      1.000     1.000     1.000         2
+          b_differential pressure setpoint      0.500     1.000     0.667         1
+          i_differential pressure setpoint      0.500     1.000     0.667         2
+     b_differential pressure status sensor      0.750     1.000     0.857         3
+     i_differential pressure status sensor      0.300     1.000     0.462        15
+                            b_event sensor      1.000     1.000     1.000         1
+                            i_event sensor      1.000     1.000     1.000         4
+                             b_exhaust fan      1.000     1.000     1.000         8
+                             i_exhaust fan      1.000     1.000     1.000        17
+                            b_failure flag      1.000     1.000     1.000         3
+                            i_failure flag      1.000     1.000     1.000         9
+                        b_fan control unit      0.000     0.000     0.000         0
+                        i_fan control unit      0.000     0.000     0.000         0
+                         b_fan speed reset      0.700     1.000     0.824         7
+                         i_fan speed reset      0.737     1.000     0.848        14
+                            b_fault sensor      0.667     1.000     0.800         4
+                            i_fault sensor      0.571     1.000     0.727         8
+                                   b_floor      1.000     1.000     1.000        10
+                                   i_floor      1.000     0.800     0.889        10
+                          b_hot water loop      0.692     1.000     0.818         9
+                          i_hot water loop      0.692     1.000     0.818         9
+                b_hot water valve position      0.000     0.000     0.000         0
+                i_hot water valve position      0.000     0.000     0.000         0
+              b_internal building variable      0.111     0.091     0.100        11
+              i_internal building variable      0.111     0.045     0.065        22
+                         b_lead/lag sensor      1.000     1.000     1.000         3
+                         i_lead/lag sensor      1.000     1.000     1.000         6
+               b_low return air temp alarm      0.643     1.000     0.783         9
+               i_low return air temp alarm      0.711     1.000     0.831        54
+       b_max discharge air pressure sensor      1.000     1.000     1.000         4
+       i_max discharge air pressure sensor      1.000     1.000     1.000        20
+       b_min discharge air pressure sensor      1.000     1.000     1.000         4
+       i_min discharge air pressure sensor      1.000     1.000     1.000        20
+                        b_mixed air damper      1.000     1.000     1.000         1
+                        i_mixed air damper      1.000     1.000     1.000         2
+                          b_mixed air temp      1.000     1.000     1.000         1
+                          i_mixed air temp      1.000     1.000     1.000         2
+                        b_occupancy sensor      1.000     1.000     1.000         1
+                        i_occupancy sensor      1.000     1.000     1.000         4
+                        b_outside air temp      1.000     1.000     1.000         1
+                        i_outside air temp      1.000     1.000     1.000         2
+                           b_pid loop gain      1.000     1.000     1.000        67
+                           i_pid loop gain      1.000     1.000     1.000       134
+                             b_power meter      0.429     0.750     0.545         4
+                             i_power meter      0.357     0.625     0.455         8
+                                    b_pump      0.781     1.000     0.877        25
+                                    i_pump      0.800     1.000     0.889        32
+                   b_reheat valve position      0.000     0.000     0.000         0
+                   i_reheat valve position      0.000     0.000     0.000         0
+                                    b_room      1.000     1.000     1.000       356
+                                    i_room      0.971     1.000     0.985      1161
+                               b_room temp      0.985     1.000     0.993        67
+                               i_room temp      0.993     1.000     0.996       134
+                      b_room temp setpoint      0.963     1.000     0.981        79
+                      i_room temp setpoint      0.963     1.000     0.981       158
+                                    b_site      0.995     1.000     0.998       604
+                                    i_site      0.995     0.997     0.996      1213
+                             b_smoke alarm      1.000     1.000     1.000        10
+                             i_smoke alarm      1.000     0.357     0.526        56
+                       b_start stop sensor      0.425     1.000     0.596        17
+                       i_start stop sensor      0.391     1.000     0.562        34
+                   b_static pressure alarm      1.000     1.000     1.000         1
+                   i_static pressure alarm      0.077     1.000     0.143         5
+                  b_static pressure sensor      0.000     0.000     0.000         0
+                  i_static pressure sensor      0.000     0.000     0.000         0
+                b_static pressure setpoint      1.000     1.000     1.000         1
+                i_static pressure setpoint      1.000     1.000     1.000         2
+                           b_status sensor      1.000     1.000     1.000        15
+                           i_status sensor      1.000     1.000     1.000        30
+                  b_steam on/off indicator      0.000     0.000     0.000         0
+                  i_steam on/off indicator      0.000     0.000     0.000         0
+                b_supply air temp setpoint      0.429     1.000     0.600         3
+                i_supply air temp setpoint      0.231     1.000     0.375         6
+                              i_supply fan      0.945     1.000     0.972       103
+                   b_supply water setpoint      1.000     1.000     1.000         2
+                   i_supply water setpoint      1.000     1.000     1.000         4
+                       b_supply water temp      1.000     1.000     1.000         5
+                       i_supply water temp      1.000     1.000     1.000        10
+                       b_temp setpoint off      0.984     1.000     0.992        61
+                       i_temp setpoint off      1.000     1.000     1.000       122
+                          b_timer variable      1.000     1.000     1.000         8
+                          i_timer variable      1.000     1.000     1.000        15
+                          b_valve position      1.000     1.000     1.000         4
+                          i_valve position      1.000     1.000     1.000         8
+b_vav reheat discharge air pressure sensor      0.874     0.884     0.879        86
+i_vav reheat discharge air pressure sensor      0.905     0.950     0.927       201
+
+                               avg / total      0.967     0.980     0.968      8183
