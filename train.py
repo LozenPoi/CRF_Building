@@ -72,7 +72,9 @@ def word2features(sent, i):
         'word': word,
         'word.isdigit()': word.isdigit(),
         #'label': label,
-        'cum_dig': cum_dig,
+        'first_digit': cum_dig == 1,
+        'second_digit': cum_dig == 2,
+        'third_digit': cum_dig == 3,
     }
     if i > 0:
         word1 = sent[i-1][0]
