@@ -1,13 +1,13 @@
-import matplotlib.pyplot as plt
-plt.style.use('ggplot')
+#import matplotlib.pyplot as plt
+#plt.style.use('ggplot')
 
 from itertools import chain
 
 import sklearn
 import scipy.stats
 from sklearn.metrics import make_scorer
-#from sklearn.cross_validation import cross_val_score
-#from sklearn.grid_search import RandomizedSearchCV
+from sklearn.cross_validation import cross_val_score
+from sklearn.grid_search import RandomizedSearchCV
 
 import sklearn_crfsuite
 from sklearn_crfsuite import scorers
@@ -59,30 +59,31 @@ fp.close()
 # Define feature dictionary.
 def word2features(sent, i):
     word = sent[i][0]
-    postag = sent[i][1]
+    label = sent[i][2]
 
     features = {
-        'bias': 1.0,
         'word': word,
         'word.isdigit()': word.isdigit(),
-        'postag': postag,
+        #'label': label,
     }
     if i > 0:
         word1 = sent[i-1][0]
-        postag1 = sent[i-1][1]
+        label1 = sent[i-1][2]
         features.update({
             '-1:word': word1,
-            '-1:postag': postag1,
+            '-1:isdigit()': word1.isdigit()
+            #'-1:label': label1,
         })
     else:
         features['BOS'] = True
 
     if i < len(sent)-1:
         word1 = sent[i+1][0]
-        postag1 = sent[i+1][1]
+        label1 = sent[i+1][2]
         features.update({
             '+1:word': word1,
-            '+1:postag': postag1,
+            '+1:isdigit()': word1.isdigit()
+            #'+1:label1': label1,
         })
     else:
         features['EOS'] = True
