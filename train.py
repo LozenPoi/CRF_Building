@@ -12,6 +12,7 @@ from sklearn.grid_search import RandomizedSearchCV
 import sklearn_crfsuite
 from sklearn_crfsuite import scorers
 from sklearn_crfsuite import metrics
+from collections import Counter
 
 import pickle
 
@@ -59,19 +60,26 @@ fp.close()
 # Define feature dictionary.
 def word2features(sent, i):
     word = sent[i][0]
-    label = sent[i][2]
-
+    #label = sent[i][2]
+    # Number of cumulative digits.
+    cum_dig = 0
+    for k in range(i+1):
+        if sent[k][0].isdigit():
+            cum_dig = cum_dig + 1
+        else:
+            cum_dig = 0
     features = {
         'word': word,
         'word.isdigit()': word.isdigit(),
         #'label': label,
+        'cum_dig': cum_dig,
     }
     if i > 0:
         word1 = sent[i-1][0]
-        label1 = sent[i-1][2]
+        #label1 = sent[i-1][2]
         features.update({
             '-1:word': word1,
-            '-1:isdigit()': word1.isdigit()
+            '-1:isdigit()': word1.isdigit(),
             #'-1:label': label1,
         })
     else:
@@ -79,10 +87,10 @@ def word2features(sent, i):
 
     if i < len(sent)-1:
         word1 = sent[i+1][0]
-        label1 = sent[i+1][2]
+        #label1 = sent[i+1][2]
         features.update({
             '+1:word': word1,
-            '+1:isdigit()': word1.isdigit()
+            '+1:isdigit()': word1.isdigit(),
             #'+1:label1': label1,
         })
     else:
@@ -133,3 +141,25 @@ sorted_labels = sorted(
 )
 print(metrics.flat_classification_report(
     y_test, y_pred, labels=sorted_labels, digits=3))
+
+# Print transition probabilities.
+def print_transitions(trans_features):
+    for (label_from, label_to), weight in trans_features:
+        print("%-6s -> %-7s %0.6f" % (label_from, label_to, weight))
+
+print("Top likely transitions:")
+print_transitions(Counter(crf.transition_features_).most_common(20))
+
+print("\nTop unlikely transitions:")
+print_transitions(Counter(crf.transition_features_).most_common()[-20:])
+
+# Print state features.
+def print_state_features(state_features):
+    for (attr, label), weight in state_features:
+        print("%0.6f %-8s %s" % (weight, label, attr))
+
+print("Top positive:")
+print_state_features(Counter(crf.state_features_).most_common(30))
+
+print("\nTop negative:")
+print_state_features(Counter(crf.state_features_).most_common()[-30:])
