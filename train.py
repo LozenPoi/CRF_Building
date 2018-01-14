@@ -76,18 +76,18 @@ def word2features(sent, i):
         'second_digit': cum_dig == 2,
         'third_digit': cum_dig == 3,
     }
-    # Add one more feature.
-    if word.isdigit() & i<len(sent)-1:
-        tmp = word
-        k = i
-        while tmp.isdigit() & k<len(sent)-1:
-            tmp = sent[k+1][0]
-            k = k+1
-        if tmp == '_':
-            features['end_by_underline'] = True
-        elif k<len(sent)-1:
-            if sent[k+1][0] == '_':
-                features['end_with_char'] = True
+    # # Add one more feature.
+    # if word.isdigit() & i<len(sent)-1:
+    #     tmp = word
+    #     k = i
+    #     while tmp.isdigit() & k<len(sent)-1:
+    #         tmp = sent[k+1][0]
+    #         k = k+1
+    #     if tmp == '_':
+    #         features['end_by_underline'] = True
+    #     elif k<len(sent)-1:
+    #         if sent[k+1][0] == '_':
+    #             features['end_with_char'] = True
 
     if i > 0:
         word1 = sent[i-1][0]
@@ -146,8 +146,8 @@ crf.fit(X_train, y_train)
 labels = list(crf.classes_)
 #print(labels)
 y_pred = crf.predict(X_test)
-#print(len(y_pred))
-#print(len(y_test))
+print(y_pred)
+print(y_test)
 print(metrics.flat_f1_score(y_test, y_pred, average='weighted', labels=labels))
 
 # group B and I results

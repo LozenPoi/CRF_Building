@@ -1,6 +1,6 @@
 # This is the data processing code converting point name strings into vectors with a dictionary.
-# Author: Zheng Luo
-# Date: 12/20/2017
+# Author: Zheng Luo.
+# Date: 12/20/2017.
 
 import numpy as np
 import pickle
