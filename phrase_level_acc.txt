@@ -1,0 +1,15 @@
+In the dataset "all_soda_labelledManually" there are actually only 1335 point name strings are fully labeled. Only these strings and labels are used for training and testing. The following table shows the baseline performance of CRF. The testing set is always the rest 335 labeled point name strings.
+
+				total # Phrases    correctly classified phrases    total # "out" Phrases    correctly classified "out" Phrases    phrase accuracy    "out" accuracy
+
+Training size = 1		1308		   717				   660			    302					  54.82%	     45.76%
+Testing size = 335
+
+Training size = 10		1308		   1113				   660			    655				  	  85.09%	     99.24%
+Testing size = 335
+
+Training size = 100		1308		   1207				   660			    649				  	  92.28%	     98.33%
+Testing size = 335
+
+Training size = 1000		1308		   1260				   660			    654					  96.33%	     99.09%
+Testing size = 335

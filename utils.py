@@ -31,10 +31,10 @@ def phrase_acc(y_test, y_pred):
                 if y_test[i][j] != y_pred[i][j]:
                     correct_flag = False
             elif y_test[i][j][0] == 'o':
+                out_count = out_count + 1
                 if correct_flag:
                     phrase_correct = phrase_correct + 1
                     correct_flag = False
-                out_count = out_count + 1
                 if y_test[i][j] == y_pred[i][j]:
                     out_correct = out_correct + 1
         if correct_flag:

@@ -69,6 +69,7 @@ def assign_value(current_vector, current_POS, point_name, name_part, label_part)
 with open(filepath, 'r') as fp:
     count = 0
     line = 'initial'
+    filtered_line = []
     while line:
         line = fp.readline()
         count = count + 1
@@ -113,12 +114,23 @@ with open(filepath, 'r') as fp:
                 segment = ''
             else:
                 segment = segment + i
-        if 'output' in locals() or 'output' in globals():
-            output = np.append(output, current_vector, axis=0)
-            output_POS = np.append(output_POS, current_POS, axis=0)
-        else:
-            output = current_vector
-            output_POS = current_POS
+        # Filter out strings that are not fully labeled.
+        full_label_flag = True
+        str_len = len(point_name)
+        for i in range(str_len):
+            if point_name[i] != '_':
+                if current_vector[0,i] == 0:
+                    full_label_flag = False
+                    break
+        # Store full labeled strings.
+        if full_label_flag:
+            filtered_line.append(line)
+            if 'output' in locals() or 'output' in globals():
+                output = np.append(output, current_vector, axis=0)
+                output_POS = np.append(output_POS, current_POS, axis=0)
+            else:
+                output = current_vector
+                output_POS = current_POS
         #print("Line {}: {}".format(count, current_POS))
     #print(len(dict))
 fp.close()
@@ -131,9 +143,10 @@ with open("pos.bin", "wb") as pos_file:
 with open("dict.bin", "wb") as dict_file:
     pickle.dump(dict, dict_file)
 
+data_size = len(filtered_line)
 # Store the data as a text file.
 f = open('vectorized.txt', 'w')
-for i in range(1606):
+for i in range(data_size-1):
     for j in range(14):
         if j<13:
             f.write(np.array2string(output[i,j].astype(int))+',')
@@ -144,7 +157,7 @@ f.close()
 
 # Store the POS tag as a text file.
 f = open('POS.txt', 'w')
-for i in range(1606):
+for i in range(data_size-1):
     for j in range(14):
         if j<13:
             f.write(np.array2string(output_POS[i,j].astype(int))+',')
@@ -157,4 +170,10 @@ f.close()
 f = open('dictionary.txt','w')
 for i in dict:
     f.write(i + '\n')
+f.close()
+
+# Store full labeled strings.
+f = open('filtered_strings.txt', 'w')
+for i in range(data_size):
+    f.write(filtered_line[i])
 f.close()

@@ -18,7 +18,7 @@ import pickle
 
 import utils
 
-filepath = 'all_soda_labelledManually.txt'
+filepath = 'filtered_strings.txt'
 
 # Load converted data.
 with open("vectorized.bin", "rb") as vector_file:
@@ -58,6 +58,9 @@ with open(filepath, 'r') as fp:
     dataset = dataset[:-1]
     #print(len(dataset))
 fp.close()
+
+print(dataset[0])
+print(len(dataset))
 
 # Define feature dictionary.
 def word2features(sent, i):
@@ -148,7 +151,7 @@ crf.fit(X_train, y_train)
 labels = list(crf.classes_)
 #print(labels)
 y_pred = crf.predict(X_test)
-# print(y_pred)
+#print(y_pred[0])
 # print(y_test[0])
 # print(y_test[0][0])
 # print(y_test[0][0][0])
