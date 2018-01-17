@@ -129,7 +129,7 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 # Train a CRF.
-train_set = dataset[:1000]
+train_set = dataset[:10]
 test_set = dataset[1000:]
 #print(sent2features(train_set[0])[13])
 X_train = [sent2features(s) for s in train_set]
@@ -158,6 +158,29 @@ y_pred = crf.predict(X_test)
 print(metrics.flat_f1_score(y_test, y_pred, average='weighted', labels=labels))
 phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
 print(phrase_count, phrase_correct, out_count, out_correct)
+
+
+# Store the data as a text file.
+len_test = len(y_test)
+f = open('predicted_label.txt', 'w')
+for i in range(len_test):
+    for j in range(14):
+        if j<13:
+            f.write(y_pred[i][j]+',')
+        else:
+            f.write(y_pred[i][j]+'\n')
+f.close()
+
+f = open('test_label.txt', 'w')
+for i in range(len_test):
+    for j in range(14):
+        if j<13:
+            f.write(y_test[i][j]+',')
+        else:
+            f.write(y_test[i][j]+'\n')
+f.close()
+
+
 
 # # group B and I results
 # sorted_labels = sorted(
