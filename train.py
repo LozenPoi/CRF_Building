@@ -59,8 +59,8 @@ with open(filepath, 'r') as fp:
     #print(len(dataset))
 fp.close()
 
-print(dataset[0])
-print(len(dataset))
+#print(dataset[0])
+#print(len(dataset))
 
 # Define feature dictionary.
 def word2features(sent, i):
@@ -129,7 +129,7 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 # Train a CRF.
-train_set = dataset[:10]
+train_set = dataset[:1000]
 test_set = dataset[1000:]
 #print(sent2features(train_set[0])[13])
 X_train = [sent2features(s) for s in train_set]
@@ -149,9 +149,9 @@ crf.fit(X_train, y_train)
 
 # Some evaluations.
 labels = list(crf.classes_)
-#print(labels)
+# print(labels)
 y_pred = crf.predict(X_test)
-#print(y_pred[0])
+# print(y_pred[0][0][2:])
 # print(y_test[0])
 # print(y_test[0][0])
 # print(y_test[0][0][0])
