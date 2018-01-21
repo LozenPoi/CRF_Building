@@ -59,6 +59,8 @@ with open(filepath, 'r') as fp:
     #print(len(dataset))
 fp.close()
 
+with open("filtered_dataset.bin", "wb") as filtered_dataset:
+    pickle.dump(dataset, filtered_dataset)
 #print(dataset[0])
 #print(len(dataset))
 

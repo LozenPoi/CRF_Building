@@ -142,6 +142,8 @@ with open("pos.bin", "wb") as pos_file:
     pickle.dump(output_POS[:-1,:], pos_file)
 with open("dict.bin", "wb") as dict_file:
     pickle.dump(dict, dict_file)
+with open("filtered_string.bin", "wb") as filtered_string:
+    pickle.dump(filtered_line[:][:14], filtered_string)
 
 data_size = len(filtered_line)
 # Store the data as a text file.
