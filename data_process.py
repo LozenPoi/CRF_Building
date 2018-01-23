@@ -135,6 +135,9 @@ with open(filepath, 'r') as fp:
     #print(len(dict))
 fp.close()
 
+fil_str = []
+for k in filtered_line:
+    fil_str.append(k[:14])
 # Store the data for later use.
 with open("vectorized.bin", "wb") as vector_file:
     pickle.dump(output[:-1,:], vector_file)
@@ -143,7 +146,11 @@ with open("pos.bin", "wb") as pos_file:
 with open("dict.bin", "wb") as dict_file:
     pickle.dump(dict, dict_file)
 with open("filtered_string.bin", "wb") as filtered_string:
-    pickle.dump(filtered_line[:][:14], filtered_string)
+    pickle.dump(fil_str[:-1], filtered_string)
+
+# print(len(filtered_line))
+# print(fil_str[1334])
+# print(filtered_line[1334])
 
 data_size = len(filtered_line)
 # Store the data as a text file.
@@ -164,7 +171,7 @@ for i in range(data_size-1):
         if j<13:
             f.write(np.array2string(output_POS[i,j].astype(int))+',')
         else:
-            f.write(np.array2string(output_POS[i, j].astype(int)))
+            f.write(np.array2string(output_POS[i,j].astype(int)))
     f.write('\n')
 f.close()
 
