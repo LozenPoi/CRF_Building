@@ -5,6 +5,7 @@ import sklearn_crfsuite
 import scipy.stats
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
+import random
 
 import utils
 
@@ -19,13 +20,34 @@ if __name__ == '__main__':
 
     # print(len(dataset))
     # print(dataset[1])
-    # print(len(string))
-    # print(string[1])
+    # print(len(strings))
+    # print(strings[1:3])
 
-    train_set = dataset[:1235]
-    test_set = dataset[1235:]
-    train_string = strings[:1235]
-    test_string = strings[1235:]
+    # train_set = dataset[:1235]
+    # test_set = dataset[1235:]
+    # train_string = strings[:1235]
+    # test_string = strings[1235:]
+
+    # Randomly select 100 samples to be the testing set.
+    total_len = len(dataset)
+    select_idx = []
+    train_set = []
+    test_set = []
+    train_string = []
+    test_string = []
+    testing_size = 100
+    random.seed(666)
+    for i in range(testing_size):
+        select_idx.append(random.randint(0,total_len))
+    for i in range(total_len):
+        if i in select_idx:
+            test_set.append(dataset[i])
+            test_string.append(strings[i])
+        else:
+            train_set.append(dataset[i])
+            train_string.append(strings[i])
+    # print(train_set[1:3])
+    # print(train_string[1:3])
 
     # Define feature dictionary.
     def word2features(sent, i):
@@ -92,7 +114,7 @@ if __name__ == '__main__':
     sort_idx = np.argsort(train_distance, kind='mergesort').tolist()
 
     # Define a loop for plotting figures.
-    max_samples = 100
+    max_samples = 200
     phrase_acc = np.zeros(max_samples)
     out_acc = np.zeros(max_samples)
     for num_training in range(3,max_samples+3):
@@ -117,7 +139,7 @@ if __name__ == '__main__':
                                 cv=3,
                                 verbose=1,
                                 n_jobs=-1,
-                                n_iter=20)
+                                n_iter=30)
         rs.fit(X_train_tmp, y_train_tmp)
 
         print('best params:', rs.best_params_)
