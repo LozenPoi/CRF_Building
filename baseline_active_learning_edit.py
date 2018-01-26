@@ -69,7 +69,7 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 # Active learning using edit distance with cross validation.
-def cv_edit_active_learn(train_idx, test_idx, dataset, strings, max_samples_batch, num_fold, batch_size):
+def cv_edit_active_learn(train_idx, test_idx, dataset, strings, max_samples_batch, num_fold, batch_size, cv_round):
 
     phrase_acc = np.zeros([max_samples_batch, num_fold])
     out_acc = np.zeros([max_samples_batch, num_fold])
@@ -171,8 +171,11 @@ if __name__ == '__main__':
     max_samples_batch = 50
     batch_size = 1
 
-    cv_round = 0
-    for train_idx, test_idx in kf.split(dataset):
+    num_cores = multiprocessing.cpu_count()
+    phrase_acc, out_acc = Parallel(n_jobs=num_cores)(delayed(cv_edit_active_learn)(i) for i in inputs)
+
+    # cv_round = 0
+    # for train_idx, test_idx in kf.split(dataset):
 
         # # Define training set and testing set.
         # train_set = [dataset[i] for i in train_idx]
@@ -253,7 +256,7 @@ if __name__ == '__main__':
         #     phrase_acc[num_training,cv_round] = phrase_correct/phrase_count
         #     out_acc[num_training,cv_round] = out_correct/out_count
 
-        cv_round += 1
+        # cv_round += 1
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
