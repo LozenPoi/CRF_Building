@@ -1,3 +1,4 @@
+import os
 import pickle
 import numpy as np
 import editdistance
@@ -7,7 +8,6 @@ from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 import random
 from sklearn.model_selection import RepeatedKFold
-import threading
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -69,10 +69,18 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 # Active learning using edit distance with cross validation.
-def cv_edit_active_learn(train_idx, test_idx, dataset, strings, max_samples_batch, num_fold, batch_size, cv_round):
+def cv_edit_active_learn(args):
 
-    phrase_acc = np.zeros([max_samples_batch, num_fold])
-    out_acc = np.zeros([max_samples_batch, num_fold])
+    # Read the input args.
+    train_idx = args['train_idx']
+    test_idx = args['test_idx']
+    dataset = args['dataset']
+    strings = args['strings']
+    max_samples_batch = args['max_samples_batch']
+    batch_size = args['batch_size']
+
+    phrase_acc = np.zeros([max_samples_batch])
+    out_acc = np.zeros([max_samples_batch])
 
     # Define training set and testing set.
     train_set = [dataset[i] for i in train_idx]
@@ -150,8 +158,8 @@ def cv_edit_active_learn(train_idx, test_idx, dataset, strings, max_samples_batc
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
         print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training, cv_round] = phrase_correct / phrase_count
-        out_acc[num_training, cv_round] = out_correct / out_count
+        phrase_acc[num_training] = phrase_correct / phrase_count
+        out_acc[num_training] = out_correct / out_count
 
     return phrase_acc, out_acc
 
@@ -168,11 +176,24 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 50
+    max_samples_batch = 5
     batch_size = 1
 
-    num_cores = multiprocessing.cpu_count()
-    phrase_acc, out_acc = Parallel(n_jobs=num_cores)(delayed(cv_edit_active_learn)(i) for i in inputs)
+    pool = multiprocessing.Pool(os.cpu_count() - 1)
+    args = []
+    for train_idx, test_idx in kf.split(dataset):
+        tmp_args = {
+            'train_idx': train_idx,
+            'test_idx': test_idx,
+            'dataset': dataset,
+            'strings': strings,
+            'max_samples_batch': max_samples_batch,
+            'batch_size': batch_size,
+        }
+        args.append(tmp_args)
+    results = pool.map(cv_edit_active_learn, args)
+    print(len(results))
+    print(results[0])
 
     # cv_round = 0
     # for train_idx, test_idx in kf.split(dataset):
