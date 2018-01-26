@@ -45,11 +45,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="baseline_active_learning_edit.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="baseline_active_learning_edit.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/baseline_active_learning_edit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="86" column="19" lean-forward="true" selection-start-line="86" selection-start-column="19" selection-end-line="86" selection-end-column="19" />
+            <state relative-caret-position="425">
+              <caret line="84" column="47" lean-forward="true" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -57,11 +57,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="baseline_active_learning_kmeans.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="baseline_active_learning_uniform.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/baseline_active_learning_uniform.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="31" lean-forward="false" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="baseline_active_learning_kmeans.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/baseline_active_learning_kmeans.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="66" column="23" lean-forward="false" selection-start-line="66" selection-start-column="23" selection-end-line="66" selection-end-column="23" />
+            <state relative-caret-position="-374">
+              <caret line="62" column="51" lean-forward="false" selection-start-line="62" selection-start-column="51" selection-end-line="62" selection-end-column="51" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
               </folding>
@@ -96,12 +108,13 @@
         <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/data_process.py" />
         <option value="$PROJECT_DIR$/baseline_active_learning.py" />
-        <option value="$PROJECT_DIR$/baseline_active_learning_edit.py" />
         <option value="$PROJECT_DIR$/baseline_active_learning_kmeans.py" />
+        <option value="$PROJECT_DIR$/baseline_active_learning_uniform.py" />
+        <option value="$PROJECT_DIR$/baseline_active_learning_edit.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="353" />
     <option name="y" value="47" />
     <option name="width" value="1400" />
@@ -153,7 +166,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.baseline_active_learning">
+  <component name="RunManager" selected="Python.baseline_active_learning_edit">
     <configuration name="baseline_active_learning" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -167,6 +180,42 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="CRF_Building" />
       <option name="SCRIPT_NAME" value="C:\Users\zl5sv\Documents\GitHub\CRF_Building\baseline_active_learning_edit.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="baseline_active_learning_edit" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/baseline_active_learning_edit.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="baseline_active_learning_uniform" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/baseline_active_learning_uniform.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -208,16 +257,20 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <list size="3">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.data_process" />
       <item index="1" class="java.lang.String" itemvalue="Python.train" />
       <item index="2" class="java.lang.String" itemvalue="Python.baseline_active_learning" />
+      <item index="3" class="java.lang.String" itemvalue="Python.baseline_active_learning_uniform" />
+      <item index="4" class="java.lang.String" itemvalue="Python.baseline_active_learning_edit" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.baseline_active_learning" />
-        <item index="1" class="java.lang.String" itemvalue="Python.data_process" />
-        <item index="2" class="java.lang.String" itemvalue="Python.train" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.baseline_active_learning_edit" />
+        <item index="1" class="java.lang.String" itemvalue="Python.baseline_active_learning_uniform" />
+        <item index="2" class="java.lang.String" itemvalue="Python.baseline_active_learning" />
+        <item index="3" class="java.lang.String" itemvalue="Python.data_process" />
+        <item index="4" class="java.lang.String" itemvalue="Python.train" />
       </list>
     </recent_temporary>
   </component>
@@ -238,13 +291,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1796875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30508474" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30508474" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -270,7 +323,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/utils.py" />
     <entry file="file://$PROJECT_DIR$/data_process.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="46">
@@ -632,22 +684,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/baseline_active_learning_edit.py">
+    <entry file="file://$PROJECT_DIR$/baseline_active_learning_kmeans.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="86" column="19" lean-forward="true" selection-start-line="86" selection-start-column="19" selection-end-line="86" selection-end-column="19" />
+        <state relative-caret-position="-374">
+          <caret line="62" column="51" lean-forward="false" selection-start-line="62" selection-start-column="51" selection-end-line="62" selection-end-column="51" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#34#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/baseline_active_learning_kmeans.py">
+    <entry file="file://$PROJECT_DIR$/baseline_active_learning_uniform.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="66" column="23" lean-forward="false" selection-start-line="66" selection-start-column="23" selection-end-line="66" selection-end-column="23" />
+        <state relative-caret-position="85">
+          <caret line="5" column="31" lean-forward="false" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="31" />
           <folding>
-            <element signature="e#0#34#0" expanded="true" />
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/baseline_active_learning_edit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="84" column="47" lean-forward="true" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
