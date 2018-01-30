@@ -1,8 +1,8 @@
 import os
 import pickle
 import numpy as np
-import editdistance
 import sklearn_crfsuite
+import editdistance
 import scipy.stats
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
@@ -12,15 +12,14 @@ import multiprocessing
 
 import utils
 
-# Calculate average Edit distance from each element of new_sample_set to current_set.
-def avr_edit_distance(current_set, new_sample_set):
-    len_current = len(current_set)
-    len_new = len(new_sample_set)
-    distance = np.zeros(len_new)
-    for k in range(len_new):
-        for j in range(len_current):
-            distance[k] = distance[k] + editdistance.eval(new_sample_set[k], current_set[j])
-        distance[k] = distance[k]/len_current
+# Calculate Edit distance matrix from each element to other elements in a set.
+def edit_distance(string_set):
+    len_set = len(string_set)
+    distance = np.zeros([len_set, len_set])
+    for k in range(len_set):
+        for j in range(k+1, len_set):
+            distance[k, j] = editdistance.eval(string_set[k], string_set[j])
+            distance[j, k] = distance[k, j]
     return distance
 
 # Define feature dictionary.
@@ -67,7 +66,7 @@ def sent2labels(sent):
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
-# Active learning using edit distance with cross validation.
+# Active learning using uniform sampling with cross validation.
 def cv_edit_active_learn(args):
 
     # Read the input args.
@@ -87,31 +86,47 @@ def cv_edit_active_learn(args):
     train_string = [strings[i] for i in train_idx]
     #test_string = [strings[i] for i in test_idx]
 
-    # Define an initial actual training set from the training pool.
-    train_set_current = train_set[:2]
-    train_set_new = train_set[2:]
-    train_string_current = train_string[:2]
-    train_string_new = train_string[2:]
-
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
     y_test = [sent2labels(s) for s in test_set]
 
+    # Apply clustering to the whole training pool (train_set and train_string).
+    num_cluster = 4
+    distance_matrix = edit_distance(train_string)
+    clusters, medoids = utils.kmedoids_cluster(distance_matrix, num_cluster)
+
+    # Sort instances in each cluster based on distance to its center.
+    cluster_list = []
+    for j in medoids:
+        tmp_list = []
+        for i in range(len(train_set)):
+            if clusters[i] == j:
+                tmp_list.append(i)
+        cluster_list.append(tmp_list)
+    sort_idx = []
+    for i in range(num_cluster):
+        distance_tmp = []
+        for j in cluster_list[i]:
+            distance_tmp.append(distance_matrix[medoids[i],j])
+        sort_tmp = np.argsort(np.array(distance_tmp), kind='mergesort').tolist()
+        sort_idx.append(sort_tmp)
+
+    # Define initial training set.
+    train_set_current = [train_set[cluster_list[0][sort_idx[0][0]]],
+                         train_set[cluster_list[1][sort_idx[1][0]]],
+                         train_set[cluster_list[2][sort_idx[2][0]]]]
+
+    indicator = 3
+    round = 0
     for num_training in range(max_samples_batch):
 
-        # Calculate average distance from new sample candidates to current training set.
-        distance = avr_edit_distance(train_string_current, train_string_new)
-        sort_idx = np.argsort(-distance, kind='mergesort').tolist()
-        # update training strings
-        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        for i in string_to_remove:
-            train_string_current.append(i)
-            train_string_new.remove(i)
-        # update training set
-        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        for i in sample_to_remove:
-            train_set_current.append(i)
-            train_set_new.remove(i)
+        # Take samples from clusters.
+        for k in range(batch_size):
+            train_set_current.append(train_set[cluster_list[indicator][sort_idx[indicator][round]]])
+            indicator += 1
+            if indicator >= num_cluster:
+                indicator = 0
+                round += 1
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -188,16 +203,14 @@ if __name__ == '__main__':
             'batch_size': batch_size,
         }
         args.append(tmp_args)
+
     results = pool.map(cv_edit_active_learn, args)
-    # print(len(results))
-    # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
-    # print(len(phrase_acc))
-    # print(len(phrase_acc[0]))
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
+
     plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
              np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
     plt.xlabel('number of training samples')
