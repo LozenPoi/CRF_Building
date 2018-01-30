@@ -91,7 +91,7 @@ def cv_edit_active_learn(args):
     y_test = [sent2labels(s) for s in test_set]
 
     # Apply clustering to the whole training pool (train_set and train_string).
-    num_cluster = 4
+    num_cluster = 3
     distance_matrix = edit_distance(train_string)
     clusters, medoids = utils.kmedoids_cluster(distance_matrix, num_cluster)
 
@@ -113,11 +113,12 @@ def cv_edit_active_learn(args):
 
     # Define initial training set.
     train_set_current = [train_set[cluster_list[0][sort_idx[0][0]]],
-                         train_set[cluster_list[1][sort_idx[1][0]]],
-                         train_set[cluster_list[2][sort_idx[2][0]]]]
+                         train_set[cluster_list[1][sort_idx[1][0]]]]
 
-    indicator = 3
+    indicator = 2
     round = 0
+    # for i in range(num_cluster):
+    #     print(len(cluster_list[i]))
     for num_training in range(max_samples_batch):
 
         # Take samples from clusters.
@@ -217,3 +218,9 @@ if __name__ == '__main__':
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
+
+    # Save data for future plotting.
+    with open("phrase_acc_kmedoids.bin", "wb") as phrase_kmedoids_file:
+        pickle.dump(phrase_acc, phrase_kmedoids_file)
+    with open("out_acc_kmedoids.bin", "wb") as out_kmedoids_file:
+        pickle.dump(out_acc, out_kmedoids_file)

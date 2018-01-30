@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import random
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
+import pickle
 
 import utils
 
@@ -184,16 +185,18 @@ if __name__ == '__main__':
         args.append(tmp_args)
 
     # Use the same parameters for more than once of uniformly random sampling.
-    number_iter = 4
     results = pool.map(cv_edit_active_learn, args)
     phrase_acc = np.array([results[i][0] for i in range(num_fold)])
     out_acc = np.array([results[i][1] for i in range(num_fold)])
-    for i in range(number_iter):
-        results = pool.map(cv_edit_active_learn, args)
-        phrase_acc = phrase_acc + np.array([results[i][0] for i in range(num_fold)])
-        out_acc = out_acc + np.array([results[i][1] for i in range(num_fold)])
-    phrase_acc = phrase_acc/(number_iter+1)
-    out_acc = out_acc/(number_iter+1)
+
+    # # Run multiple sampling for each fold.
+    # number_iter = 4
+    # for i in range(number_iter):
+    #     results = pool.map(cv_edit_active_learn, args)
+    #     phrase_acc = phrase_acc + np.array([results[i][0] for i in range(num_fold)])
+    #     out_acc = out_acc + np.array([results[i][1] for i in range(num_fold)])
+    # phrase_acc = phrase_acc/(number_iter+1)
+    # out_acc = out_acc/(number_iter+1)
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
@@ -203,3 +206,9 @@ if __name__ == '__main__':
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
+
+    # Save data for future plotting.
+    with open("phrase_acc_uniform.bin", "wb") as phrase_uniform_file:
+        pickle.dump(phrase_acc, phrase_uniform_file)
+    with open("out_acc_uniform.bin", "wb") as out_uniform_file:
+        pickle.dump(out_acc, out_uniform_file)

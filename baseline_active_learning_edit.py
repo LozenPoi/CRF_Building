@@ -204,3 +204,9 @@ if __name__ == '__main__':
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
+
+    # Save data for future plotting.
+    with open("phrase_acc_edit.bin", "wb") as phrase_edit_file:
+        pickle.dump(phrase_acc, phrase_edit_file)
+    with open("out_acc_edit.bin", "wb") as out_edit_file:
+        pickle.dump(out_acc, out_edit_file)
