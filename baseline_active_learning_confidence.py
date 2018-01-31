@@ -104,9 +104,9 @@ def cv_edit_active_learn(args):
         len_train_new = len(train_set_new)
         prob_list = []
         for i in range(len_train_new):
-            crf.tagger_.set(X_train_new[i])
+            #crf.tagger_.set(X_train_new[i])
             y_sequence = crf.tagger_.tag(X_train_new[i])
-            print(crf.tagger_.probability(y_sequence))
+            #print(crf.tagger_.probability(y_sequence))
             prob_list.append(crf.tagger_.probability(y_sequence))
 
         # Sort the training pool based on confidence.
@@ -158,7 +158,7 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        #print(phrase_count, phrase_correct, out_count, out_correct)
+        print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
