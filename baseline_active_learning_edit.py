@@ -97,6 +97,7 @@ def cv_edit_active_learn(args):
     X_test = [sent2features(s) for s in test_set]
     y_test = [sent2labels(s) for s in test_set]
 
+    string_observe = []
     for num_training in range(max_samples_batch):
 
         # Calculate average distance from new sample candidates to current training set.
@@ -112,6 +113,10 @@ def cv_edit_active_learn(args):
         for i in sample_to_remove:
             train_set_current.append(i)
             train_set_new.remove(i)
+
+        # To see what the model learns from 90 samples to 100 samples.
+        if (num_training>=88) & (num_training<=98):
+            string_observe.extend(string_to_remove)
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -153,11 +158,11 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        print(phrase_count, phrase_correct, out_count, out_correct)
+        # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
-    return phrase_acc, out_acc
+    return phrase_acc, out_acc, string_observe
 
 # This is the main function.
 if __name__ == '__main__':
@@ -172,7 +177,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
@@ -210,3 +215,6 @@ if __name__ == '__main__':
         pickle.dump(phrase_acc, phrase_edit_file)
     with open("out_acc_edit.bin", "wb") as out_edit_file:
         pickle.dump(out_acc, out_edit_file)
+
+    # Observed strings.
+    print([results[i][2] for i in range(num_fold)])
