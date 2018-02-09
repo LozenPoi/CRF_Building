@@ -100,34 +100,34 @@ def cv_edit_active_learn(args):
     string_observe = []
     for num_training in range(max_samples_batch):
 
-        # # Calculate average distance from new sample candidates to current training set.
-        # distance = avr_edit_distance(train_string_current, train_string_new)
-        # sort_idx = np.argsort(-distance, kind='mergesort').tolist()
+        # Calculate average distance from new sample candidates to current training set.
+        distance = avr_edit_distance(train_string_current, train_string_new)
+        sort_idx = np.argsort(-distance, kind='mergesort').tolist()
 
-        # # update training strings
-        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        # for i in string_to_remove:
-        #     train_string_current.append(i)
-        #     train_string_new.remove(i)
-        # # update training set
-        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        # for i in sample_to_remove:
-        #     train_set_current.append(i)
-        #     train_set_new.remove(i)
+        # update training strings
+        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        for i in string_to_remove:
+            train_string_current.append(i)
+            train_string_new.remove(i)
+        # update training set
+        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        for i in sample_to_remove:
+            train_set_current.append(i)
+            train_set_new.remove(i)
 
-        # # To see what the model learns from 90 samples to 100 samples.
-        # if (num_training >= 88) & (num_training <= 98):
-        #     string_observe.extend(string_to_remove)
+        # To see what the model learns from 90 samples to 100 samples.
+        if (num_training >= 0) & (num_training <= 150):
+            string_observe.extend(string_to_remove)
 
-        # Calculate average distance from new sample to the test set.
-        distance = avr_edit_distance(test_string, train_string_new)
-        sort_idx = np.argsort(distance, kind='mergesort').tolist()
-
-        # Add new samples from training pool to training set.
-        for i in range(batch_size):
-            j = sort_idx[num_training*batch_size+i]
-            train_set_current.append(train_set_new[j])
-            string_observe.append(train_string_new[j])
+        # # Calculate average distance from new sample to the test set.
+        # distance = avr_edit_distance(test_string, train_string_new)
+        # sort_idx = np.argsort(distance, kind='mergesort').tolist()
+        #
+        # # Add new samples from training pool to training set.
+        # for i in range(batch_size):
+        #     j = sort_idx[num_training*batch_size+i]
+        #     train_set_current.append(train_set_new[j])
+        #     string_observe.append(train_string_new[j])
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
