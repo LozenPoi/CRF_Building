@@ -1,14 +1,14 @@
 import os
 import pickle
 import numpy as np
-import editdistance
 import sklearn_crfsuite
 import scipy.stats
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
-import random
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
+from pycrfsuite import Tagger
+import editdistance
 
 import utils
 
@@ -93,87 +93,50 @@ def cv_edit_active_learn(args):
     train_string_current = train_string[:2]
     train_string_new = train_string[2:]
 
-    # tmp_record_1 = 0
-    # tmp_record_2 = 1
-    # for i in range(len(train_string)):
-    #     if train_string[i] == 'SODA4337A_RVAV':
-    #         tmp_record_1 = i
-    #         break
-    # for i in range(len(train_string)):
-    #     if train_string[i] == 'SOD__BLD_CURTL':
-    #         tmp_record_2 = i
-    #         break
-    #
-    # train_set_current = [train_set[tmp_record_1]]
-    # train_set_current.append(train_set[tmp_record_2])
-    # train_set_new = train_set
-    # train_set_new.remove(train_set[tmp_record_1])
-    # train_set_new.remove(train_set[tmp_record_2])
-    #
-    # train_string_current = [train_string[tmp_record_1]]
-    # train_string_current.append(train_string[tmp_record_2])
-    # train_string_new = train_string
-    # train_string_new.remove(train_string[tmp_record_1])
-    # train_string_new.remove(train_string[tmp_record_2])
-
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
     y_test = [sent2labels(s) for s in test_set]
 
-    string_observe = []
-    len_test = len(test_string)
-    indicator = 0
+    # Train a CRF using the current training set.
+    X_train_current = [sent2features(s) for s in train_set_current]
+    y_train_current = [sent2labels(s) for s in train_set_current]
+    crf = sklearn_crfsuite.CRF(
+        algorithm='lbfgs',
+        c1=0.1,
+        c2=0.1,
+        max_iterations=100,
+        all_possible_transitions=True
+    )
+    crf.fit(X_train_current, y_train_current)
+
+    len_test = len(test_set)
     for num_training in range(max_samples_batch):
 
-        # # Calculate average distance from new sample candidates to current training set.
-        # distance = avr_edit_distance(train_string_current, train_string_new)
-        # sort_idx = np.argsort(-distance, kind='mergesort').tolist()
-        # # update training strings
-        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        # for i in string_to_remove:
-        #     train_string_current.append(i)
-        #     train_string_new.remove(i)
-        # # update training set
-        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        # for i in sample_to_remove:
-        #     train_set_current.append(i)
-        #     train_set_new.remove(i)
-        # # To see what the model learns from 90 samples to 100 samples.
-        # if (num_training >= 0) & (num_training <= 150):
-        #     string_observe.extend(string_to_remove)
+        # Calculate the confidence on the testing set using the current CRF.
+        prob_list = []
+        for i in range(len_test):
+            #crf.tagger_.set(X_train_new[i])
+            y_sequence = crf.tagger_.tag(X_test[i])
+            #print(crf.tagger_.probability(y_sequence))
+            prob_list.append(crf.tagger_.probability(y_sequence))
 
+        # Sort the test set based on confidence.
+        sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
-        # Calculate average distance from new sample to the test set.
-        distance = avr_edit_distance(test_string, train_string_new)
+        # Find samples from training pool that are closest to the least confident.
+        temp_set = [test_string[i] for i in sort_idx_temp[:3]]
+        distance = avr_edit_distance(temp_set, train_string_new)
         sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # Add new samples from training pool to training set.
-        for i in range(batch_size):
-            j = sort_idx[num_training*batch_size+i]
-            train_set_current.append(train_set_new[j])
-            string_observe.append(train_string_new[j])
 
-
-        # # Calculate the distance to a single sample of test set.
-        # distance = avr_edit_distance(test_string[indicator], train_string_new)
-        # sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # # update training strings
-        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        # for i in string_to_remove:
-        #     train_string_current.append(i)
-        #     train_string_new.remove(i)
-        # # update training set
-        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        # for i in sample_to_remove:
-        #     train_set_current.append(i)
-        #     train_set_new.remove(i)
-        # # To see what the model learns from 90 samples to 100 samples.
-        # if (num_training >= 0) & (num_training <= 150):
-        #     string_observe.extend(string_to_remove)
-        # if indicator < len_test-1:
-        #     indicator += 1
-        # else:
-        #     indicator = 0
-
+        # update training set
+        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        for i in sample_to_remove:
+            train_set_current.append(i)
+            train_set_new.remove(i)
+        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        for i in string_to_remove:
+            train_string_current.append(i)
+            train_string_new.remove(i)
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -219,7 +182,7 @@ def cv_edit_active_learn(args):
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
-    return phrase_acc, out_acc, string_observe
+    return phrase_acc, out_acc
 
 # This is the main function.
 if __name__ == '__main__':
@@ -234,7 +197,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 500
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
@@ -268,10 +231,10 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_edit.bin", "wb") as phrase_edit_file:
-        pickle.dump(phrase_acc, phrase_edit_file)
-    with open("out_acc_edit.bin", "wb") as out_edit_file:
-        pickle.dump(out_acc, out_edit_file)
+    with open("phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
+        pickle.dump(phrase_acc, phrase_confidence_file)
+    with open("out_acc_confidence.bin", "wb") as out_confidence_file:
+        pickle.dump(out_acc, out_confidence_file)
 
     # Observed strings.
     print([results[i][2] for i in range(num_fold)])

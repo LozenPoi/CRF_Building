@@ -91,9 +91,19 @@ def cv_edit_active_learn(args):
     y_test = [sent2labels(s) for s in test_set]
 
     # Apply clustering to the whole training pool (train_set and train_string).
-    num_cluster = 3
+    num_cluster = 5
     distance_matrix = edit_distance(train_string)
     clusters, medoids = utils.kmedoids_cluster(distance_matrix, num_cluster)
+
+    # Store clusters for later view.
+    cluster_view = []
+    for j in medoids:
+        tmp_view = []
+        for i in range(len(train_set)):
+            if clusters[i] == j:
+                tmp_view.append(train_string[i])
+        cluster_view.append(tmp_view)
+    print(cluster_view)
 
     # Sort instances in each cluster based on distance to its center.
     cluster_list = []
@@ -169,7 +179,7 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        print(phrase_count, phrase_correct, out_count, out_correct)
+        #print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
@@ -188,7 +198,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
