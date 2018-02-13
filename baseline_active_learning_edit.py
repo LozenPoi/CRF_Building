@@ -143,36 +143,36 @@ def cv_edit_active_learn(args):
         #     string_observe.extend(string_to_remove)
 
 
-        # Calculate average distance from new sample to the test set.
-        distance = avr_edit_distance(test_string, train_string_new)
-        sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # Add new samples from training pool to training set.
-        for i in range(batch_size):
-            j = sort_idx[num_training*batch_size+i]
-            train_set_current.append(train_set_new[j])
-            string_observe.append(train_string_new[j])
-
-
-        # # Calculate the distance to a single sample of test set.
-        # distance = avr_edit_distance(test_string[indicator], train_string_new)
+        # # Calculate average distance from new sample to the test set.
+        # distance = avr_edit_distance(test_string, train_string_new)
         # sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # # update training strings
-        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        # for i in string_to_remove:
-        #     train_string_current.append(i)
-        #     train_string_new.remove(i)
-        # # update training set
-        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        # for i in sample_to_remove:
-        #     train_set_current.append(i)
-        #     train_set_new.remove(i)
-        # # To see what the model learns from 90 samples to 100 samples.
-        # if (num_training >= 0) & (num_training <= 150):
-        #     string_observe.extend(string_to_remove)
-        # if indicator < len_test-1:
-        #     indicator += 1
-        # else:
-        #     indicator = 0
+        # # Add new samples from training pool to training set.
+        # for i in range(batch_size):
+        #     j = sort_idx[num_training*batch_size+i]
+        #     train_set_current.append(train_set_new[j])
+        #     string_observe.append(train_string_new[j])
+
+
+        # Calculate the distance to a single sample of test set.
+        distance = avr_edit_distance(test_string[indicator], train_string_new)
+        sort_idx = np.argsort(distance, kind='mergesort').tolist()
+        # update training strings
+        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        for i in string_to_remove:
+            train_string_current.append(i)
+            train_string_new.remove(i)
+        # update training set
+        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        for i in sample_to_remove:
+            train_set_current.append(i)
+            train_set_new.remove(i)
+        # To see what the model learns from 90 samples to 100 samples.
+        if (num_training >= 0) & (num_training <= 150):
+            string_observe.extend(string_to_remove)
+        if indicator < len_test-1:
+            indicator += 1
+        else:
+            indicator = 0
 
 
         # Obtain current training features.
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 500
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)

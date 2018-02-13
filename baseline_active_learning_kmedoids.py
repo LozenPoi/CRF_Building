@@ -91,7 +91,7 @@ def cv_edit_active_learn(args):
     y_test = [sent2labels(s) for s in test_set]
 
     # Apply clustering to the whole training pool (train_set and train_string).
-    num_cluster = 5
+    num_cluster = 4
     distance_matrix = edit_distance(train_string)
     clusters, medoids = utils.kmedoids_cluster(distance_matrix, num_cluster)
 
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)

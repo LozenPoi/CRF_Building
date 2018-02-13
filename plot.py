@@ -42,8 +42,8 @@ out_acc_av_kmedoids = np.sum(out_acc_kmedoids, axis=0)/num_fold
 
 plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_uniform, 'r',
          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_edit, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_kmedoids, 'k',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence, 'c')
+         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence, 'c',)
+         #np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_kmedoids, 'k',)
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_uniform, 'r',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_edit, 'b',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_kmedoids, 'k',
