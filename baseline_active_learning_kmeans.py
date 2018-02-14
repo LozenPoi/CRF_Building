@@ -1,27 +1,17 @@
 import os
 import pickle
 import numpy as np
-import editdistance
 import sklearn_crfsuite
+import editdistance
 import scipy.stats
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 import random
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
+from sklearn.cluster import KMeans
 
 import utils
-
-# Calculate average Edit distance from each element of new_sample_set to current_set.
-def avr_edit_distance(current_set, new_sample_set):
-    len_current = len(current_set)
-    len_new = len(new_sample_set)
-    distance = np.zeros(len_new)
-    for k in range(len_new):
-        for j in range(len_current):
-            distance[k] = distance[k] + editdistance.eval(new_sample_set[k], current_set[j])
-        distance[k] = distance[k]/len_current
-    return distance
 
 # Define feature dictionary.
 def word2features(sent, i):
@@ -67,7 +57,7 @@ def sent2labels(sent):
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
-# Active learning using edit distance with cross validation.
+# Active learning using uniform sampling with cross validation.
 def cv_edit_active_learn(args):
 
     # Read the input args.
@@ -87,93 +77,75 @@ def cv_edit_active_learn(args):
     train_string = [strings[i] for i in train_idx]
     test_string = [strings[i] for i in test_idx]
 
-    # # Define an initial actual training set from the training pool.
-    # train_set_current = train_set[:2]
-    # train_set_new = train_set[2:]
-    # train_string_current = train_string[:2]
-    # train_string_new = train_string[2:]
-
-    tmp_record_1 = 0
-    tmp_record_2 = 1
-    for i in range(len(train_string)):
-        if train_string[i] == 'SODA3R5831RVAV':
-            tmp_record_1 = i
-            break
-    for i in range(len(train_string)):
-        if train_string[i] == 'SODA4C300T_AGN':
-            tmp_record_2 = i
-            break
-
-    train_set_current = [train_set[tmp_record_1]]
-    train_set_current.append(train_set[tmp_record_2])
-    train_set_new = train_set
-    train_set_new.remove(train_set[tmp_record_1])
-    train_set_new.remove(train_set[tmp_record_2])
-
-    train_string_current = [train_string[tmp_record_1]]
-    train_string_current.append(train_string[tmp_record_2])
-    train_string_new = train_string
-    train_string_new.remove(train_string[tmp_record_1])
-    train_string_new.remove(train_string[tmp_record_2])
-
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
     y_test = [sent2labels(s) for s in test_set]
 
-    string_observe = []
-    len_test = len(test_string)
+    # Apply clustering to the test set.
+    num_cluster = 5
+    vec, dictionary = utils.string_vectorize(strings)
+    test_vec = [vec[i] for i in test_idx]
+    kmeans = KMeans(num_cluster, random_state=0).fit(test_vec)
+    clusters = kmeans.labels_
+    medoids = [test_vec.index(i) for i in kmeans.cluster_centers_]
+    test_cluster_distance = np.transpose(np.array(kmeans.transform(test_vec)))
+
+    # Store clusters for later view.
+    cluster_view = []
+    for j in medoids:
+        tmp_view = []
+        for i in range(len(test_set)):
+            if clusters[i] == j:
+                tmp_view.append(test_string[i])
+        cluster_view.append(tmp_view)
+    print(cluster_view)
+
+    # Sort instances in each cluster based on distance to its center.
+    cluster_list = []
+    for j in medoids:
+        tmp_list = []
+        for i in range(len(test_set)):
+            if clusters[i] == j:
+                tmp_list.append(i)
+        cluster_list.append(tmp_list)
+    sort_idx = []
+    for i in range(num_cluster):
+        distance_tmp = []
+        for j in cluster_list[i]:
+            distance_tmp.append(test_cluster_distance[i,j])
+        sort_tmp = np.argsort(np.array(distance_tmp), kind='mergesort').tolist()
+        sort_idx.append(sort_tmp)
+
     indicator = 0
+    round = 0
+    train_set_current = []
+    train_string_current = []
+    train_set_new = train_set
+    train_string_new = train_string
+    for i in range(num_cluster):
+        print(len(cluster_list[i]))
+    min_len_cluster = min([len(i) for i in cluster_list])
     for num_training in range(max_samples_batch):
 
-        # Calculate average distance from new sample candidates to current training set.
-        distance = avr_edit_distance(train_string_current, train_string_new)
-        sort_idx = np.argsort(-distance, kind='mergesort').tolist()
-        # update training strings
-        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        for i in string_to_remove:
-            train_string_current.append(i)
-            train_string_new.remove(i)
-        # update training set
-        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        for i in sample_to_remove:
-            train_set_current.append(i)
-            train_set_new.remove(i)
-        # To see what the model learns from 90 samples to 100 samples.
-        if (num_training >= 0) & (num_training <= 150):
-            string_observe.extend(string_to_remove)
-
-
-        # # Calculate average distance from new sample to the test set.
-        # distance = avr_edit_distance(test_string, train_string_new)
-        # sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # # Add new samples from training pool to training set.
-        # for i in range(batch_size):
-        #     j = sort_idx[num_training*batch_size+i]
-        #     train_set_current.append(train_set_new[j])
-        #     string_observe.append(train_string_new[j])
-
-
-        # # Calculate the distance to a single sample of test set.
-        # distance = avr_edit_distance(test_string[indicator], train_string_new)
-        # sort_idx = np.argsort(distance, kind='mergesort').tolist()
-        # # update training strings
-        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        # for i in string_to_remove:
-        #     train_string_current.append(i)
-        #     train_string_new.remove(i)
-        # # update training set
-        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        # for i in sample_to_remove:
-        #     train_set_current.append(i)
-        #     train_set_new.remove(i)
-        # # To see what the model learns from 90 samples to 100 samples.
-        # if (num_training >= 0) & (num_training <= 150):
-        #     string_observe.extend(string_to_remove)
-        # if indicator < len_test-1:
-        #     indicator += 1
-        # else:
-        #     indicator = 0
-
+        # Take samples from clusters.
+        for k in range(batch_size):
+            tmp_test_string = test_string[cluster_list[indicator][sort_idx[indicator][round]]]
+            distance = avr_edit_distance([tmp_test_string], train_string_new)
+            sort_idx_tmp = np.argsort(distance, kind='mergesort').tolist()
+            # Update training set and training pool.
+            string_to_add = train_string_new[sort_idx_tmp[0]]
+            sample_to_add = train_set_new[sort_idx_tmp[0]]
+            train_set_current.append(sample_to_add)
+            train_string_current.append(string_to_add)
+            train_set_new.remove(sample_to_add)
+            train_string_new.remove(string_to_add)
+            # Update the indicator.
+            indicator += 1
+            if indicator >= num_cluster:
+                indicator = 0
+                round += 1
+            if round >= min_len_cluster:
+                round = 0
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -215,11 +187,11 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        print(phrase_count, phrase_correct, out_count, out_correct)
+        #print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
-    return phrase_acc, out_acc, string_observe
+    return phrase_acc, out_acc
 
 # This is the main function.
 if __name__ == '__main__':
@@ -234,7 +206,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
@@ -250,16 +222,14 @@ if __name__ == '__main__':
             'batch_size': batch_size,
         }
         args.append(tmp_args)
+
     results = pool.map(cv_edit_active_learn, args)
-    # print(len(results))
-    # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
-    # print(len(phrase_acc))
-    # print(len(phrase_acc[0]))
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
+
     plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
              np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
     plt.xlabel('number of training samples')
@@ -268,10 +238,7 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_edit.bin", "wb") as phrase_edit_file:
-        pickle.dump(phrase_acc, phrase_edit_file)
-    with open("out_acc_edit.bin", "wb") as out_edit_file:
-        pickle.dump(out_acc, out_edit_file)
-
-    # Observed strings.
-    print([results[i][2] for i in range(num_fold)])
+    with open("phrase_acc_kmedoids.bin", "wb") as phrase_kmedoids_file:
+        pickle.dump(phrase_acc, phrase_kmedoids_file)
+    with open("out_acc_kmedoids.bin", "wb") as out_kmedoids_file:
+        pickle.dump(out_acc, out_kmedoids_file)

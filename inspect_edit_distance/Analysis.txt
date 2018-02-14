@@ -1,3 +1,0 @@
-The query straegy by edit distance is not a good method. If we cosider it as a method seraching through the trainging pool, then the method can easily fall into a local minima.
-
-1. If we 
