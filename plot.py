@@ -23,6 +23,11 @@ with open("phrase_acc_kmedoids.bin", "rb") as phrase_kmedoids:
 with open("out_acc_kmedoids.bin", "rb") as out_kmedoids:
     out_acc_kmedoids = pickle.load(out_kmedoids)
 
+with open("phrase_acc_confidence_plus.bin", "rb") as phrase_confidence:
+    phrase_acc_confidence_plus = pickle.load(phrase_confidence)
+with open("out_acc_confidence_plus.bin", "rb") as out_confidence:
+    out_acc_confidence_plus = pickle.load(out_confidence)
+
 # Plot figures.
 num_fold = 10
 max_samples_batch = 200
@@ -40,17 +45,21 @@ out_acc_av_edit = np.sum(out_acc_edit, axis=0)/num_fold
 phrase_acc_av_kmedoids = np.sum(phrase_acc_kmedoids, axis=0)/num_fold
 out_acc_av_kmedoids = np.sum(out_acc_kmedoids, axis=0)/num_fold
 
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_uniform, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_edit, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence, 'c',
-         np.arange(1, max_samples_batch * batch_size + 1, batch_size), phrase_acc_av_kmedoids, 'k',)
+phrase_acc_av_confidence_plus = np.sum(phrase_acc_confidence_plus, axis=0)/num_fold
+out_acc_av_confidence_plus = np.sum(out_acc_confidence_plus, axis=0)/num_fold
+
+plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence, 'c',
+         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence_plus, 'r')
+         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_uniform, 'r',
+         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_edit, 'b',
+         # np.arange(1, max_samples_batch * batch_size + 1, batch_size), phrase_acc_av_kmedoids, 'k',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_uniform, 'r',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_edit, 'b',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_kmedoids, 'k',
          # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_confidence, 'c')
 plt.xlabel('number of training samples')
 plt.ylabel('testing accuracy')
-plt.legend(['uniform', 'edit', 'confidence', 'kmedoids'])
+plt.legend(['confidence', 'confidence_plus'])
 plt.show()
 
 # Plot individual figures to see variance among different folds.

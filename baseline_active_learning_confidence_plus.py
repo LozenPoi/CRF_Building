@@ -12,13 +12,31 @@ import editdistance
 import utils
 
 # Calculate average Edit distance from each element of new_sample_set to current_set.
-def avr_edit_distance(current_set, new_sample_set):
+def avr_edit_distance(current_set, new_sample_set, block_digits_flag = False):
     len_current = len(current_set)
     len_new = len(new_sample_set)
+    if block_digits_flag:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
+        for i in range(len_current):
+            tmp_list = list(current_set_tmp[i])
+            for j in range(len(current_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            current_set_tmp[i] = "".join(tmp_list)
+        for i in range(len_new):
+            tmp_list = list(new_sample_set_tmp[i])
+            for j in range(len(new_sample_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            new_sample_set_tmp[i] = "".join(tmp_list)
+    else:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
     distance = np.zeros(len_new)
     for k in range(len_new):
         for j in range(len_current):
-            distance[k] = distance[k] + editdistance.eval(new_sample_set[k], current_set[j])
+            distance[k] = distance[k] + editdistance.eval(new_sample_set_tmp[k], current_set_tmp[j])
         distance[k] = distance[k]/len_current
     return distance
 
@@ -122,24 +140,45 @@ def cv_edit_active_learn(args):
     for num_training in range(max_samples_batch):
 
         # Calculate the confidence on the testing set using the current CRF.
-        prob_list = []
+        test_prob_list = []
         for i in range(len_test):
             #crf.tagger_.set(X_train_new[i])
             y_sequence = crf.tagger_.tag(X_test[i])
             #print(crf.tagger_.probability(y_sequence))
-            prob_list.append(crf.tagger_.probability(y_sequence))
+            test_prob_list.append(crf.tagger_.probability(y_sequence))
 
         # Calculate the representative of each test sample by average edit distance.
+        dist_list = []
         for i in range(len_test):
+            current_test_sample = test_string[i]
+            rest_test_sample = test_string[:]
+            rest_test_sample.remove(current_test_sample)
+            dist_list.extend(avr_edit_distance(rest_test_sample, [current_test_sample],
+                                               block_digits_flag=True).tolist())
 
+        # Construct a new indicator (confidence and representative) to pick out a sample from the test set.
+        test_indicator = [i[0]*i[1] for i in zip(test_prob_list, dist_list)]
 
-        # Sort the test set based on confidence.
-        sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
+        # Sort the test set based on the new indicator.
+        sort_idx_temp = np.argsort(np.array(test_indicator), kind='mergesort').tolist()
 
-        # Find samples from training pool that are closest to the least confident.
-        temp_set = [test_string[i] for i in sort_idx_temp[:3]]
-        distance = avr_edit_distance(temp_set, train_string_new)
-        sort_idx = np.argsort(distance, kind='mergesort').tolist()
+        # Calculate the distance from unlabeled samples to the selected test sample(s).
+        temp_set = [test_string[i] for i in sort_idx_temp[:1]]
+        distance = avr_edit_distance(temp_set, train_string_new, block_digits_flag=True).tolist()
+
+        # Calculate the confidence on the unlabeled samples.
+        train_prob_list = []
+        len_unlabeled = len(train_set_new)
+        X_train_new = [sent2features(s) for s in train_set_new]
+        for i in range(len_unlabeled):
+            y_sequence = crf.tagger_.tag(X_train_new[i])
+            train_prob_list.append(crf.tagger_.probability(y_sequence))
+
+        # Construct a new indicator (confidence and distance) to pick out unlabeled samples.
+        train_indicator = [i[0]*i[1] for i in zip(train_prob_list, distance)]
+
+        # Sort the unlabeled samples based on the new indicator.
+        sort_idx = np.argsort(train_indicator, kind='mergesort').tolist()
 
         # update training set
         sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
@@ -250,4 +289,4 @@ if __name__ == '__main__':
         pickle.dump(out_acc, out_confidence_file)
 
     # Observed strings.
-    print([results[i][2] for i in range(num_fold)])
+    # print([results[i][2] for i in range(num_fold)])
