@@ -7,7 +7,6 @@ from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
-from pycrfsuite import Tagger
 import editdistance
 
 import utils
@@ -129,6 +128,10 @@ def cv_edit_active_learn(args):
             y_sequence = crf.tagger_.tag(X_test[i])
             #print(crf.tagger_.probability(y_sequence))
             prob_list.append(crf.tagger_.probability(y_sequence))
+
+        # Calculate the representative of each test sample by average edit distance.
+        for i in range(len_test):
+
 
         # Sort the test set based on confidence.
         sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
