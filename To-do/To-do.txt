@@ -1,0 +1,6 @@
+Feb. 21st, 2018
+
+1. Analyze the test set to get frequencies of substrings (by kmers). Try to cluster the patterns, or make other use of such information.
+2. Obtain confidence at the pattern/substring-level. Pick sample sequences containing such patterns (making the most mistakes) and partially label them (i.e. only label the patterns). Pseudo-label the unlabeled part and train the CRF model.
+3. It is important to know how to deal with the new introduced errors (because we have pseudo labels).
+4. Formalize query strategies, not only intuitives.
