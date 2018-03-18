@@ -2,15 +2,43 @@ import os
 import pickle
 import numpy as np
 import sklearn_crfsuite
-import editdistance
 import scipy.stats
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
-import random
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
+import editdistance
 
-import utils
+import utils.utils as utils
+
+# Calculate average Edit distance from each element of new_sample_set to current_set.
+def avr_edit_distance(current_set, new_sample_set, block_digits_flag = False):
+    len_current = len(current_set)
+    len_new = len(new_sample_set)
+    if block_digits_flag:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
+        for i in range(len_current):
+            tmp_list = list(current_set_tmp[i])
+            for j in range(len(current_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            current_set_tmp[i] = "".join(tmp_list)
+        for i in range(len_new):
+            tmp_list = list(new_sample_set_tmp[i])
+            for j in range(len(new_sample_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            new_sample_set_tmp[i] = "".join(tmp_list)
+    else:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
+    distance = np.zeros(len_new)
+    for k in range(len_new):
+        for j in range(len_current):
+            distance[k] = distance[k] + editdistance.eval(new_sample_set_tmp[k], current_set_tmp[j])
+        distance[k] = distance[k]/len_current
+    return distance
 
 # Calculate Edit distance matrix from each element to other elements in a set.
 def edit_distance(string_set):
@@ -66,7 +94,7 @@ def sent2labels(sent):
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
-# Active learning using uniform sampling with cross validation.
+# Active learning using edit distance with cross validation.
 def cv_edit_active_learn(args):
 
     # Read the input args.
@@ -84,60 +112,83 @@ def cv_edit_active_learn(args):
     train_set = [dataset[i] for i in train_idx]
     test_set = [dataset[i] for i in test_idx]
     train_string = [strings[i] for i in train_idx]
-    #test_string = [strings[i] for i in test_idx]
+    test_string = [strings[i] for i in test_idx]
+
+    # Define an initial actual training set from the training pool.
+    train_set_current = train_set[:2]
+    train_set_new = train_set[2:]
+    train_string_current = train_string[:2]
+    train_string_new = train_string[2:]
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
     y_test = [sent2labels(s) for s in test_set]
 
-    # Apply clustering to the whole training pool (train_set and train_string).
-    num_cluster = 4
-    distance_matrix = edit_distance(train_string)
-    clusters, medoids = utils.kmedoids_cluster(distance_matrix, num_cluster)
+    # Train a CRF using the current training set.
+    X_train_current = [sent2features(s) for s in train_set_current]
+    y_train_current = [sent2labels(s) for s in train_set_current]
+    crf = sklearn_crfsuite.CRF(
+        algorithm='lbfgs',
+        c1=0.1,
+        c2=0.1,
+        max_iterations=100,
+        all_possible_transitions=True
+    )
+    crf.fit(X_train_current, y_train_current)
 
-    # Store clusters for later view.
-    cluster_view = []
-    for j in medoids:
-        tmp_view = []
-        for i in range(len(train_set)):
-            if clusters[i] == j:
-                tmp_view.append(train_string[i])
-        cluster_view.append(tmp_view)
-    print(cluster_view)
-
-    # Sort instances in each cluster based on distance to its center.
-    cluster_list = []
-    for j in medoids:
-        tmp_list = []
-        for i in range(len(train_set)):
-            if clusters[i] == j:
-                tmp_list.append(i)
-        cluster_list.append(tmp_list)
-    sort_idx = []
-    for i in range(num_cluster):
-        distance_tmp = []
-        for j in cluster_list[i]:
-            distance_tmp.append(distance_matrix[medoids[i],j])
-        sort_tmp = np.argsort(np.array(distance_tmp), kind='mergesort').tolist()
-        sort_idx.append(sort_tmp)
-
-    # Define initial training set.
-    train_set_current = [train_set[cluster_list[0][sort_idx[0][0]]],
-                         train_set[cluster_list[1][sort_idx[1][0]]]]
-
-    indicator = 2
-    round = 0
-    # for i in range(num_cluster):
-    #     print(len(cluster_list[i]))
+    len_test = len(test_set)
     for num_training in range(max_samples_batch):
 
-        # Take samples from clusters.
-        for k in range(batch_size):
-            train_set_current.append(train_set[cluster_list[indicator][sort_idx[indicator][round]]])
-            indicator += 1
-            if indicator >= num_cluster:
-                indicator = 0
-                round += 1
+        # Calculate the confidence on the testing set using the current CRF.
+        test_prob_list = []
+        for i in range(len_test):
+            #crf.tagger_.set(X_train_new[i])
+            y_sequence = crf.tagger_.tag(X_test[i])
+            #print(crf.tagger_.probability(y_sequence))
+            test_prob_list.append(crf.tagger_.probability(y_sequence))
+
+        # Calculate the representative of each test sample by average edit distance.
+        dist_list = []
+        for i in range(len_test):
+            current_test_sample = test_string[i]
+            rest_test_sample = test_string[:]
+            rest_test_sample.remove(current_test_sample)
+            dist_list.extend(avr_edit_distance(rest_test_sample, [current_test_sample],
+                                               block_digits_flag=True).tolist())
+
+        # Construct a new indicator (confidence and representative) to pick out a sample from the test set.
+        test_indicator = [i[0]*i[1] for i in zip(test_prob_list, dist_list)]
+
+        # Sort the test set based on the new indicator.
+        sort_idx_temp = np.argsort(np.array(test_indicator), kind='mergesort').tolist()
+
+        # Calculate the distance from unlabeled samples to the selected test sample(s).
+        temp_set = [test_string[i] for i in sort_idx_temp[:1]]
+        distance = avr_edit_distance(temp_set, train_string_new, block_digits_flag=True).tolist()
+
+        # Calculate the confidence on the unlabeled samples.
+        train_prob_list = []
+        len_unlabeled = len(train_set_new)
+        X_train_new = [sent2features(s) for s in train_set_new]
+        for i in range(len_unlabeled):
+            y_sequence = crf.tagger_.tag(X_train_new[i])
+            train_prob_list.append(crf.tagger_.probability(y_sequence))
+
+        # Construct a new indicator (confidence and distance) to pick out unlabeled samples.
+        train_indicator = [i[0]*i[1] for i in zip(train_prob_list, distance)]
+
+        # Sort the unlabeled samples based on the new indicator.
+        sort_idx = np.argsort(train_indicator, kind='mergesort').tolist()
+
+        # update training set
+        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        for i in sample_to_remove:
+            train_set_current.append(i)
+            train_set_new.remove(i)
+        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        for i in string_to_remove:
+            train_string_current.append(i)
+            train_string_new.remove(i)
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -179,7 +230,7 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        #print(phrase_count, phrase_correct, out_count, out_correct)
+        print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
@@ -214,14 +265,16 @@ if __name__ == '__main__':
             'batch_size': batch_size,
         }
         args.append(tmp_args)
-
     results = pool.map(cv_edit_active_learn, args)
+    # print(len(results))
+    # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
+    # print(len(phrase_acc))
+    # print(len(phrase_acc[0]))
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-
     plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
              np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
     plt.xlabel('number of training samples')
@@ -230,7 +283,10 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_kmedoids.bin", "wb") as phrase_kmedoids_file:
-        pickle.dump(phrase_acc, phrase_kmedoids_file)
-    with open("out_acc_kmedoids.bin", "wb") as out_kmedoids_file:
-        pickle.dump(out_acc, out_kmedoids_file)
+    with open("phrase_acc_confidence_plus.bin", "wb") as phrase_confidence_file:
+        pickle.dump(phrase_acc, phrase_confidence_file)
+    with open("out_acc_confidence_plus.bin", "wb") as out_confidence_file:
+        pickle.dump(out_acc, out_confidence_file)
+
+    # Observed strings.
+    # print([results[i][2] for i in range(num_fold)])
