@@ -6,6 +6,7 @@ import numpy as np
 import random
 from sklearn.feature_extraction.text import CountVectorizer as CV
 import re
+import editdistance
 
 # Calculate phrase-level accuracy and out-of-phrase accuracy.
 def phrase_acc(y_test, y_pred):
@@ -76,14 +77,12 @@ def assign_points_to_clusters(medoids, distances):
     clusters = medoids[np.argmin(distances_to_medoids, axis=1)]
     clusters[medoids] = medoids
     return clusters
-
 def compute_new_medoid(cluster, distances):
     mask = np.ones(distances.shape)
-    mask[np.ix_(cluster,cluster)] = 0.
+    mask[np.ix_(cluster, cluster)] = 0.
     cluster_distances = np.ma.masked_array(data=distances, mask=mask, fill_value=10e9)
     costs = cluster_distances.sum(axis=1)
     return costs.argmin(axis=0, fill_value=10e9)
-
 def kmedoids_cluster(distances, k=3):
     m = distances.shape[0]  # number of points
 
@@ -109,6 +108,7 @@ def kmedoids_cluster(distances, k=3):
 
     return clusters, curr_medoids
 
+
 # Vectorize a set of string by n-grams.
 def string_vectorize(input_list):
     vc = CV(analyzer='char_wb', ngram_range=(3, 4), min_df=1, token_pattern='[a-z]{2,}')
@@ -122,3 +122,48 @@ def string_vectorize(input_list):
     # print(vec)
     dictionary = vc.get_feature_names()
     return vec, dictionary
+
+
+# Calculate average edit distance from each element of new_sample_set to current_set.
+def avr_edit_distance(current_set, new_sample_set, block_digits_flag=False):
+    # If block_digits_flag is True, all digits in strings will be considered the same (by setting them to 0) such that
+    # the edit distance will not take the difference of digits (i.e. ID numbers in this project) into account.
+    #
+    # The output is a len_new-dimensional vector.
+    len_current = len(current_set)
+    len_new = len(new_sample_set)
+    if block_digits_flag:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
+        for i in range(len_current):
+            tmp_list = list(current_set_tmp[i])
+            for j in range(len(current_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            current_set_tmp[i] = "".join(tmp_list)
+        for i in range(len_new):
+            tmp_list = list(new_sample_set_tmp[i])
+            for j in range(len(new_sample_set_tmp[i])):
+                if tmp_list[j].isdigit():
+                    tmp_list[j] = '0'
+            new_sample_set_tmp[i] = "".join(tmp_list)
+    else:
+        current_set_tmp = current_set[:]
+        new_sample_set_tmp = new_sample_set[:]
+    distance = np.zeros(len_new)
+    for k in range(len_new):
+        for j in range(len_current):
+            distance[k] = distance[k] + editdistance.eval(new_sample_set_tmp[k], current_set_tmp[j])
+        distance[k] = distance[k]/len_current
+    return distance
+
+
+# Calculate Edit distance matrix from each element in a set to all other elements in the same set.
+def edit_distance(string_set):
+    len_set = len(string_set)
+    distance = np.zeros([len_set, len_set])
+    for k in range(len_set):
+        for j in range(k+1, len_set):
+            distance[k, j] = editdistance.eval(string_set[k], string_set[j])
+            distance[j, k] = distance[k, j]
+    return distance
