@@ -99,37 +99,37 @@ def cv_edit_active_learn(args):
     )
     crf.fit(X_train_current, y_train_current)
 
-    len_test = len(test_set)
+    # len_test = len(test_set)
     len_ptname = len(test_set[0])
     for num_training in range(max_samples_batch):
 
-        test_prob_list = []
-        pattern_list = []
-        for i in range(len_test):
-            # Calculate the marginal probabilities on the testing set using the current CRF.
-            y_sequence = crf.tagger_.tag(X_test[i])
-            margin_list = []
-            for j in range(len_ptname):
-                margin_list.append(crf.tagger_.marginal(y_sequence[j], j))
-            test_prob_list.append(margin_list)
-            # Calculate gradient on the marginal probabilities, and find the sharp changes and corresponding patterns.
-            grad = np.convolve(margin_list, [-1, 1], 'valid')
-            sharp_idx_down, = np.where(grad > 0.3)
-            sharp_idx_up, = np.where(grad < -0.3)
-            sharp_idx_down = (sharp_idx_down + 1).tolist()
-            sharp_idx_up = sharp_idx_up.tolist()
-            for j in range(len(sharp_idx_down)):
-                if(j<len(sharp_idx_up)):
-                    pattern_list.append(test_string[i][sharp_idx_down[j]:sharp_idx_up[j]+1])
-                else:
-                    pattern_list.append(test_string[i][sharp_idx_down[j]:])
-                    break
-
-        # Count the most frequent patterns.
-        pattern_map = Counter(pattern_list)
-        query_pattern = list(pattern_map.keys())[-1]
-        #query_freq = list(pattern_map.values())[-1]
-        #print(query_pattern, query_freq)
+        # test_prob_list = []
+        # pattern_list = []
+        # for i in range(len_test):
+        #     # Calculate the marginal probabilities on the testing set using the current CRF.
+        #     y_sequence = crf.tagger_.tag(X_test[i])
+        #     margin_list = []
+        #     for j in range(len_ptname):
+        #         margin_list.append(crf.tagger_.marginal(y_sequence[j], j))
+        #     test_prob_list.append(margin_list)
+        #     # Calculate gradient on the marginal probabilities, and find the sharp changes and corresponding patterns.
+        #     grad = np.convolve(margin_list, [-1, 1], 'valid')
+        #     sharp_idx_down, = np.where(grad > 0.3)
+        #     sharp_idx_up, = np.where(grad < -0.3)
+        #     sharp_idx_down = (sharp_idx_down + 1).tolist()
+        #     sharp_idx_up = sharp_idx_up.tolist()
+        #     for j in range(len(sharp_idx_down)):
+        #         if(j<len(sharp_idx_up)):
+        #             pattern_list.append(test_string[i][sharp_idx_down[j]:sharp_idx_up[j]+1])
+        #         else:
+        #             pattern_list.append(test_string[i][sharp_idx_down[j]:])
+        #             break
+        #
+        # # Count the most frequent patterns.
+        # pattern_map = Counter(pattern_list)
+        # query_pattern = list(pattern_map.keys())[-1]
+        # #query_freq = list(pattern_map.values())[-1]
+        # #print(query_pattern, query_freq)
 
         # test_prob_list = []
         # pattern_list = []
@@ -140,25 +140,39 @@ def cv_edit_active_learn(args):
         #     test_prob_list.append(margin_list)
         #     print(margin_list)
 
-        # Find a sample in the unlabeled set, which contains the query pattern.
-        distance_list = []
-        for i in range(len(train_string_new)):
-            distance_list.append(editdistance.eval(train_string_new[i], query_pattern))
+        # Want to look at the confidence and marginal probabilities on unlabeled data.
+        marginal_list = []
+        confidence_list =[]
+        for i in train_set_new:
+            y_sequence = crf.tagger_.tag(sent2features(i))
+            marginal_tmp = [crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence))]
+            marginal_list.append(marginal_tmp)
+            confidence_list = crf.tagger_.probability(y_sequence)
 
-        # Sort the unlabeled samples based on the new indicator.
-        sort_idx = np.argsort(distance_list, kind='mergesort').tolist()
+        # Find the sample with minimum confidence and only label the part with low marginal probabilities.
+        sort_idx = np.argsort(confidence_list, kind='mergesort').tolist()
+        marginal_tmp = marginal_list[ sort_idx[0] ]
+        y_sequence = crf.tagger_.tag(sent2features(train_set_new[ sort_idx[0] ]))
+        y_sequence_ob = crf.tagger_.tag(sent2features(train_set_new[5]))
+        print(train_string_new[5])
+        print('prediction', y_sequence_ob)
+        print('ground truth', sent2labels(train_set_new[5]))
+        print([crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence_ob))])
+        for i in range(len_ptname):
+            if(marginal_tmp[i] < 0.1):
+                y_sequence[i] = sent2labels(train_set_new[ sort_idx[0] ])[i]
 
         # Update training set.
-        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        sample_to_remove = [train_set_new[ sort_idx[0] ]]
         for i in sample_to_remove:
             train_set_current.append(i)
             train_set_new.remove(i)
-            pseudo_label = crf.tagger_.tag(sent2features(i))
-            true_label = sent2labels(i)
             X_train_current.append(sent2features(i))
             #print(X_train_current)
-            y_train_current.append(true_label)
-        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+            y_train_current.append(y_sequence)
+        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        string_to_remove = [train_string_new[ sort_idx[0] ]]
         for i in string_to_remove:
             train_string_current.append(i)
             train_string_new.remove(i)
