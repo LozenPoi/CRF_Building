@@ -70,6 +70,8 @@ def cv_edit_active_learn(args):
     # Initialize arrays to store results.
     phrase_acc = np.zeros([max_samples_batch])
     out_acc = np.zeros([max_samples_batch])
+    label_count = np.zeros([max_samples_batch])
+    count = 0
 
     # Define training set and testing set and corresponding original strings.
     train_set = [dataset[i] for i in train_idx]
@@ -140,39 +142,48 @@ def cv_edit_active_learn(args):
         #     test_prob_list.append(margin_list)
         #     print(margin_list)
 
-        # Want to look at the confidence and marginal probabilities on unlabeled data.
-        marginal_list = []
-        confidence_list =[]
+        # Want to look at the confidence (entropy for each character of each string) on unlabeled data.
+        label_list = crf.tagger_.labels()
+        entropy_list = []
         for i in train_set_new:
-            y_sequence = crf.tagger_.tag(sent2features(i))
-            marginal_tmp = [crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence))]
-            marginal_list.append(marginal_tmp)
-            confidence_list = crf.tagger_.probability(y_sequence)
+            crf.tagger_.set(sent2features(i))
+            entropy_seq = []
+            for j in range(len_ptname):
+                marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
+                entropy_seq.append(scipy.stats.entropy(marginal_prob))
+            entropy_list.append(entropy_seq)
 
-        # Find the sample with minimum confidence and only label the part with low marginal probabilities.
-        sort_idx = np.argsort(confidence_list, kind='mergesort').tolist()
-        marginal_tmp = marginal_list[ sort_idx[0] ]
-        y_sequence = crf.tagger_.tag(sent2features(train_set_new[ sort_idx[0] ]))
-        y_sequence_ob = crf.tagger_.tag(sent2features(train_set_new[5]))
-        print(train_string_new[5])
-        print('prediction', y_sequence_ob)
-        print('ground truth', sent2labels(train_set_new[5]))
-        print([crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence_ob))])
+        # Select the string with the largest entropy difference.
+        difference_list = []
+        for i in entropy_list:
+            difference_list.append(max(i) - min(i))
+        sort_idx = np.argmax(difference_list)
+
+        # Find the sample with minimum confidence and only label the part with low confidence.
+        entropy_tmp = entropy_list[sort_idx]
+        y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))
+        # y_sequence_ob = crf.tagger_.tag(sent2features(train_set_new[5]))
+        # print(train_string_new[5])
+        # print('prediction', y_sequence_ob)
+        # print('ground truth', sent2labels(train_set_new[5]))
+        # print([crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence_ob))])
         for i in range(len_ptname):
-            if(marginal_tmp[i] < 0.1):
-                y_sequence[i] = sent2labels(train_set_new[ sort_idx[0] ])[i]
+            if(entropy_tmp[i] > 0.8):
+                count += 1
+                y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+        label_count[num_training] = count
 
         # Update training set.
         # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        sample_to_remove = [train_set_new[ sort_idx[0] ]]
+        sample_to_remove = [train_set_new[sort_idx]]
         for i in sample_to_remove:
             train_set_current.append(i)
             train_set_new.remove(i)
             X_train_current.append(sent2features(i))
-            #print(X_train_current)
+            # print(X_train_current)
             y_train_current.append(y_sequence)
         # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        string_to_remove = [train_string_new[ sort_idx[0] ]]
+        string_to_remove = [train_string_new[sort_idx]]
         for i in string_to_remove:
             train_string_current.append(i)
             train_string_new.remove(i)
@@ -213,11 +224,11 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        #print(phrase_count, phrase_correct, out_count, out_correct)
+        # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
-    return phrase_acc, out_acc
+    return phrase_acc, out_acc, label_count
 
 # This is the main function.
 if __name__ == '__main__':
@@ -228,14 +239,14 @@ if __name__ == '__main__':
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
-    num_fold = 10
+    num_fold = 8
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
     max_samples_batch = 100
     batch_size = 1
 
-    pool = multiprocessing.Pool(os.cpu_count()-1)
+    pool = multiprocessing.Pool(os.cpu_count())
     args = []
     # print(os.cpu_count()) # It counts for logical processors instead of physical cores.
     for train_idx, test_idx in kf.split(dataset):
@@ -255,14 +266,26 @@ if __name__ == '__main__':
     out_acc = [results[i][1] for i in range(num_fold)]
     # print(len(phrase_acc))
     # print(len(phrase_acc[0]))
+    label_count = [results[i][2] for i in range(num_fold)]
+
+
+    with open("phrase_acc_confidence.bin", "rb") as phrase_confidence:
+        phrase_acc_confidence = pickle.load(phrase_confidence)
+    with open("out_acc_confidence.bin", "rb") as out_confidence:
+        out_acc_confidence = pickle.load(out_confidence)
+    phrase_acc_av_confidence = np.sum(phrase_acc_confidence, axis=0) / 10.0
+    out_acc_av_confidence = np.sum(out_acc_confidence, axis=0) / 10.0
+
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
-             np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
-    plt.xlabel('number of training samples')
+    label_count_av = np.sum(label_count, axis=0)/num_fold
+    plt.plot(label_count_av, phrase_acc_av, 'r',
+             np.arange(14, 14*60+14, 14), phrase_acc_av_confidence[:60], 'b')
+             #label_count_av, out_acc_av, 'b')
+    plt.xlabel('number of manual labels')
     plt.ylabel('testing accuracy')
-    plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
+    plt.legend(['partial label', 'full label'])
     plt.show()
 
     # Save data for future plotting.
