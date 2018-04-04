@@ -62,7 +62,7 @@ def cv_edit_active_learn(args):
     train_idx = args['train_idx']
     test_idx = args['test_idx']
     dataset = args['dataset']
-    # strings = args['strings']
+    strings = args['strings']
     max_samples_batch = args['max_samples_batch']
     batch_size = args['batch_size']
 
@@ -72,14 +72,14 @@ def cv_edit_active_learn(args):
     # Define training set and testing set.
     train_set = [dataset[i] for i in train_idx]
     test_set = [dataset[i] for i in test_idx]
-    # train_string = [strings[i] for i in train_idx]
-    # test_string = [strings[i] for i in test_idx]
+    train_string = [strings[i] for i in train_idx]
+    test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set from the training pool.
     train_set_current = train_set[:2]
     train_set_new = train_set[2:]
-    # train_string_current = train_string[:2]
-    # train_string_new = train_string[2:]
+    train_string_current = train_string[:2]
+    train_string_new = train_string[2:]
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -121,29 +121,6 @@ def cv_edit_active_learn(args):
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
         y_train_current = [sent2labels(s) for s in train_set_current]
-
-        # # define fixed parameters and parameters to search
-        # crf = sklearn_crfsuite.CRF(
-        #     algorithm='lbfgs',
-        #     max_iterations=100,
-        #     all_possible_transitions=True
-        # )
-        # params_space = {
-        #     'c1': scipy.stats.expon(scale=0.5),
-        #     'c2': scipy.stats.expon(scale=0.05),
-        # }
-        #
-        # # search
-        # rs = RandomizedSearchCV(crf, params_space,
-        #                         cv=2,
-        #                         verbose=1,
-        #                         n_jobs=-1,
-        #                         n_iter=5)
-        # rs.fit(X_train_current, y_train_current)
-        #
-        # print('best params:', rs.best_params_)
-        # print('best CV score:', rs.best_score_)
-        # crf = rs.best_estimator_
 
         # Train the CRF.
         crf = sklearn_crfsuite.CRF(

@@ -9,6 +9,7 @@ from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 from collections import Counter
 import editdistance
+from sklearn.metrics.pairwise import cosine_similarity
 
 import utils.utils as utils
 
@@ -142,7 +143,8 @@ def cv_edit_active_learn(args):
         #     test_prob_list.append(margin_list)
         #     print(margin_list)
 
-        # Want to look at the confidence (entropy for each character of each string) on unlabeled data.
+        # Want to look at the model confidence using entropy.
+        # Calculate entropy for each character of each string in the unlabeled set.
         label_list = crf.tagger_.labels()
         entropy_list = []
         for i in train_set_new:
@@ -153,24 +155,32 @@ def cv_edit_active_learn(args):
                 entropy_seq.append(scipy.stats.entropy(marginal_prob))
             entropy_list.append(entropy_seq)
 
-        # Select the string with the largest entropy difference.
-        difference_list = []
-        for i in entropy_list:
-            difference_list.append(max(i) - min(i))
-        sort_idx = np.argmax(difference_list)
+        # Select the string with the largest candidate score.
+        candidate_score = []
+        total_string = test_string[:]
+        total_string.extend(train_string_new)
+        vec, _ = utils.string_vectorize(total_string)
+        test_vec = vec[:len(test_string)]
+        train_new_vec = vec[len(test_string):]
+        sim_matrix = cosine_similarity(train_new_vec, test_vec)
+        candidate_sim = np.average(sim_matrix, axis=1)
+        for i in range(len(entropy_list)):
+            candidate_score.append(sum(entropy_list[i]))
+            # candidate_score.append(candidate_sim[i]*sum(entropy_list[i]))
+        sort_idx = np.argmax(candidate_score)
 
-        # Find the sample with minimum confidence and only label the part with low confidence.
+        # Find the sample with the maximal score and only label the part with low confidence/high entropy.
+        y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
         entropy_tmp = entropy_list[sort_idx]
-        y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))
-        # y_sequence_ob = crf.tagger_.tag(sent2features(train_set_new[5]))
-        # print(train_string_new[5])
-        # print('prediction', y_sequence_ob)
-        # print('ground truth', sent2labels(train_set_new[5]))
-        # print([crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence_ob))])
-        for i in range(len_ptname):
-            if(entropy_tmp[i] > 0.8):
-                count += 1
-                y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+        mean_entropy_tmp = np.mean(entropy_tmp)
+        std_entropy_tmp = np.std(entropy_tmp)
+        z_score = [(entropy_tmp[i]-mean_entropy_tmp)/std_entropy_tmp for i in range(len_ptname)]
+        label_idx = np.argsort(np.array(z_score), kind='mergesort').tolist()
+        y_sequence_truth = sent2labels(train_set_new[sort_idx])
+        print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
+        for i in range(6):
+            count += 1
+            y_sequence[label_idx[-i]] = y_sequence_truth[label_idx[-i]]
         label_count[num_training] = count
 
         # Update training set.
@@ -180,8 +190,8 @@ def cv_edit_active_learn(args):
             train_set_current.append(i)
             train_set_new.remove(i)
             X_train_current.append(sent2features(i))
-            # print(X_train_current)
             y_train_current.append(y_sequence)
+            # print(X_train_current)
         # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
         string_to_remove = [train_string_new[sort_idx]]
         for i in string_to_remove:
@@ -268,7 +278,6 @@ if __name__ == '__main__':
     # print(len(phrase_acc[0]))
     label_count = [results[i][2] for i in range(num_fold)]
 
-
     with open("phrase_acc_confidence.bin", "rb") as phrase_confidence:
         phrase_acc_confidence = pickle.load(phrase_confidence)
     with open("out_acc_confidence.bin", "rb") as out_confidence:
@@ -283,8 +292,6 @@ if __name__ == '__main__':
     phrase_acc_min = np.min(phrase_acc, axis=0)
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
     label_count_av = np.sum(label_count, axis=0)/num_fold
-    label_count_max = np.max(label_count, axis=0)
-    label_count_min = np.min(label_count, axis=0)
     plt.plot(label_count_av, phrase_acc_av, 'r',
              np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence[:100], 'b',
              label_count_av, phrase_acc_max, '--r',
@@ -294,13 +301,6 @@ if __name__ == '__main__':
     plt.xlabel('number of manual labels')
     plt.ylabel('testing accuracy')
     plt.legend(['partial label', 'full label'])
-    plt.show()
-
-    plt.plot(np.arange(1, len(label_count_av)+1, 1), label_count_av,
-             np.arange(1, len(label_count_av) + 1, 1), label_count_max,
-             np.arange(1, len(label_count_av) + 1, 1), label_count_min)
-    plt.xlabel('number of iterations')
-    plt.ylabel('average manual labels')
     plt.show()
 
     # Save data for future plotting.

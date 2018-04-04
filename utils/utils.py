@@ -7,6 +7,7 @@ import random
 from sklearn.feature_extraction.text import CountVectorizer as CV
 import re
 import editdistance
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Calculate phrase-level accuracy and out-of-phrase accuracy.
 def phrase_acc(y_test, y_pred):
@@ -167,3 +168,5 @@ def edit_distance(string_set):
             distance[k, j] = editdistance.eval(string_set[k], string_set[j])
             distance[j, k] = distance[k, j]
     return distance
+
+
