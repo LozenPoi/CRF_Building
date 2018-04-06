@@ -165,8 +165,8 @@ def cv_edit_active_learn(args):
         sim_matrix = cosine_similarity(train_new_vec, test_vec)
         candidate_sim = np.average(sim_matrix, axis=1)
         for i in range(len(entropy_list)):
-            candidate_score.append(sum(entropy_list[i]))
-            # candidate_score.append(candidate_sim[i]*sum(entropy_list[i]))
+            # candidate_score.append(sum(entropy_list[i]))
+            candidate_score.append(sum(entropy_list[i])) #candidate_sim[i]*
         sort_idx = np.argmax(candidate_score)
 
         # Find the sample with the maximal score and only label the part with low confidence/high entropy.
@@ -175,12 +175,13 @@ def cv_edit_active_learn(args):
         mean_entropy_tmp = np.mean(entropy_tmp)
         std_entropy_tmp = np.std(entropy_tmp)
         z_score = [(entropy_tmp[i]-mean_entropy_tmp)/std_entropy_tmp for i in range(len_ptname)]
-        label_idx = np.argsort(np.array(z_score), kind='mergesort').tolist()
+        # label_idx = np.argsort(np.array(z_score), kind='mergesort').tolist()
         y_sequence_truth = sent2labels(train_set_new[sort_idx])
-        print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
-        for i in range(6):
-            count += 1
-            y_sequence[label_idx[-i]] = y_sequence_truth[label_idx[-i]]
+        # print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
+        for i in range(len_ptname):
+            if z_score[i] > 0.0:
+                count += 1
+                y_sequence[i] = y_sequence_truth[i]
         label_count[num_training] = count
 
         # Update training set.
@@ -292,6 +293,8 @@ if __name__ == '__main__':
     phrase_acc_min = np.min(phrase_acc, axis=0)
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
     label_count_av = np.sum(label_count, axis=0)/num_fold
+    label_count_max = np.max(label_count, axis=0)
+    label_count_min = np.min(label_count, axis=0)
     plt.plot(label_count_av, phrase_acc_av, 'r',
              np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence[:100], 'b',
              label_count_av, phrase_acc_max, '--r',
@@ -303,8 +306,15 @@ if __name__ == '__main__':
     plt.legend(['partial label', 'full label'])
     plt.show()
 
+    plt.plot(np.arange(1, len(label_count_av)+1, 1), label_count_av, 'r',
+             np.arange(1, len(label_count_av) + 1, 1), label_count_max, '--r',
+             np.arange(1, len(label_count_av) + 1, 1), label_count_min, '--r')
+    plt.xlabel('number of iterations')
+    plt.ylabel('average manual labels')
+    plt.show()
+
     # Save data for future plotting.
-    with open("phrase_acc_confidence_partial.bin", "wb") as phrase_confidence_file:
+    with open("phrase_acc_confidence_partial_.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
     with open("out_acc_confidence_partial.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)

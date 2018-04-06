@@ -154,10 +154,14 @@ def cv_edit_active_learn(args):
             entropy_list.append(entropy_seq)
 
         # Select the string with the largest entropy difference.
-        difference_list = []
-        for i in entropy_list:
-            difference_list.append(max(i) - min(i))
-        sort_idx = np.argmax(difference_list)
+        # difference_list = []
+        # for i in entropy_list:
+        #     difference_list.append(max(i) - min(i))
+        # sort_idx = np.argmax(difference_list)
+        candidate_score = []
+        for i in range(len(entropy_list)):
+            candidate_score.append(sum(entropy_list[i])) #candidate_sim[i]*
+        sort_idx = np.argmax(candidate_score)
 
         # Find the sample with minimum confidence and only label the part with low confidence.
         entropy_tmp = entropy_list[sort_idx]
@@ -296,9 +300,9 @@ if __name__ == '__main__':
     plt.legend(['partial label', 'full label'])
     plt.show()
 
-    plt.plot(np.arange(1, len(label_count_av)+1, 1), label_count_av,
-             np.arange(1, len(label_count_av) + 1, 1), label_count_max,
-             np.arange(1, len(label_count_av) + 1, 1), label_count_min)
+    plt.plot(np.arange(1, len(label_count_av)+1, 1), label_count_av, 'r',
+             np.arange(1, len(label_count_av) + 1, 1), label_count_max, '--r',
+             np.arange(1, len(label_count_av) + 1, 1), label_count_min, '--r')
     plt.xlabel('number of iterations')
     plt.ylabel('average manual labels')
     plt.show()
