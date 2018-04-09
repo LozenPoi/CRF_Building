@@ -10,7 +10,7 @@ from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 import pickle
 
-import utils
+import utils.utils as utils
 
 # Define feature dictionary.
 def word2features(sent, i):
@@ -148,7 +148,7 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        print(phrase_count, phrase_correct, out_count, out_correct)
+        # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
@@ -157,17 +157,17 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("filtered_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("filtered_string.bin", "rb") as my_string:
+    with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
-    num_fold = 10
+    num_fold = 8
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
@@ -200,8 +200,8 @@ if __name__ == '__main__':
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
-             np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
+    plt.plot(np.arange(3, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
+             np.arange(3, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
     plt.xlabel('number of training samples')
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])

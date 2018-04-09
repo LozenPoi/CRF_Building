@@ -24,3 +24,8 @@ my_str = ['aaaaa', 'bbbbb']
 vec, dict = string_vectorize(my_str)
 print(vec[:1])
 print(dict)
+
+a = np.zeros(3)
+for i in a:
+    print(i)
+

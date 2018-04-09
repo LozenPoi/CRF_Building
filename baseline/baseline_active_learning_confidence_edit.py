@@ -10,7 +10,7 @@ import multiprocessing
 from pycrfsuite import Tagger
 import editdistance
 
-import utils
+import utils.utils as utils
 
 # Calculate average Edit distance from each element of new_sample_set to current_set.
 def avr_edit_distance(current_set, new_sample_set):
@@ -115,9 +115,9 @@ def cv_edit_active_learn(args):
         # Calculate the confidence on the testing set using the current CRF.
         prob_list = []
         for i in range(len_test):
-            #crf.tagger_.set(X_train_new[i])
+            # crf.tagger_.set(X_train_new[i])
             y_sequence = crf.tagger_.tag(X_test[i])
-            #print(crf.tagger_.probability(y_sequence))
+            # print(crf.tagger_.probability(y_sequence))
             prob_list.append(crf.tagger_.probability(y_sequence))
 
         # Sort the test set based on confidence.
@@ -178,7 +178,7 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        print(phrase_count, phrase_correct, out_count, out_correct)
+        # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training] = phrase_correct / phrase_count
         out_acc[num_training] = out_correct / out_count
 
@@ -187,17 +187,17 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("filtered_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("filtered_string.bin", "rb") as my_string:
+    with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
-    num_fold = 10
+    num_fold = 8
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count()-1)
@@ -231,10 +231,10 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
+    with open("phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_confidence.bin", "wb") as out_confidence_file:
+    with open("out_acc_confidence_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
 
     # Observed strings.
-    print([results[i][2] for i in range(num_fold)])
+    # print([results[i][2] for i in range(num_fold)])
