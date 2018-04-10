@@ -112,6 +112,9 @@ def cv_edit_active_learn(args):
         # Sort the training pool based on confidence.
         sort_idx = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
+        # if (num_training>=20)&(num_training<=40):
+        #     print([train_string_new[i] for i in sort_idx[:batch_size]])
+
         # update training set
         sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
         for i in sample_to_remove:
@@ -157,7 +160,7 @@ if __name__ == '__main__':
     max_samples_batch = 100
     batch_size = 1
 
-    pool = multiprocessing.Pool(os.cpu_count()-1)
+    pool = multiprocessing.Pool(os.cpu_count())
     args = []
     # print(os.cpu_count()) # It counts for logical processors instead of physical cores.
     for train_idx, test_idx in kf.split(dataset):

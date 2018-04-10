@@ -204,6 +204,9 @@ def cv_edit_active_learn(args):
         # Sort the unlabeled samples based on the new indicator.
         sort_idx = np.argsort(train_indicator, kind='mergesort').tolist()
 
+        # if (num_training>=20)&(num_training<=40):
+        #     print([train_string_new[i] for i in sort_idx[:batch_size]])
+
         # update training set
         sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
         for i in sample_to_remove:
