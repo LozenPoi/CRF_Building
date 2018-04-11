@@ -105,43 +105,6 @@ def cv_edit_active_learn(args):
     len_ptname = len(test_set[0])
     for num_training in range(max_samples_batch):
 
-        # test_prob_list = []
-        # pattern_list = []
-        # for i in range(len_test):
-        #     # Calculate the marginal probabilities on the testing set using the current CRF.
-        #     y_sequence = crf.tagger_.tag(X_test[i])
-        #     margin_list = []
-        #     for j in range(len_ptname):
-        #         margin_list.append(crf.tagger_.marginal(y_sequence[j], j))
-        #     test_prob_list.append(margin_list)
-        #     # Calculate gradient on the marginal probabilities, and find the sharp changes and corresponding patterns.
-        #     grad = np.convolve(margin_list, [-1, 1], 'valid')
-        #     sharp_idx_down, = np.where(grad > 0.3)
-        #     sharp_idx_up, = np.where(grad < -0.3)
-        #     sharp_idx_down = (sharp_idx_down + 1).tolist()
-        #     sharp_idx_up = sharp_idx_up.tolist()
-        #     for j in range(len(sharp_idx_down)):
-        #         if(j<len(sharp_idx_up)):
-        #             pattern_list.append(test_string[i][sharp_idx_down[j]:sharp_idx_up[j]+1])
-        #         else:
-        #             pattern_list.append(test_string[i][sharp_idx_down[j]:])
-        #             break
-        #
-        # # Count the most frequent patterns.
-        # pattern_map = Counter(pattern_list)
-        # query_pattern = list(pattern_map.keys())[-1]
-        # #query_freq = list(pattern_map.values())[-1]
-        # #print(query_pattern, query_freq)
-
-        # test_prob_list = []
-        # pattern_list = []
-        # for i in range(len_test):
-        #     # Calculate the marginal probabilities on the testing set using the current CRF.
-        #     y_sequence = crf.tagger_.tag(X_test[i])
-        #     margin_list = [crf.tagger_.marginal(y_sequence[j], j) for j in range(len_ptname)]
-        #     test_prob_list.append(margin_list)
-        #     print(margin_list)
-
         # Want to look at the confidence (entropy for each character of each string) on unlabeled data.
         label_list = crf.tagger_.labels()
         entropy_list = []
@@ -154,25 +117,25 @@ def cv_edit_active_learn(args):
             entropy_list.append(entropy_seq)
 
         # Select the string with the largest entropy difference.
-        # difference_list = []
-        # for i in entropy_list:
-        #     difference_list.append(max(i) - min(i))
-        # sort_idx = np.argmax(difference_list)
-        candidate_score = []
-        for i in range(len(entropy_list)):
-            candidate_score.append(sum(entropy_list[i])) #candidate_sim[i]*
-        sort_idx = np.argmax(candidate_score)
+        difference_list = []
+        for i in entropy_list:
+            difference_list.append(max(i) - min(i))
+        sort_idx = np.argmax(difference_list)
+
+        # # Select the string with the largest entropy sum.
+        # candidate_score = []
+        # for i in range(len(entropy_list)):
+        #     candidate_score.append(sum(entropy_list[i]))
+        # sort_idx = np.argmax(candidate_score)
 
         # Find the sample with minimum confidence and only label the part with low confidence.
         entropy_tmp = entropy_list[sort_idx]
         y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))
-        # y_sequence_ob = crf.tagger_.tag(sent2features(train_set_new[5]))
-        # print(train_string_new[5])
-        # print('prediction', y_sequence_ob)
-        # print('ground truth', sent2labels(train_set_new[5]))
-        # print([crf.tagger_.marginal(y_sequence[j], j) for j in range(len(y_sequence_ob))])
+        mean_entropy_tmp = np.mean(entropy_tmp)
+        std_entropy_tmp = np.std(entropy_tmp)
+        z_score = [(entropy_tmp[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len_ptname)]
         for i in range(len_ptname):
-            if(entropy_tmp[i] > 0.8):
+            if z_score[i] > 0.1:
                 count += 1
                 y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
         label_count[num_training] = count
@@ -191,29 +154,6 @@ def cv_edit_active_learn(args):
         for i in string_to_remove:
             train_string_current.append(i)
             train_string_new.remove(i)
-
-        # # define fixed parameters and parameters to search
-        # crf = sklearn_crfsuite.CRF(
-        #     algorithm='lbfgs',
-        #     max_iterations=100,
-        #     all_possible_transitions=True
-        # )
-        # params_space = {
-        #     'c1': scipy.stats.expon(scale=0.5),
-        #     'c2': scipy.stats.expon(scale=0.05),
-        # }
-        #
-        # # search
-        # rs = RandomizedSearchCV(crf, params_space,
-        #                         cv=2,
-        #                         verbose=1,
-        #                         n_jobs=-1,
-        #                         n_iter=5)
-        # rs.fit(X_train_current, y_train_current)
-        #
-        # print('best params:', rs.best_params_)
-        # print('best CV score:', rs.best_score_)
-        # crf = rs.best_estimator_
 
         # Train the CRF.
         crf = sklearn_crfsuite.CRF(
@@ -247,7 +187,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
@@ -272,15 +212,14 @@ if __name__ == '__main__':
     # print(len(phrase_acc[0]))
     label_count = [results[i][2] for i in range(num_fold)]
 
-
-    with open("phrase_acc_confidence.bin", "rb") as phrase_confidence:
-        phrase_acc_confidence = pickle.load(phrase_confidence)
-    with open("out_acc_confidence.bin", "rb") as out_confidence:
-        out_acc_confidence = pickle.load(out_confidence)
-    phrase_acc_av_confidence = np.sum(phrase_acc_confidence, axis=0) / 10.0
-    phrase_acc_max_confidence = np.max(phrase_acc_confidence, axis=0)
-    phrase_acc_min_confidence = np.min(phrase_acc_confidence, axis=0)
-    out_acc_av_confidence = np.sum(out_acc_confidence, axis=0) / 10.0
+    with open("../baseline/phrase_acc_confidence.bin", "rb") as phrase_confidence:
+        phrase_acc_confidence_edit = pickle.load(phrase_confidence)
+    with open("../baseline/out_acc_confidence.bin", "rb") as out_confidence:
+        out_acc_confidence_edit = pickle.load(out_confidence)
+    phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0) / 8.0
+    phrase_acc_max_confidence_edit = np.max(phrase_acc_confidence_edit, axis=0)
+    phrase_acc_min_confidence_edit = np.min(phrase_acc_confidence_edit, axis=0)
+    out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / 8.0
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     phrase_acc_max = np.max(phrase_acc, axis=0)
@@ -290,14 +229,14 @@ if __name__ == '__main__':
     label_count_max = np.max(label_count, axis=0)
     label_count_min = np.min(label_count, axis=0)
     plt.plot(label_count_av, phrase_acc_av, 'r',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence[:100], 'b',
+             np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence_edit, 'b',
              label_count_av, phrase_acc_max, '--r',
              label_count_av, phrase_acc_min, '--r',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_max_confidence[:100], '--b',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_min_confidence[:100], '--b')
+             np.arange(14, 14 * 100 + 14, 14), phrase_acc_max_confidence_edit, '--b',
+             np.arange(14, 14 * 100 + 14, 14), phrase_acc_min_confidence_edit, '--b')
     plt.xlabel('number of manual labels')
     plt.ylabel('testing accuracy')
-    plt.legend(['partial label', 'full label'])
+    plt.legend(['partial label', 'best full label'])
     plt.show()
 
     plt.plot(np.arange(1, len(label_count_av)+1, 1), label_count_av, 'r',
@@ -308,10 +247,17 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_confidence_partial.bin", "wb") as phrase_confidence_file:
-        pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_confidence_partial.bin", "wb") as out_confidence_file:
-        pickle.dump(out_acc, out_confidence_file)
 
-    # Observed strings.
-    # print([results[i][2] for i in range(num_fold)])
+    # with open("phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("out_acc_partial_entropy_sum.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+    # with open("partial_entropy_sum_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
+
+    with open("phrase_acc_partial_entropy_diff.bin", "wb") as phrase_confidence_file:
+        pickle.dump(phrase_acc, phrase_confidence_file)
+    with open("out_acc_partial_entropy_diff.bin", "wb") as out_confidence_file:
+        pickle.dump(out_acc, out_confidence_file)
+    with open("partial_entropy_diff_num.bin", "wb") as label_count_file:
+        pickle.dump(label_count, label_count_file)

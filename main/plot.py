@@ -3,119 +3,79 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Read data.
-with open("phrase_acc_uniform.bin", "rb") as phrase_uniform:
-    phrase_acc_uniform = pickle.load(phrase_uniform)
-with open("out_acc_uniform.bin", "rb") as out_uniform:
-    out_acc_uniform = pickle.load(out_uniform)
+with open("../baseline/phrase_acc_confidence_edit.bin", "rb") as phrase_confidence_edit:
+    phrase_acc_confidence_edit = pickle.load(phrase_confidence_edit)
+with open("../baseline/out_acc_confidence_edit.bin", "rb") as out_confidence_edit:
+    out_acc_confidence_edit = pickle.load(out_confidence_edit)
 
-with open("phrase_acc_confidence.bin", "rb") as phrase_confidence:
-    phrase_acc_confidence = pickle.load(phrase_confidence)
-with open("out_acc_confidence.bin", "rb") as out_confidence:
-    out_acc_confidence = pickle.load(out_confidence)
+with open("phrase_acc_partial_entropy_diff.bin", "rb") as phrase_entropy_diff:
+    phrase_acc_partial_entropy_diff = pickle.load(phrase_entropy_diff)
+with open("out_acc_partial_entropy_diff.bin", "rb") as out_entropy_diff:
+    out_acc_partial_entropy_diff = pickle.load(out_entropy_diff)
 
-with open("phrase_acc_edit.bin", "rb") as phrase_edit:
-    phrase_acc_edit = pickle.load(phrase_edit)
-with open("out_acc_edit.bin", "rb") as out_edit:
-    out_acc_edit = pickle.load(out_edit)
+with open("phrase_acc_partial_entropy_sum.bin", "rb") as phrase_entropy_sum:
+    phrase_acc_partial_entropy_sum = pickle.load(phrase_entropy_sum)
+with open("out_acc_partial_entropy_sum.bin", "rb") as out_entropy_sum:
+    out_acc_partial_entropy_sum = pickle.load(out_entropy_sum)
 
-with open("phrase_acc_kmedoids.bin", "rb") as phrase_kmedoids:
-    phrase_acc_kmedoids = pickle.load(phrase_kmedoids)
-with open("out_acc_kmedoids.bin", "rb") as out_kmedoids:
-    out_acc_kmedoids = pickle.load(out_kmedoids)
+with open("phrase_acc_partial_entropy_sum_cluster.bin", "rb") as phrase_entropy_sum_cluster:
+    phrase_acc_partial_entropy_sum_cluster = pickle.load(phrase_entropy_sum_cluster)
+with open("out_acc_partial_entropy_sum_cluster.bin", "rb") as out_entropy_sum_cluster:
+    out_acc_partial_entropy_sum_cluster = pickle.load(out_entropy_sum_cluster)
 
-with open("phrase_acc_confidence_plus.bin", "rb") as phrase_confidence:
-    phrase_acc_confidence_plus = pickle.load(phrase_confidence)
-with open("out_acc_confidence_plus.bin", "rb") as out_confidence:
-    out_acc_confidence_plus = pickle.load(out_confidence)
+with open("partial_entropy_diff_num", "rb") as entropy_diff_num:
+    partial_entropy_diff_num = pickle.load(entropy_diff_num)
+with open("partial_entropy_sum_num", "rb") as entropy_sum_num:
+    partial_entropy_sum_num = pickle.load(entropy_sum_num)
+with open("partial_entropy_sum_cluster_num", "rb") as entropy_sum_cluster_num:
+    partial_entropy_sum_cluster_num = pickle.load(entropy_sum_cluster_num)
 
 # Plot figures.
-num_fold = 10
-max_samples_batch = 200
+num_fold = 8
+max_samples_batch = 100
 batch_size = 1
 
-phrase_acc_av_uniform = np.sum(phrase_acc_uniform, axis=0)/num_fold
-out_acc_av_uniform = np.sum(out_acc_uniform, axis=0)/num_fold
+phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0)/num_fold
+out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0)/num_fold
 
-phrase_acc_av_confidence = np.sum(phrase_acc_confidence, axis=0)/num_fold
-out_acc_av_confidence = np.sum(out_acc_confidence, axis=0)/num_fold
+phrase_acc_av_partial_entropy_diff = np.sum(phrase_acc_partial_entropy_diff, axis=0)/num_fold
+out_acc_av_partial_entropy_diff = np.sum(out_acc_partial_entropy_diff, axis=0)/num_fold
 
-phrase_acc_av_edit = np.sum(phrase_acc_edit, axis=0)/num_fold
-out_acc_av_edit = np.sum(out_acc_edit, axis=0)/num_fold
+phrase_acc_av_partial_entropy_sum = np.sum(phrase_acc_partial_entropy_sum, axis=0)/num_fold
+out_acc_av_partial_entropy_sum = np.sum(out_acc_partial_entropy_sum, axis=0)/num_fold
 
-phrase_acc_av_kmedoids = np.sum(phrase_acc_kmedoids, axis=0)/num_fold
-out_acc_av_kmedoids = np.sum(out_acc_kmedoids, axis=0)/num_fold
+phrase_acc_av_partial_entropy_sum_cluster = np.sum(phrase_acc_partial_entropy_sum_cluster, axis=0)/num_fold
+out_acc_av_partial_entropy_sum_cluster = np.sum(out_acc_partial_entropy_sum_cluster, axis=0)/num_fold
 
-phrase_acc_av_confidence_plus = np.sum(phrase_acc_confidence_plus, axis=0)/num_fold
-out_acc_av_confidence_plus = np.sum(out_acc_confidence_plus, axis=0)/num_fold
+partial_entropy_diff_num = np.sum(partial_entropy_diff_num, axis=0)/num_fold
+partial_entropy_sum_num = np.sum(partial_entropy_sum_num, axis=0)/num_fold
+partial_entropy_sum_cluster_num = np.sum(partial_entropy_sum_cluster_num, axis=0)/num_fold
 
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence, 'c',
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_confidence_plus, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_uniform, 'r')
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_acc_av_edit, 'b',
-         # np.arange(1, max_samples_batch * batch_size + 1, batch_size), phrase_acc_av_kmedoids, 'k',
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_uniform, 'r',
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_edit, 'b',
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_kmedoids, 'k',
-         # np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_acc_av_confidence, 'c')
+partial_entropy_diff_num = [i+14*2 for i in partial_entropy_diff_num]
+partial_entropy_sum_num = [i+14*2 for i in partial_entropy_sum_num]
+partial_entropy_sum_cluster_num = [i+14*2 for i in partial_entropy_sum_cluster_num]
+
+plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
+         partial_entropy_diff_num, phrase_acc_av_partial_entropy_diff, 'b',
+         partial_entropy_sum_num, phrase_acc_av_partial_entropy_sum, 'r',
+         partial_entropy_sum_cluster_num, phrase_acc_av_partial_entropy_sum_cluster, 'k')
 plt.xlabel('number of training samples')
 plt.ylabel('testing accuracy')
-plt.legend(['confidence', 'uniform'])
+plt.legend(['confidence_edit', 'entropy_diff', 'entropy_sum', 'entropy_sum_cluster'])
 plt.grid()
 plt.show()
 
-# Plot individual figures to see variance among different folds.
-phrase_max_uniform = np.max(phrase_acc_uniform, axis=0)
-phrase_min_uniform = np.min(phrase_acc_uniform, axis=0)
-out_max_uniform = np.max(out_acc_uniform, axis=0)
-out_min_uniform = np.min(out_acc_uniform, axis=0)
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_uniform, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_uniform, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_uniform, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_uniform, 'b')
-plt.xlabel('number of training samples')
-plt.ylabel('testing accuracy')
-plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-plt.title('uniform')
-plt.show()
-
-phrase_max_edit = np.max(phrase_acc_edit, axis=0)
-phrase_min_edit = np.min(phrase_acc_edit, axis=0)
-out_max_edit = np.max(out_acc_edit, axis=0)
-out_min_edit = np.min(out_acc_edit, axis=0)
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_edit, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_edit, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_edit, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_edit, 'b')
-plt.xlabel('number of training samples')
-plt.ylabel('testing accuracy')
-plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-plt.title('edit')
-plt.show()
-
-phrase_max_kmedoids = np.max(phrase_acc_kmedoids, axis=0)
-phrase_min_kmedoids = np.min(phrase_acc_kmedoids, axis=0)
-out_max_kmedoids = np.max(out_acc_kmedoids, axis=0)
-out_min_kmedoids = np.min(out_acc_kmedoids, axis=0)
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_kmedoids, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_kmedoids, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_kmedoids, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_kmedoids, 'b')
-plt.xlabel('number of training samples')
-plt.ylabel('testing accuracy')
-plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-plt.title('kmedoids')
-plt.show()
-
-phrase_max_confidence = np.max(phrase_acc_confidence, axis=0)
-phrase_min_confidence = np.min(phrase_acc_confidence, axis=0)
-out_max_confidence = np.max(out_acc_confidence, axis=0)
-out_min_confidence = np.min(out_acc_confidence, axis=0)
-plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_confidence, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_confidence, 'b',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_confidence, 'r',
-         np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_confidence, 'b')
-plt.xlabel('number of training samples')
-plt.ylabel('testing accuracy')
-plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-plt.title('confidence')
-plt.show()
+# # Plot individual figures to see variance among different folds.
+# phrase_max_uniform = np.max(phrase_acc_uniform, axis=0)
+# phrase_min_uniform = np.min(phrase_acc_uniform, axis=0)
+# out_max_uniform = np.max(out_acc_uniform, axis=0)
+# out_min_uniform = np.min(out_acc_uniform, axis=0)
+# plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_uniform, 'r',
+#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_uniform, 'b',
+#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_uniform, 'r',
+#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_uniform, 'b')
+# plt.xlabel('number of training samples')
+# plt.ylabel('testing accuracy')
+# plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
+# plt.title('uniform')
+# plt.show()
