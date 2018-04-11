@@ -12,16 +12,16 @@ import editdistance
 
 import utils.utils as utils
 
-# Calculate average Edit distance from each element of new_sample_set to current_set.
-def avr_edit_distance(current_set, new_sample_set):
-    len_current = len(current_set)
-    len_new = len(new_sample_set)
-    distance = np.zeros(len_new)
-    for k in range(len_new):
-        for j in range(len_current):
-            distance[k] = distance[k] + editdistance.eval(new_sample_set[k], current_set[j])
-        distance[k] = distance[k]/len_current
-    return distance
+# # Calculate average Edit distance from each element of new_sample_set to current_set.
+# def avr_edit_distance(current_set, new_sample_set):
+#     len_current = len(current_set)
+#     len_new = len(new_sample_set)
+#     distance = np.zeros(len_new)
+#     for k in range(len_new):
+#         for j in range(len_current):
+#             distance[k] = distance[k] + editdistance.eval(new_sample_set[k], current_set[j])
+#         distance[k] = distance[k]/len_current
+#     return distance
 
 # Define feature dictionary.
 def word2features(sent, i):
@@ -125,7 +125,7 @@ def cv_edit_active_learn(args):
 
         # Find samples from training pool that are closest to the least confident.
         temp_set = [test_string[i] for i in sort_idx_temp[:3]]
-        distance = avr_edit_distance(temp_set, train_string_new)
+        distance = utils.avr_edit_distance(temp_set, train_string_new, True)
         sort_idx = np.argsort(distance, kind='mergesort').tolist()
 
         # if (num_training>=20)&(num_training<=40):
