@@ -30,6 +30,18 @@ with open("partial_entropy_sum_num.bin", "rb") as entropy_sum_num:
 with open("partial_entropy_sum_cluster_num.bin", "rb") as entropy_sum_cluster_num:
     partial_entropy_sum_cluster_num = pickle.load(entropy_sum_cluster_num)
 
+
+
+# This is for temp test.
+with open("phrase_acc_partial_entropy_sum_edit_aligned.bin", "rb") as phrase_entropy_sum_edit_aligned:
+    phrase_acc_partial_entropy_sum_edit_aligned = pickle.load(phrase_entropy_sum_edit_aligned)
+with open("out_acc_partial_entropy_sum_edit_aligned.bin", "rb") as out_entropy_sum_edit_aligned:
+    out_acc_partial_entropy_sum_edit_aligned = pickle.load(out_entropy_sum_edit_aligned)
+with open("partial_entropy_sum_edit_num_aligned.bin", "rb") as entropy_sum_edit_num_aligned:
+    partial_entropy_sum_edit_num_aligned = pickle.load(entropy_sum_edit_num_aligned)
+
+
+
 # Plot figures.
 num_fold = 8
 max_samples_batch = 100
@@ -55,15 +67,32 @@ partial_entropy_sum_edit_num = [i+14*2 for i in partial_entropy_sum_edit_num]
 partial_entropy_sum_num = [i+14*2 for i in partial_entropy_sum_num]
 partial_entropy_sum_cluster_num = [i+14*2 for i in partial_entropy_sum_cluster_num]
 
-plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
-         partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'b',
-         partial_entropy_sum_num, phrase_acc_av_partial_entropy_sum, 'r',
-         partial_entropy_sum_cluster_num, phrase_acc_av_partial_entropy_sum_cluster, 'k')
+
+
+# This is for temp test.
+phrase_acc_av_partial_entropy_diff_aligned = np.sum(phrase_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
+out_acc_av_partial_entropy_diff_aligned = np.sum(out_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
+partial_entropy_sum_edit_num_aligned = np.sum(partial_entropy_sum_edit_num_aligned, axis=0)/num_fold
+partial_entropy_sum_edit_num_aligned = [i+14*2 for i in partial_entropy_sum_edit_num_aligned]
+plt.plot(partial_entropy_sum_edit_num_aligned, phrase_acc_av_partial_entropy_diff_aligned, 'b',
+         partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'r')
 plt.xlabel('number of training samples')
 plt.ylabel('testing accuracy')
-plt.legend(['confidence_edit', 'entropy_sum_edit', 'entropy_sum', 'entropy_sum_cluster'])
+plt.legend(['entropy_sum_edit_aligned', 'entropy_sum_edit'])
 plt.grid()
 plt.show()
+
+
+
+# plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
+#          partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'b',
+#          partial_entropy_sum_num, phrase_acc_av_partial_entropy_sum, 'r',
+#          partial_entropy_sum_cluster_num, phrase_acc_av_partial_entropy_sum_cluster, 'k')
+# plt.xlabel('number of training samples')
+# plt.ylabel('testing accuracy')
+# plt.legend(['confidence_edit', 'entropy_sum_edit', 'entropy_sum', 'entropy_sum_cluster'])
+# plt.grid()
+# plt.show()
 
 # # Plot individual figures to see variance among different folds.
 # phrase_max_uniform = np.max(phrase_acc_uniform, axis=0)

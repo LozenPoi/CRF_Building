@@ -66,3 +66,6 @@ for i in a:
 #     margin_list = [crf.tagger_.marginal(y_sequence[j], j) for j in range(len_ptname)]
 #     test_prob_list.append(margin_list)
 #     print(margin_list)
+
+
+
