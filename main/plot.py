@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import operator
 
 # Read data.
 with open("../baseline/phrase_acc_confidence_edit.bin", "rb") as phrase_confidence_edit:
@@ -31,7 +32,6 @@ with open("partial_entropy_sum_cluster_num.bin", "rb") as entropy_sum_cluster_nu
     partial_entropy_sum_cluster_num = pickle.load(entropy_sum_cluster_num)
 
 
-
 # This is for temp test.
 with open("phrase_acc_partial_entropy_sum_edit_aligned.bin", "rb") as phrase_entropy_sum_edit_aligned:
     phrase_acc_partial_entropy_sum_edit_aligned = pickle.load(phrase_entropy_sum_edit_aligned)
@@ -41,8 +41,7 @@ with open("partial_entropy_sum_edit_num_aligned.bin", "rb") as entropy_sum_edit_
     partial_entropy_sum_edit_num_aligned = pickle.load(entropy_sum_edit_num_aligned)
 
 
-
-# Plot figures.
+# Process data.
 num_fold = 8
 max_samples_batch = 100
 batch_size = 1
@@ -50,49 +49,83 @@ batch_size = 1
 phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0)/num_fold
 out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0)/num_fold
 
-phrase_acc_av_partial_entropy_diff = np.sum(phrase_acc_partial_entropy_sum_edit, axis=0)/num_fold
-out_acc_av_partial_entropy_diff = np.sum(out_acc_partial_entropy_sum_edit, axis=0)/num_fold
+partial_entropy_sum = {}
+for i in range(num_fold):
+    for j in range(len(partial_entropy_sum_num[i])):
+        if partial_entropy_sum_num[i][j] in partial_entropy_sum:
+            partial_entropy_sum[partial_entropy_sum_num[i][j]].append(phrase_acc_partial_entropy_sum[i][j])
+        else:
+            partial_entropy_sum[partial_entropy_sum_num[i][j]] = [phrase_acc_partial_entropy_sum[i][j]]
 
-phrase_acc_av_partial_entropy_sum = np.sum(phrase_acc_partial_entropy_sum, axis=0)/num_fold
-out_acc_av_partial_entropy_sum = np.sum(out_acc_partial_entropy_sum, axis=0)/num_fold
+partial_entropy_sum_cluster = {}
+for i in range(num_fold):
+    for j in range(len(partial_entropy_sum_cluster_num[i])):
+        if partial_entropy_sum_cluster_num[i][j] in partial_entropy_sum_cluster:
+            partial_entropy_sum_cluster[partial_entropy_sum_cluster_num[i][j]].append(
+                phrase_acc_partial_entropy_sum_cluster[i][j])
+        else:
+            partial_entropy_sum_cluster[partial_entropy_sum_cluster_num[i][j]] = [
+                phrase_acc_partial_entropy_sum_cluster[i][j]]
 
-phrase_acc_av_partial_entropy_sum_cluster = np.sum(phrase_acc_partial_entropy_sum_cluster, axis=0)/num_fold
-out_acc_av_partial_entropy_sum_cluster = np.sum(out_acc_partial_entropy_sum_cluster, axis=0)/num_fold
+partial_entropy_sum_edit = {}
+for i in range(num_fold):
+    for j in range(len(partial_entropy_sum_edit_num[i])):
+        if partial_entropy_sum_edit_num[i][j] in partial_entropy_sum_edit:
+            partial_entropy_sum_edit[partial_entropy_sum_edit_num[i][j]].append(
+                phrase_acc_partial_entropy_sum_edit[i][j])
+        else:
+            partial_entropy_sum_edit[partial_entropy_sum_edit_num[i][j]] = [phrase_acc_partial_entropy_sum_edit[i][j]]
 
-partial_entropy_sum_edit_num = np.sum(partial_entropy_sum_edit_num, axis=0)/num_fold
-partial_entropy_sum_num = np.sum(partial_entropy_sum_num, axis=0)/num_fold
-partial_entropy_sum_cluster_num = np.sum(partial_entropy_sum_cluster_num, axis=0)/num_fold
+sorted_partial_entropy_sum = sorted(partial_entropy_sum.items(), key=operator.itemgetter(0))
+sorted_partial_entropy_sum_cluster = sorted(partial_entropy_sum_cluster.items(), key=operator.itemgetter(0))
+sorted_partial_entropy_sum_edit = sorted(partial_entropy_sum_edit.items(), key=operator.itemgetter(0))
 
-partial_entropy_sum_edit_num = [i+14*2 for i in partial_entropy_sum_edit_num]
-partial_entropy_sum_num = [i+14*2 for i in partial_entropy_sum_num]
-partial_entropy_sum_cluster_num = [i+14*2 for i in partial_entropy_sum_cluster_num]
+sorted_partial_entropy_sum = [i[1] for i in sorted_partial_entropy_sum]
+sorted_partial_entropy_sum_cluster = [i[1] for i in sorted_partial_entropy_sum_cluster]
+sorted_partial_entropy_sum_edit = [i[1] for i in sorted_partial_entropy_sum_edit]
+
+x_partial_entropy_sum = np.sort(list(partial_entropy_sum.keys()), kind='mergesort').tolist()
+x_partial_entropy_sum_cluster = np.sort(list(partial_entropy_sum_cluster.keys()), kind='mergesort').tolist()
+x_partial_entropy_sum_edit = np.sort(list(partial_entropy_sum_edit.keys()), kind='mergesort').tolist()
+
+x_partial_entropy_sum = [i+14*2 for i in x_partial_entropy_sum]
+x_partial_entropy_sum_cluster = [i+14*2 for i in x_partial_entropy_sum_cluster]
+x_partial_entropy_sum_edit = [i+14*2 for i in x_partial_entropy_sum_edit]
+
+y_partial_entropy_sum = []
+for i in sorted_partial_entropy_sum:
+    y_partial_entropy_sum.append(np.mean(i))
+y_partial_entropy_sum_cluster = []
+for i in sorted_partial_entropy_sum_cluster:
+    y_partial_entropy_sum_cluster.append(np.mean(i))
+y_partial_entropy_sum_edit = []
+for i in sorted_partial_entropy_sum_edit:
+    y_partial_entropy_sum_edit.append(np.mean(i))
 
 
-
-# This is for temp test.
-phrase_acc_av_partial_entropy_diff_aligned = np.sum(phrase_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
-out_acc_av_partial_entropy_diff_aligned = np.sum(out_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
-partial_entropy_sum_edit_num_aligned = np.sum(partial_entropy_sum_edit_num_aligned, axis=0)/num_fold
-partial_entropy_sum_edit_num_aligned = [i+14*2 for i in partial_entropy_sum_edit_num_aligned]
-plt.plot(partial_entropy_sum_edit_num_aligned, phrase_acc_av_partial_entropy_diff_aligned, 'b',
-         partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'r')
-plt.xlabel('number of training samples')
-plt.ylabel('testing accuracy')
-plt.legend(['entropy_sum_edit_aligned', 'entropy_sum_edit'])
-plt.grid()
-plt.show()
-
-
-
-# plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
-#          partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'b',
-#          partial_entropy_sum_num, phrase_acc_av_partial_entropy_sum, 'r',
-#          partial_entropy_sum_cluster_num, phrase_acc_av_partial_entropy_sum_cluster, 'k')
+# # This is for temp test.
+# phrase_acc_av_partial_entropy_diff_aligned = np.sum(phrase_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
+# out_acc_av_partial_entropy_diff_aligned = np.sum(out_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
+# partial_entropy_sum_edit_num_aligned = np.sum(partial_entropy_sum_edit_num_aligned, axis=0)/num_fold
+# partial_entropy_sum_edit_num_aligned = [i+14*2 for i in partial_entropy_sum_edit_num_aligned]
+# plt.plot(partial_entropy_sum_edit_num_aligned, phrase_acc_av_partial_entropy_diff_aligned, 'b',
+#          partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'r')
 # plt.xlabel('number of training samples')
 # plt.ylabel('testing accuracy')
-# plt.legend(['confidence_edit', 'entropy_sum_edit', 'entropy_sum', 'entropy_sum_cluster'])
+# plt.legend(['entropy_sum_edit_aligned', 'entropy_sum_edit'])
 # plt.grid()
 # plt.show()
+
+
+plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
+         x_partial_entropy_sum, y_partial_entropy_sum, 'b',
+         x_partial_entropy_sum_cluster, y_partial_entropy_sum_cluster, 'r',
+         x_partial_entropy_sum_edit, y_partial_entropy_sum_edit, 'k')
+plt.xlabel('number of training samples')
+plt.ylabel('testing accuracy')
+plt.legend(['confidence_edit', 'entropy_sum', 'entropy_sum_cluster', 'entropy_sum_edit'])
+plt.grid()
+plt.show()
 
 # # Plot individual figures to see variance among different folds.
 # phrase_max_uniform = np.max(phrase_acc_uniform, axis=0)

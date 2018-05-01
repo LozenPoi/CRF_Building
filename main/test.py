@@ -20,15 +20,6 @@ def string_vectorize(input_list):
     return vec, dictionary
 
 
-my_str = ['aaaaa', 'bbbbb']
-vec, dict = string_vectorize(my_str)
-print(vec[:1])
-print(dict)
-
-a = np.zeros(3)
-for i in a:
-    print(i)
-
 
 # test_prob_list = []
 # pattern_list = []
@@ -66,6 +57,11 @@ for i in a:
 #     margin_list = [crf.tagger_.marginal(y_sequence[j], j) for j in range(len_ptname)]
 #     test_prob_list.append(margin_list)
 #     print(margin_list)
+
+a = {1: [3,1]}
+a[1].append(4)
+print(a[1])
+
 
 
 

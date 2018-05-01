@@ -137,9 +137,9 @@ def cv_edit_active_learn(args):
 
     len_test = len(test_set)
     len_ptname = len(test_set[0])
-    labeled_instance = []   # Store the indices of partial labeled instances
+    labeled_instance = []   # Store the indices of partial labeled instances in the unlabeled set
     labeled_positions = []  # Store the manual labeled positions for partial labeled instances
-    labeled_istance_train = []  # Store the location where the instance added to the training set
+    labeled_istance_train = []  # Store the location where the instance added to (the training set)
 
     for num_training in range(max_samples_batch):
 
@@ -172,33 +172,65 @@ def cv_edit_active_learn(args):
         else:
             revisit_flag = True
 
-        # Find the sample with the maximal score and only label the part with low confidence/high entropy.
+        # Only label the part with low confidence/high entropy.
         y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
         entropy_tmp = []
         for j in range(len_ptname):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
             entropy_tmp.append(scipy.stats.entropy(marginal_prob))
-        mean_entropy_tmp = np.mean(entropy_tmp)
-        std_entropy_tmp = np.std(entropy_tmp)
-        z_score = [(entropy_tmp[i]-mean_entropy_tmp)/std_entropy_tmp for i in range(len_ptname)]
         y_sequence_truth = sent2labels(train_set_new[sort_idx])
-        # print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
+
         tmp_position = []
+        tmp_count = 0
         if revisit_flag:
             tmp_position = labeled_positions[labeled_instance.index(sort_idx)]
+            entropy_tmp_revise = []
+            for i in range(len_ptname):
+                if i not in tmp_position:
+                    entropy_tmp_revise.append(entropy_tmp[i])
+            mean_entropy_tmp = np.mean(entropy_tmp_revise)
+            std_entropy_tmp = np.std(entropy_tmp_revise)
+            if len(entropy_tmp_revise) == 1:
+                z_score_revise = [100]
+            else:
+                z_score_revise = [(entropy_tmp_revise[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len(entropy_tmp_revise))]
+            z_score = []
+            j = 0
+            for i in range(len_ptname):
+                if i in tmp_position:
+                    z_score.append(-100)
+                else:
+                    z_score.append(z_score_revise[j])
+                    j = j+1
             train_position = labeled_istance_train[labeled_instance.index(sort_idx)]
             y_sequence = y_train_current[train_position]
             for i in range(len_ptname):
                 if i not in tmp_position:
-                    if z_score[i] > -0.1:
+                    if z_score[i] > 0:
                         count += 1
+                        tmp_count += 1
                         y_sequence[i] = y_sequence_truth[i]
                         tmp_position.append(i)
+            # Check if no character is labeled.
+            if tmp_count == 0:
+                for i in range(len_ptname):
+                    if i not in tmp_position:
+                        count += 1
+                        tmp_count += 1
+                        y_sequence[i] = y_sequence_truth[i]
+                        tmp_position.append(i)
+                        break
+            # Sort the tmp_position.
+            tmp_position = np.sort(tmp_position, kind='mergesort').tolist()
             labeled_positions[labeled_instance.index(sort_idx)] = tmp_position
         else:
+            mean_entropy_tmp = np.mean(entropy_tmp)
+            std_entropy_tmp = np.std(entropy_tmp)
+            z_score = [(entropy_tmp[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len_ptname)]
             for i in range(len_ptname):
-                if z_score[i] > 0.1:
+                if z_score[i] > 0:
                     count += 1
+                    tmp_count += 1
                     y_sequence[i] = y_sequence_truth[i]
                     tmp_position.append(i)
             labeled_positions.append(tmp_position)
@@ -225,6 +257,24 @@ def cv_edit_active_learn(args):
             # Remove the pre-calculate vectors and distances.
             #del train_new_vec[sort_idx]
             #del distance_to_cluster[sort_idx]
+
+        # Remove the full labeled instances from the unlabeled set.
+        tmp_idx_record = []
+        for i in range(len(labeled_positions)):
+            if len(labeled_positions[i]) == len_ptname:
+                tmp_idx_record.append(i)
+        idx_record = []
+        for i in range(len(tmp_idx_record)):
+            j = len(tmp_idx_record) - i - 1
+            idx_record.append(labeled_instance[tmp_idx_record[j]])
+            del labeled_instance[j]
+            del labeled_positions[j]
+            del labeled_istance_train[j]
+        idx_record = np.sort(idx_record, kind='mergesort').tolist()
+        for i in range(len(idx_record)):
+            j = len(idx_record) - i - 1
+            del train_set_new[j]
+            del train_string_new[j]
 
         # Train the CRF.
         crf = sklearn_crfsuite.CRF(
