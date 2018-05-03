@@ -160,7 +160,7 @@ def cv_edit_active_learn(args):
         sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
 
         # Select the string with the minimum average distance to the selected group.
-        temp_set = [test_string[i] for i in sort_idx_temp[:3]]
+        temp_set = [test_string[i] for i in sort_idx_temp[:2]]
         distance = utils.avr_edit_distance(temp_set, train_string_new, True)
         # sorted_idx = np.argsort(distance, kind='mergesort').tolist()
         sort_idx = np.argmin(distance)

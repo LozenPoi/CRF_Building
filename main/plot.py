@@ -103,27 +103,34 @@ for i in sorted_partial_entropy_sum_edit:
     y_partial_entropy_sum_edit.append(np.mean(i))
 
 
-# # This is for temp test.
-# phrase_acc_av_partial_entropy_diff_aligned = np.sum(phrase_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
-# out_acc_av_partial_entropy_diff_aligned = np.sum(out_acc_partial_entropy_sum_edit_aligned, axis=0)/num_fold
-# partial_entropy_sum_edit_num_aligned = np.sum(partial_entropy_sum_edit_num_aligned, axis=0)/num_fold
-# partial_entropy_sum_edit_num_aligned = [i+14*2 for i in partial_entropy_sum_edit_num_aligned]
-# plt.plot(partial_entropy_sum_edit_num_aligned, phrase_acc_av_partial_entropy_diff_aligned, 'b',
-#          partial_entropy_sum_edit_num, phrase_acc_av_partial_entropy_diff, 'r')
-# plt.xlabel('number of training samples')
-# plt.ylabel('testing accuracy')
-# plt.legend(['entropy_sum_edit_aligned', 'entropy_sum_edit'])
-# plt.grid()
-# plt.show()
+# This is for the temp test.
+partial_entropy_sum_edit_aligned = {}
+for i in range(num_fold):
+    for j in range(len(partial_entropy_sum_edit_num_aligned[i])):
+        if partial_entropy_sum_edit_num_aligned[i][j] in partial_entropy_sum_edit_aligned:
+            partial_entropy_sum_edit_aligned[partial_entropy_sum_edit_num_aligned[i][j]].append(
+                phrase_acc_partial_entropy_sum_edit_aligned[i][j])
+        else:
+            partial_entropy_sum_edit_aligned[partial_entropy_sum_edit_num_aligned[i][j]] = [phrase_acc_partial_entropy_sum_edit_aligned[i][j]]
+
+sorted_partial_entropy_sum_edit_aligned = sorted(partial_entropy_sum_edit_aligned.items(), key=operator.itemgetter(0))
+sorted_partial_entropy_sum_edit_aligned = [i[1] for i in sorted_partial_entropy_sum_edit_aligned]
+x_partial_entropy_sum_edit_aligned = np.sort(list(partial_entropy_sum_edit_aligned.keys()), kind='mergesort').tolist()
+x_partial_entropy_sum_edit_aligned = [i+14*2 for i in x_partial_entropy_sum_edit_aligned]
+y_partial_entropy_sum_edit_aligned = []
+for i in sorted_partial_entropy_sum_edit_aligned:
+    y_partial_entropy_sum_edit_aligned.append(np.mean(i))
+
 
 
 plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'c',
          x_partial_entropy_sum, y_partial_entropy_sum, 'b',
          x_partial_entropy_sum_cluster, y_partial_entropy_sum_cluster, 'r',
-         x_partial_entropy_sum_edit, y_partial_entropy_sum_edit, 'k')
+         x_partial_entropy_sum_edit, y_partial_entropy_sum_edit, 'k',
+         x_partial_entropy_sum_edit_aligned, y_partial_entropy_sum_edit_aligned, 'y')
 plt.xlabel('number of training samples')
 plt.ylabel('testing accuracy')
-plt.legend(['confidence_edit', 'entropy_sum', 'entropy_sum_cluster', 'entropy_sum_edit'])
+plt.legend(['confidence_edit', 'entropy_sum', 'entropy_sum_cluster', 'entropy_sum_edit' 'revisit'])
 plt.grid()
 plt.show()
 
