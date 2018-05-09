@@ -70,10 +70,10 @@ def cv_edit_active_learn(args):
     batch_size = args['batch_size']
 
     # Initialize arrays to store results.
-    phrase_acc = np.zeros([max_samples_batch])
-    out_acc = np.zeros([max_samples_batch])
-    label_count = np.zeros([max_samples_batch])
-    count = 0
+    phrase_acc = np.zeros([max_samples_batch+1])
+    out_acc = np.zeros([max_samples_batch+1])
+    label_count = np.zeros([max_samples_batch+1])
+    count = 28
 
     # Define training set and testing set and corresponding original strings.
     train_set = [dataset[i] for i in train_idx]
@@ -102,6 +102,13 @@ def cv_edit_active_learn(args):
         all_possible_transitions=True
     )
     crf.fit(X_train_current, y_train_current)
+
+    # Use the estimator.
+    y_pred = crf.predict(X_test)
+    phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
+    phrase_acc[0] = phrase_correct / phrase_count
+    out_acc[0] = out_correct / out_count
+    label_count[0] = count
 
     # Vectorized and clustered test set.
     num_cluster = 5
@@ -136,6 +143,7 @@ def cv_edit_active_learn(args):
 
     len_test = len(test_set)
     len_ptname = len(test_set[0])
+    label_threshold = 50 + count
 
     for num_training in range(max_samples_batch):
 
@@ -172,11 +180,24 @@ def cv_edit_active_learn(args):
         z_score = [(entropy_tmp[i]-mean_entropy_tmp)/std_entropy_tmp for i in range(len_ptname)]
         y_sequence_truth = sent2labels(train_set_new[sort_idx])
         # print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
+        label_index = []
         for i in range(len_ptname):
-            if z_score[i] > 0.1:
+            if z_score[i] > 0.0:
+                label_index.append(i)
+        if count + len(label_index) <= label_threshold:
+            for i in label_index:
                 count += 1
-                y_sequence[i] = y_sequence_truth[i]
-        label_count[num_training] = count
+                y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+        else:
+            label_threshold_tmp = label_threshold - count
+            sorted_z_score_index = np.argsort(z_score, kind='mergesort').tolist()
+            for i in range(label_threshold_tmp):
+                count += 1
+                y_sequence[sorted_z_score_index[-i - 1]] = sent2labels(train_set_new[sort_idx])[
+                    sorted_z_score_index[-i - 1]]
+        if count == label_threshold:
+            label_threshold = label_threshold + 50
+        label_count[num_training+1] = count
 
         # Update training set.
         # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
@@ -232,9 +253,8 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        # print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training] = phrase_correct / phrase_count
-        out_acc[num_training] = out_correct / out_count
+        phrase_acc[num_training+1] = phrase_correct / phrase_count
+        out_acc[num_training+1] = out_correct / out_count
 
     return phrase_acc, out_acc, label_count
 
