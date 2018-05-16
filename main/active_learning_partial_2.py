@@ -74,6 +74,7 @@ def cv_edit_active_learn(args):
     out_acc = np.zeros([max_samples_batch+1])
     label_count = np.zeros([max_samples_batch+1])
     count = 28
+    pseudo_acc = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set and corresponding original strings.
     train_set = [dataset[i] for i in train_idx]
@@ -108,6 +109,7 @@ def cv_edit_active_learn(args):
     phrase_acc[0] = phrase_correct / phrase_count
     out_acc[0] = out_correct / out_count
     label_count[0] = count
+    pseudo_acc[0] = 1  # There is no pseudo-label at the beginning.
 
     # Vectorized and clustered test set.
     num_cluster = 5
@@ -173,23 +175,36 @@ def cv_edit_active_learn(args):
         y_sequence_truth = sent2labels(train_set_new[sort_idx])
         # print(entropy_tmp, z_score, y_sequence, y_sequence_truth)
         label_index = []
+        pseudo_label_total = 0
+        pseudo_label_correct = 0
         for i in range(len_ptname):
             if z_score[i] > 0.0:
                 label_index.append(i)
         if count + len(label_index) <= label_threshold:
             for i in label_index:
                 count += 1
+                if y_sequence[i] == sent2labels(train_set_new[sort_idx])[i]:
+                    pseudo_label_correct += 1
                 y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+                pseudo_label_total += 1
         else:
             label_threshold_tmp = label_threshold - count
             sorted_z_score_index = np.argsort(z_score, kind='mergesort').tolist()
             for i in range(label_threshold_tmp):
                 count += 1
-                y_sequence[sorted_z_score_index[-i - 1]] = sent2labels(train_set_new[sort_idx])[
-                    sorted_z_score_index[-i - 1]]
+                if y_sequence[sorted_z_score_index[-i-1]] == sent2labels(
+                        train_set_new[sort_idx])[sorted_z_score_index[-i-1]]:
+                    pseudo_label_correct += 1
+                y_sequence[sorted_z_score_index[-i - 1]] = sent2labels(
+                    train_set_new[sort_idx])[sorted_z_score_index[-i - 1]]
+                pseudo_label_total += 1
         if count == label_threshold:
             label_threshold = label_threshold + 50
         label_count[num_training+1] = count
+        if pseudo_label_total != 0:
+            pseudo_acc[num_training + 1] = pseudo_label_correct/pseudo_label_total
+        else:
+            pseudo_acc[num_training + 1] = 1
 
         # Update training set.
         # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
@@ -248,7 +263,7 @@ def cv_edit_active_learn(args):
         phrase_acc[num_training+1] = phrase_correct / phrase_count
         out_acc[num_training+1] = out_correct / out_count
 
-    return phrase_acc, out_acc, label_count
+    return phrase_acc, out_acc, label_count, pseudo_acc
 
 # This is the main function.
 if __name__ == '__main__':
@@ -287,6 +302,7 @@ if __name__ == '__main__':
     # print(len(phrase_acc))
     # print(len(phrase_acc[0]))
     label_count = [results[i][2] for i in range(num_fold)]
+    pseudo_acc = [results[i][3] for i in range(num_fold)]
 
     with open("../baseline/phrase_acc_confidence_edit.bin", "rb") as phrase_confidence:
         phrase_acc_confidence_edit = pickle.load(phrase_confidence)
@@ -300,10 +316,17 @@ if __name__ == '__main__':
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     phrase_acc_max = np.max(phrase_acc, axis=0)
     phrase_acc_min = np.min(phrase_acc, axis=0)
+
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
+
     label_count_av = np.sum(label_count, axis=0)/num_fold
     label_count_max = np.max(label_count, axis=0)
     label_count_min = np.min(label_count, axis=0)
+
+    pseudo_acc_av = np.sum(pseudo_acc, axis=0) / num_fold
+    pseudo_acc_max = np.max(pseudo_acc, axis=0)
+    pseudo_acc_min = np.min(pseudo_acc, axis=0)
+
     plt.plot(label_count_av, phrase_acc_av, 'r',
              np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence_edit, 'b',
              label_count_av, phrase_acc_max, '--r',
@@ -322,6 +345,13 @@ if __name__ == '__main__':
     plt.ylabel('average manual labels')
     plt.show()
 
+    plt.plot(np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_av, 'r',
+             np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_max, '--r',
+             np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_min, '--r')
+    plt.xlabel('number of iterations')
+    plt.ylabel('pseudo-label accuracy')
+    plt.show()
+
     # Save data for future plotting.
     with open("phrase_acc_partial_entropy_sum_cluster.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
@@ -329,3 +359,5 @@ if __name__ == '__main__':
         pickle.dump(out_acc, out_confidence_file)
     with open("partial_entropy_sum_cluster_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
+    with open("partial_entropy_sum_cluster_pseudo_acc.bin", "wb") as pseudo_acc_file:
+        pickle.dump(pseudo_acc, pseudo_acc_file)
