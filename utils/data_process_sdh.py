@@ -6,11 +6,18 @@ import numpy as np
 import pickle
 
 filepath = 'all_sdh_points_labelled.txt'
-name_length = 14
 dict = ['o']    # Initial dictionary.
 
 # POS tag definition: name (1), ID (2), none (0).
 def assign_value(current_vector, current_POS, point_name, name_part, label_part):
+
+    # current_vector: the current vector representation of the point name
+    # current_POS: the current POS tag dictionary.
+    # point_name: the whole point name string
+
+    # name_part: a part of the point name
+    # label_part: the corresponding label for name_part
+
     idx = point_name.find(name_part)
     if '=' in label_part:
         # This is an attribute name.
