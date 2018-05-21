@@ -182,7 +182,7 @@ with open(filepath, 'r') as fp:
     print(len(dataset))
 fp.close()
 
-with open("ibm_dataset.bin", "wb") as ibm_dataset:
-    pickle.dump(dataset, ibm_dataset)
-with open("ibm_string.bin", "wb") as ibm_string:
-    pickle.dump(filtered_string, ibm_string)
+# with open("ibm_dataset.bin", "wb") as ibm_dataset:
+#     pickle.dump(dataset, ibm_dataset)
+# with open("ibm_string.bin", "wb") as ibm_string:
+#     pickle.dump(filtered_string, ibm_string)

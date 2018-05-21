@@ -73,7 +73,6 @@ def cv_edit_active_learn(args):
     phrase_acc = np.zeros([max_samples_batch+1])
     out_acc = np.zeros([max_samples_batch+1])
     label_count = np.zeros([max_samples_batch+1])
-    count = 28
     pseudo_acc = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set and corresponding original strings.
@@ -87,6 +86,7 @@ def cv_edit_active_learn(args):
     train_set_new = train_set[2:]
     train_string_current = train_string[:2]
     train_string_new = train_string[2:]
+    count = len(train_string[0]) + len(train_string[1])
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -144,7 +144,6 @@ def cv_edit_active_learn(args):
         distance_to_cluster.append(sum(weighted_distance))
 
     len_test = len(test_set)
-    len_ptname = len(test_set[0])
     label_threshold = 50 + count
 
     for num_training in range(max_samples_batch):
@@ -154,6 +153,7 @@ def cv_edit_active_learn(args):
         label_list = crf.tagger_.labels()
         entropy_list = []
         for i in test_set:
+            len_ptname = len(i)
             crf.tagger_.set(sent2features(i))
             entropy_seq = []
             for j in range(len_ptname):
@@ -161,8 +161,8 @@ def cv_edit_active_learn(args):
                 entropy_seq.append(scipy.stats.entropy(marginal_prob))
             entropy_list.append(entropy_seq)
 
-        # Sort the test set based on the entropy sum.
-        entropy_sum = [sum(i) for i in entropy_list]
+        # Sort the test set based on the average entropy (previously entropy sum).
+        entropy_sum = [sum(i)/len(i) for i in entropy_list]
         sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
 
         # Select the string with the minimum average distance to the selected group.
@@ -174,6 +174,7 @@ def cv_edit_active_learn(args):
         # Find the sample with the maximal score and only label the part with low confidence/high entropy.
         y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
         entropy_tmp = []
+        len_ptname = len(train_set_new[sort_idx])
         for j in range(len_ptname):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
             entropy_tmp.append(scipy.stats.entropy(marginal_prob))
@@ -276,9 +277,13 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -286,7 +291,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
@@ -316,10 +321,10 @@ if __name__ == '__main__':
         phrase_acc_confidence_edit = pickle.load(phrase_confidence)
     with open("../baseline/out_acc_confidence_edit.bin", "rb") as out_confidence:
         out_acc_confidence_edit = pickle.load(out_confidence)
-    phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0) / 8.0
+    phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0) / num_fold
     phrase_acc_max_confidence_edit = np.max(phrase_acc_confidence_edit, axis=0)
     phrase_acc_min_confidence_edit = np.min(phrase_acc_confidence_edit, axis=0)
-    out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / 8.0
+    out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / num_fold
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     phrase_acc_max = np.max(phrase_acc, axis=0)
@@ -361,11 +366,11 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
-        pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
-        pickle.dump(out_acc, out_confidence_file)
-    with open("partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
-        pickle.dump(label_count, label_count_file)
-    with open("partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
-        pickle.dump(pseudo_acc, pseudo_acc_file)
+    # with open("phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+    # with open("partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
+    # with open("partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    #     pickle.dump(pseudo_acc, pseudo_acc_file)

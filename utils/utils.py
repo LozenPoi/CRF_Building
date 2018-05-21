@@ -19,7 +19,6 @@ def phrase_acc(y_test, y_pred):
         raise ValueError('Prediction has different length than ground truth.')
 
     # Consider the accuracy in phrase level.
-    len_str = len(y_test[0])
     phrase_count = 0    # Total number of phrases.
     phrase_correct = 0  # Number of correctly classified phrases.
     out_count = 0   # Total number of out-of-phrases (characters labeled as "o").
@@ -30,7 +29,7 @@ def phrase_acc(y_test, y_pred):
         # Once a mismatch found within a phrase or the phrase has been counted as correctly classified, the flag will be
         # changed to "False".
         correct_flag = False
-
+        len_str = len(y_test[i])
         for j in range(len_str):
 
             # If the character is a beginning-of-phrase.
