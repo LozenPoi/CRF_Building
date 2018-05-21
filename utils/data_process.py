@@ -169,14 +169,14 @@ f = open('POS.txt', 'w')
 for i in range(data_size-1):
     for j in range(14):
         if j<13:
-            f.write(np.array2string(output_POS[i,j].astype(int))+',')
+            f.write(np.array2string(output_POS[i, j].astype(int))+',')
         else:
-            f.write(np.array2string(output_POS[i,j].astype(int)))
+            f.write(np.array2string(output_POS[i, j].astype(int)))
     f.write('\n')
 f.close()
 
 # Store the dictionary as a text file.
-f = open('dictionary.txt','w')
+f = open('dictionary.txt', 'w')
 for i in dict:
     f.write(i + '\n')
 f.close()

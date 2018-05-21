@@ -174,6 +174,7 @@ f.close()
 # Convert the training and testing data with the format fitting CRFsuite.
 # print(len(dict))
 # print(vector.shape)
+filtered_string = []
 with open(filepath, 'r') as fp:
     count = 0
     dataset = []
@@ -188,9 +189,12 @@ with open(filepath, 'r') as fp:
             idx = idx + 1
         dataset.append(sent)
         count = count + 1
+        filtered_string.append(point_name)
         print("Line {}: {}".format(count, sent))
     print(len(dataset))
 fp.close()
 
 with open("sdh_dataset.bin", "wb") as sdh_dataset:
     pickle.dump(dataset, sdh_dataset)
+with open("sdh_string.bin", "wb") as sdh_string:
+    pickle.dump(filtered_string, sdh_string)
