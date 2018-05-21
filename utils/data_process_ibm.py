@@ -5,8 +5,8 @@
 import numpy as np
 import pickle
 
-filepath = '../dataset/all_sdh_points_labelled.txt'
-dict = ['o', 'b_room', 'i_room']    # Initial dictionary.
+filepath = '../dataset/IBM-GROUND-TRUTH.txt'
+dict = ['o']    # Initial dictionary.
 vector_labeled = []
 
 
@@ -54,61 +54,49 @@ def assign_value(current_vector, point_name, name_part, label_part):
             if attribute_name in s:
                 dict_idx = temp_idx - 1
                 break
-        # The attribute name should already exist because id must follow an attribute name (special case: room).
+        # If the label is not currently in the dictionary, it should be updated.
+        if dict_idx == 0:
+            dict.append('b_' + label_part)
+            dict.append('i_' + label_part)
+            dict_idx = len(dict) - 2
         # Find the position of the name part in the point name string.
         while current_vector[idx] != 0:
             # print(current_vector)
             # print(dict)
             idx = point_name.find(name_part, idx + 1)
             # print(idx)
-        # Special case: this is a room ID (a digit can be the beginning of a segment).
-        if attribute_name == 'room':
-            if (idx > 0) & (point_name[idx-1] != 'R'):
-                current_vector[idx] = dict_idx
-                for i in range(len(name_part)-1):
-                    current_vector[idx+1+i] = dict_idx + 1
+        # Update the vector representation.
+        # False if the id is independent from any attribute name (which is normal in this dataset, like room id).
+        # True if the id is dependent on an attribute name (which is rare in this dataset).
+        if idx > 0:
+            temp_attr_name = dict[current_vector[idx-1]]
+            if temp_attr_name[2:] == attribute_name:
+                dependent_flag = True
             else:
-                for i in range(len(name_part)):
-                    current_vector[idx+i] = dict_idx + 1
-        # If this is not a room ID (a digit can't be the beginning of a segment).
+                dependent_flag = False
         else:
-            consis_flag = False
-            while not consis_flag:
-                # print(attribute_name)
-                if current_vector[idx-1] != 0:
-                    temp_attr_name = dict[current_vector[idx-1]]
-                    if temp_attr_name[2:] == attribute_name:
-                        consis_flag = True
-                    else:
-                        consis_flag = False
-                else:
-                    temp_attr_name = dict[current_vector[idx-2]]
-                    if temp_attr_name[2:] == attribute_name:
-                        consis_flag = True
-                    else:
-                        consis_flag = False
-                if not consis_flag:
-                    idx = point_name.find(name_part, idx + 1)
-                    while current_vector[idx] != 0:
-                        idx = point_name.find(name_part, idx + 1)
+            dependent_flag = False
+        if dependent_flag:
             for i in range(len(name_part)):
                 current_vector[idx+i] = dict_idx + 1
-            if current_vector[idx-1] == 0:
-                current_vector[idx-1] = dict_idx + 1
+        else:
+            current_vector[idx] = dict_idx
+            for i in range(len(name_part) - 1):
+                current_vector[idx + 1 + i] = dict_idx + 1
 
     return current_vector
 
 
 with open(filepath, 'r') as fp:
     count = 0
-    for num_line in range(2551):
+    for num_line in range(1366):
 
         count = count + 1
         point_name = fp.readline()   # point name string
         label = fp.readline()   # labels
         # print(point_name)
         # print(label)
-        point_name = point_name[:-2]    # get rid of the space and newline at the end
+        point_name = point_name[:-1]    # get rid of the newline at the end
         label = label[:-1]  # get rid of the newline at the end
         # print(point_name)
         label = label + ',' # for segmentation purpose
@@ -157,13 +145,13 @@ fp.close()
 
 
 # Store the dictionary as a text file.
-f = open('sdh_dictionary.txt','w')
+f = open('ibm_dictionary.txt', 'w')
 for i in dict:
     f.write(i + '\n')
 f.close()
 
 # Store full labeled strings.
-f = open('sdh_vectors.txt', 'w')
+f = open('ibm_vectors.txt', 'w')
 for i in vector_labeled:
     for j in i:
         f.write(str(j)+',')
@@ -177,7 +165,7 @@ f.close()
 with open(filepath, 'r') as fp:
     count = 0
     dataset = []
-    for num_line in range(2551):
+    for num_line in range(1366):
         point_name = fp.readline()
         label = fp.readline()
         point_name = point_name[:-2]  # get rid of the space and newline at the end
@@ -192,5 +180,5 @@ with open(filepath, 'r') as fp:
     print(len(dataset))
 fp.close()
 
-with open("sdh_dataset.bin", "wb") as sdh_dataset:
+with open("ibm_dataset.bin", "wb") as sdh_dataset:
     pickle.dump(dataset, sdh_dataset)
