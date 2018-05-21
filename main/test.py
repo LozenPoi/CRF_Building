@@ -58,10 +58,8 @@ def string_vectorize(input_list):
 #     test_prob_list.append(margin_list)
 #     print(margin_list)
 
-a = {1: [3,1]}
-a[1].append(4)
-print(a[1])
-
+a = 'abcadefg '
+print([0] * 10)
 
 
 
