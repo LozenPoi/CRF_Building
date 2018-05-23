@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/main/plot.py" line="57" />
+    <bookmark url="file://$PROJECT_DIR$/main/plot.py" line="96" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa64da6e-e860-4b8e-984a-5723b1122749" name="Default" comment="" />
@@ -14,11 +14,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+      <file leaf-file-name="baseline_active_learning_confidence_edit.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-3792">
+              <caret line="38" column="21" lean-forward="true" selection-start-line="35" selection-start-column="4" selection-end-line="38" selection-end-column="21" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="active_learning_partial_1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="833">
-              <caret line="254" column="51" lean-forward="false" selection-start-line="254" selection-start-column="51" selection-end-line="254" selection-end-column="51" />
+            <state relative-caret-position="-5512">
+              <caret line="30" column="22" lean-forward="false" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -29,8 +41,8 @@
       <file leaf-file-name="active_learning_partial_2.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5800">
-              <caret line="304" column="57" lean-forward="false" selection-start-line="304" selection-start-column="4" selection-end-line="304" selection-end-column="57" />
+            <state relative-caret-position="-6692">
+              <caret line="32" column="22" lean-forward="false" selection-start-line="32" selection-start-column="22" selection-end-line="32" selection-end-column="22" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -38,11 +50,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="active_learning_partial_3.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="active_learning_partial_3.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="168" column="60" lean-forward="false" selection-start-line="168" selection-start-column="60" selection-end-line="168" selection-end-column="60" />
+            <state relative-caret-position="-640">
+              <caret line="79" column="11" lean-forward="true" selection-start-line="79" selection-start-column="11" selection-end-line="79" selection-end-column="11" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -53,18 +65,18 @@
       <file leaf-file-name="active_learning_partial_4.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
+            <state relative-caret-position="-220">
               <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="plot.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="plot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main/plot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-132">
-              <caret line="56" column="41" lean-forward="false" selection-start-line="56" selection-start-column="41" selection-end-line="56" selection-end-column="41" />
+            <state relative-caret-position="1028">
+              <caret line="110" column="86" lean-forward="false" selection-start-line="110" selection-start-column="86" selection-end-line="110" selection-end-column="86" />
               <folding />
             </state>
           </provider>
@@ -73,7 +85,7 @@
       <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="733">
+            <state relative-caret-position="1120">
               <caret line="61" column="14" lean-forward="false" selection-start-line="61" selection-start-column="14" selection-end-line="61" selection-end-column="14" />
               <folding />
             </state>
@@ -83,8 +95,8 @@
       <file leaf-file-name="data_process_ibm.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/data_process_ibm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-12">
-              <caret line="161" column="55" lean-forward="true" selection-start-line="161" selection-start-column="55" selection-end-line="161" selection-end-column="55" />
+            <state relative-caret-position="3200">
+              <caret line="161" column="55" lean-forward="false" selection-start-line="161" selection-start-column="55" selection-end-line="161" selection-end-column="55" />
               <folding />
             </state>
           </provider>
@@ -141,22 +153,22 @@
         <option value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence.py" />
         <option value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence_cluster.py" />
         <option value="$PROJECT_DIR$/main/active_learning_partial.py" />
-        <option value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py" />
         <option value="$PROJECT_DIR$/utils/active_learning_partial_4.py" />
         <option value="$PROJECT_DIR$/main/active_learning_partial_4.py" />
-        <option value="$PROJECT_DIR$/main/plot.py" />
-        <option value="$PROJECT_DIR$/main/active_learning_partial_1.py" />
-        <option value="$PROJECT_DIR$/main/active_learning_partial_2.py" />
         <option value="$PROJECT_DIR$/main/test.py" />
         <option value="$PROJECT_DIR$/utils/data_process.py" />
         <option value="$PROJECT_DIR$/utils/data_process_sdh.py" />
         <option value="$PROJECT_DIR$/utils/utils.py" />
         <option value="$PROJECT_DIR$/utils/data_process_ibm.py" />
+        <option value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py" />
+        <option value="$PROJECT_DIR$/main/active_learning_partial_1.py" />
+        <option value="$PROJECT_DIR$/main/active_learning_partial_2.py" />
         <option value="$PROJECT_DIR$/main/active_learning_partial_3.py" />
+        <option value="$PROJECT_DIR$/main/plot.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="708" />
     <option name="y" value="76" />
     <option name="width" value="1890" />
@@ -177,7 +189,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -209,7 +221,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -228,7 +240,25 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.active_learning_partial_3">
+  <component name="RunManager" selected="Python.plot">
+    <configuration name="active_learning_partial_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/active_learning_partial_1.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
     <configuration name="active_learning_partial_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -265,43 +295,25 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="data_process_ibm" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="baseline_active_learning_confidence_edit" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/baseline" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="CRF_Building" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/data_process_ibm.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="data_process_sdh" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="CRF_Building" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/data_process_sdh.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="plot" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -313,7 +325,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="CRF_Building" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/plot.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -322,17 +334,17 @@
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.active_learning_partial_2" />
       <item index="1" class="java.lang.String" itemvalue="Python.active_learning_partial_3" />
-      <item index="2" class="java.lang.String" itemvalue="Python.test" />
-      <item index="3" class="java.lang.String" itemvalue="Python.data_process_sdh" />
-      <item index="4" class="java.lang.String" itemvalue="Python.data_process_ibm" />
+      <item index="2" class="java.lang.String" itemvalue="Python.active_learning_partial_1" />
+      <item index="3" class="java.lang.String" itemvalue="Python.baseline_active_learning_confidence_edit" />
+      <item index="4" class="java.lang.String" itemvalue="Python.plot" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.active_learning_partial_3" />
-        <item index="1" class="java.lang.String" itemvalue="Python.data_process_ibm" />
-        <item index="2" class="java.lang.String" itemvalue="Python.data_process_sdh" />
-        <item index="3" class="java.lang.String" itemvalue="Python.test" />
-        <item index="4" class="java.lang.String" itemvalue="Python.active_learning_partial_2" />
+        <item index="0" class="java.lang.String" itemvalue="Python.plot" />
+        <item index="1" class="java.lang.String" itemvalue="Python.active_learning_partial_3" />
+        <item index="2" class="java.lang.String" itemvalue="Python.baseline_active_learning_confidence_edit" />
+        <item index="3" class="java.lang.String" itemvalue="Python.active_learning_partial_2" />
+        <item index="4" class="java.lang.String" itemvalue="Python.active_learning_partial_1" />
       </list>
     </recent_temporary>
   </component>
@@ -353,7 +365,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17281349" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -455,17 +467,6 @@
     <entry file="file://$PROJECT_DIR$/baseline/plot.py" />
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial.py" />
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3_aligned_labeling.py" />
-    <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py" />
-    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5800">
-          <caret line="304" column="57" lean-forward="false" selection-start-line="304" selection-start-column="4" selection-end-line="304" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../CRF_Building_March_18_2018/train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
@@ -473,21 +474,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="833">
-          <caret line="254" column="51" lean-forward="false" selection-start-line="254" selection-start-column="51" selection-end-line="254" selection-end-column="51" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utils/data_process.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="353">
           <caret line="138" column="16" lean-forward="true" selection-start-line="138" selection-start-column="16" selection-end-line="138" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -495,9 +485,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="753">
           <caret line="198" column="0" lean-forward="false" selection-start-line="198" selection-start-column="0" selection-end-line="199" selection-end-column="44" />
-          <folding>
-            <element signature="e#139#157#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -505,49 +492,78 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="400">
           <caret line="31" column="30" lean-forward="false" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="733">
+        <state relative-caret-position="1120">
           <caret line="61" column="14" lean-forward="false" selection-start-line="61" selection-start-column="14" selection-end-line="61" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/plot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-132">
-          <caret line="56" column="41" lean-forward="false" selection-start-line="56" selection-start-column="41" selection-end-line="56" selection-end-column="41" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utils/data_process_ibm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-12">
-          <caret line="161" column="55" lean-forward="true" selection-start-line="161" selection-start-column="55" selection-end-line="161" selection-end-column="55" />
+        <state relative-caret-position="3200">
+          <caret line="161" column="55" lean-forward="false" selection-start-line="161" selection-start-column="55" selection-end-line="161" selection-end-column="55" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-6692">
+          <caret line="32" column="22" lean-forward="false" selection-start-line="32" selection-start-column="22" selection-end-line="32" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="168" column="60" lean-forward="false" selection-start-line="168" selection-start-column="60" selection-end-line="168" selection-end-column="60" />
+        <state relative-caret-position="-640">
+          <caret line="79" column="11" lean-forward="true" selection-start-line="79" selection-start-column="11" selection-end-line="79" selection-end-column="11" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-220">
+          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3792">
+          <caret line="38" column="21" lean-forward="true" selection-start-line="35" selection-start-column="4" selection-end-line="38" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5512">
+          <caret line="30" column="22" lean-forward="false" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/plot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1028">
+          <caret line="110" column="86" lean-forward="false" selection-start-line="110" selection-start-column="86" selection-end-line="110" selection-end-column="86" />
+          <folding />
         </state>
       </provider>
     </entry>

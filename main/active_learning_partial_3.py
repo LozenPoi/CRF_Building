@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import sklearn_crfsuite
 import scipy.stats
+import math
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
@@ -24,8 +25,12 @@ def word2features(sent, i):
             cum_dig = cum_dig + 1
         else:
             cum_dig = 0
+    if word.isdigit():
+        itself = 'NUM'
+    else:
+        itself = word
     features = {
-        'word': word,
+        'word': itself,
         'word.isdigit()': word.isdigit(),
         'first_digit': cum_dig == 1,
         'second_digit': cum_dig == 2,
@@ -82,11 +87,14 @@ def cv_edit_active_learn(args):
     test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set and the training pool (unlabeled data).
-    train_set_current = train_set[:2]
-    train_set_new = train_set[2:]
-    train_string_current = train_string[:2]
-    train_string_new = train_string[2:]
-    count = len(train_string[0]) + len(train_string[1])
+    initial_size = 2
+    train_set_current = train_set[:initial_size]
+    train_set_new = train_set[initial_size:]
+    train_string_current = train_string[:initial_size]
+    train_string_new = train_string[initial_size:]
+    count = 0
+    for i in range(initial_size):
+        count += len(train_string[i])
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -186,9 +194,9 @@ def cv_edit_active_learn(args):
         label_index = []
         pseudo_label_total = 0
         pseudo_label_correct = 0
-        for i in range(len_ptname):
-            if z_score[i] > 0.0:
-                label_index.append(i)
+        z_score_sort = np.argsort(z_score, kind='mergesort').tolist()
+        for i in range(int(math.ceil(len_ptname/2.0))):
+            label_index.append(z_score_sort[-i-1])
         if count + len(label_index) <= label_threshold:
             for i in label_index:
                 count += 1
@@ -281,9 +289,9 @@ if __name__ == '__main__':
     #     dataset = pickle.load(my_dataset)
     # with open("../dataset/filtered_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
-    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/ibm_string.bin", "rb") as my_string:
+    with open("../dataset/sdh_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -291,7 +299,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 200
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
@@ -366,11 +374,30 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    # with open("phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    # with open("sod_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
     #     pickle.dump(phrase_acc, phrase_confidence_file)
-    # with open("out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    # with open("sod_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
     #     pickle.dump(out_acc, out_confidence_file)
-    # with open("partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    # with open("sod_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
     #     pickle.dump(label_count, label_count_file)
-    # with open("partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    # with open("sod_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
     #     pickle.dump(pseudo_acc, pseudo_acc_file)
+
+    # Save data for future plotting.
+    # with open("ibm_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("ibm_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+    # with open("ibm_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
+    # with open("ibm_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    #     pickle.dump(pseudo_acc, pseudo_acc_file)
+
+    with open("sdh_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+        pickle.dump(phrase_acc, phrase_confidence_file)
+    with open("sdh_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+        pickle.dump(out_acc, out_confidence_file)
+    with open("sdh_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+        pickle.dump(label_count, label_count_file)
+    with open("sdh_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+        pickle.dump(pseudo_acc, pseudo_acc_file)

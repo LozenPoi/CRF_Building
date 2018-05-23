@@ -33,8 +33,12 @@ def word2features(sent, i):
             cum_dig = cum_dig + 1
         else:
             cum_dig = 0
+    if word.isdigit():
+        itself = 'NUM'
+    else:
+        itself = word
     features = {
-        'word': word,
+        'word': itself,
         'word.isdigit()': word.isdigit(),
         'first_digit': cum_dig == 1,
         'second_digit': cum_dig == 2,
@@ -190,9 +194,9 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
+    with open("../dataset/sdh_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -226,18 +230,25 @@ if __name__ == '__main__':
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(np.arange(3,max_samples_batch*batch_size+3,batch_size),phrase_acc_av,'r',
-             np.arange(3,max_samples_batch*batch_size+3,batch_size),out_acc_av,'b')
+    plt.plot(np.arange(3, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
+             np.arange(3, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
     plt.xlabel('number of training samples')
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
-        pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_confidence_edit.bin", "wb") as out_confidence_file:
-        pickle.dump(out_acc, out_confidence_file)
+    # with open("phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
 
-    # Observed strings.
-    # print([results[i][2] for i in range(num_fold)])
+    # with open("ibm_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("ibm_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+
+    with open("sdh_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+        pickle.dump(phrase_acc, phrase_confidence_file)
+    with open("sdh_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+        pickle.dump(out_acc, out_confidence_file)
