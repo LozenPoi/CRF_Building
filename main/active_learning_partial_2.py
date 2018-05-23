@@ -150,8 +150,12 @@ def cv_edit_active_learn(args):
                              for j in range(num_cluster)]
         distance_to_cluster.append(sum(weighted_distance))
 
-    len_test = len(test_set)
-    label_threshold = 50 + count
+    # len_test = len(test_set)
+    initial_budget = 100
+    if count >= initial_budget:
+        print('Error: initial budget is less than initial number of labels.')
+    else:
+        label_threshold = initial_budget
 
     for num_training in range(max_samples_batch):
 

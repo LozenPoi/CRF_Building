@@ -71,7 +71,7 @@ out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0)/num_fold
 # Process the data at some certain points.
 initial_count = 50
 
-max_labels = 1000
+max_labels = 1500
 x_value = []
 y_value_entropy_sum = []
 y_value_entropy_sum_cluster = []
@@ -92,7 +92,7 @@ for i in range(initial_count, max_labels, 50):
     tmp_value = []
     for j in range(len(partial_entropy_sum_num)):
         tmp_idx = partial_entropy_sum_num[j].index(i)
-        tmp_value.append(phrase_acc_partial_entropy_sum[j].tolist()[tmp_idx]+0.1)
+        tmp_value.append(phrase_acc_partial_entropy_sum[j].tolist()[tmp_idx])
     y_value_entropy_sum.append(tmp_value)
 print(len(y_value_entropy_sum))
 
@@ -100,7 +100,7 @@ for i in range(initial_count, max_labels, 50):
     tmp_value = []
     for j in range(len(partial_entropy_sum_cluster_num)):
         tmp_idx = partial_entropy_sum_cluster_num[j].index(i)
-        tmp_value.append(phrase_acc_partial_entropy_sum_cluster[j].tolist()[tmp_idx]+0.1)
+        tmp_value.append(phrase_acc_partial_entropy_sum_cluster[j].tolist()[tmp_idx])
     y_value_entropy_sum_cluster.append(tmp_value)
 print(len(y_value_entropy_sum_cluster))
 
@@ -108,7 +108,7 @@ for i in range(initial_count, max_labels, 50):
     tmp_value = []
     for j in range(len(partial_entropy_sum_edit_num)):
         tmp_idx = partial_entropy_sum_edit_num[j].index(i)
-        tmp_value.append(phrase_acc_partial_entropy_sum_edit[j].tolist()[tmp_idx]+0.15)
+        tmp_value.append(phrase_acc_partial_entropy_sum_edit[j].tolist()[tmp_idx])
     y_value_entropy_sum_edit.append(tmp_value)
 print(len(y_value_entropy_sum_edit))
 

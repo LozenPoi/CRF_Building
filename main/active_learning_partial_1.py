@@ -119,7 +119,12 @@ def cv_edit_active_learn(args):
     pseudo_acc[0] = 1   # There is no pseudo-label at the beginning.
 
     # len_test = len(test_set)
-    label_threshold = 50 + count
+    initial_budget = 100
+    if count >= initial_budget:
+        print('Error: initial budget is less than initial number of labels.')
+    else:
+        label_threshold = initial_budget
+
     for num_training in range(max_samples_batch):
 
         # Want to look at the confidence (entropy for each character of each string) on unlabeled data.

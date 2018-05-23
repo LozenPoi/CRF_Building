@@ -84,6 +84,7 @@ def cv_edit_active_learn(args):
 
     phrase_acc = np.zeros([max_samples_batch])
     out_acc = np.zeros([max_samples_batch])
+    label_count = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set.
     train_set = [dataset[i] for i in train_idx]
@@ -92,10 +93,13 @@ def cv_edit_active_learn(args):
     test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set from the training pool.
-    train_set_current = train_set[:2]
-    train_set_new = train_set[2:]
-    train_string_current = train_string[:2]
-    train_string_new = train_string[2:]
+    initial_size = 2
+    train_set_current = train_set[:initial_size]
+    train_set_new = train_set[initial_size:]
+    train_string_current = train_string[:initial_size]
+    train_string_new = train_string[initial_size:]
+    for i in range(initial_size):
+        label_count[0] += len(train_string[i])
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -113,7 +117,14 @@ def cv_edit_active_learn(args):
     )
     crf.fit(X_train_current, y_train_current)
 
+    # Use the estimator.
+    y_pred = crf.predict(X_test)
+    phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
+    phrase_acc[0] = phrase_correct / phrase_count
+    out_acc[0] = out_correct / out_count
+
     len_test = len(test_set)
+
     for num_training in range(max_samples_batch):
 
         # Calculate the confidence on the testing set using the current CRF.
@@ -144,6 +155,9 @@ def cv_edit_active_learn(args):
         for i in string_to_remove:
             train_string_current.append(i)
             train_string_new.remove(i)
+
+        # Assume the batch size is 1.
+        label_count[num_training+1] = label_count[num_training] + len(train_set_new[sort_idx[0]])
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -186,10 +200,10 @@ def cv_edit_active_learn(args):
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
         # print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training] = phrase_correct / phrase_count
-        out_acc[num_training] = out_correct / out_count
+        phrase_acc[num_training+1] = phrase_correct / phrase_count
+        out_acc[num_training+1] = out_correct / out_count
 
-    return phrase_acc, out_acc
+    return phrase_acc, out_acc, label_count
 
 # This is the main function.
 if __name__ == '__main__':
@@ -225,6 +239,7 @@ if __name__ == '__main__':
     # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
+    label_count = [results[i][3] for i in range(num_fold)]
     # print(len(phrase_acc))
     # print(len(phrase_acc[0]))
 
@@ -252,3 +267,5 @@ if __name__ == '__main__':
         pickle.dump(phrase_acc, phrase_confidence_file)
     with open("sdh_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
+    with open("sdh_confidence_edit_num.bin", "wb") as label_count_file:
+        pickle.dump(label_count, label_count_file)
