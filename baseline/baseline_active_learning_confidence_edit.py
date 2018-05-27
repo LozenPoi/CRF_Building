@@ -82,8 +82,8 @@ def cv_edit_active_learn(args):
     max_samples_batch = args['max_samples_batch']
     batch_size = args['batch_size']
 
-    phrase_acc = np.zeros([max_samples_batch])
-    out_acc = np.zeros([max_samples_batch])
+    phrase_acc = np.zeros([max_samples_batch + 1])
+    out_acc = np.zeros([max_samples_batch + 1])
     label_count = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set.
@@ -146,6 +146,9 @@ def cv_edit_active_learn(args):
         # if (num_training>=20)&(num_training<=40):
         #     print([train_string_new[i] for i in sort_idx[:batch_size]])
 
+        # Assume the batch size is 1.
+        label_count[num_training + 1] = label_count[num_training] + len(train_set_new[sort_idx[0]])
+
         # update training set
         sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
         for i in sample_to_remove:
@@ -155,9 +158,6 @@ def cv_edit_active_learn(args):
         for i in string_to_remove:
             train_string_current.append(i)
             train_string_new.remove(i)
-
-        # Assume the batch size is 1.
-        label_count[num_training+1] = label_count[num_training] + len(train_set_new[sort_idx[0]])
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -239,14 +239,14 @@ if __name__ == '__main__':
     # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
-    label_count = [results[i][3] for i in range(num_fold)]
+    label_count = [results[i][2] for i in range(num_fold)]
     # print(len(phrase_acc))
     # print(len(phrase_acc[0]))
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(np.arange(3, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
-             np.arange(3, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
+    plt.plot(np.arange(2, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
+             np.arange(2, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
     plt.xlabel('number of training samples')
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
@@ -262,6 +262,8 @@ if __name__ == '__main__':
     #     pickle.dump(phrase_acc, phrase_confidence_file)
     # with open("ibm_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
     #     pickle.dump(out_acc, out_confidence_file)
+    # with open("ibm_confidence_edit_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
 
     with open("sdh_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
