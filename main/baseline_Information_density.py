@@ -116,6 +116,14 @@ def cv_edit_active_learn(args):
     vec, _ = utils.string_vectorize(train_string_new)
     vec = vec.tolist()
 
+    # Pre-calculate similarity.
+    ini_unlabeled_size = len(vec)
+    sim_matrix = np.zeros((ini_unlabeled_size, ini_unlabeled_size))
+    for i in range(ini_unlabeled_size):
+        for j in range(i):
+            sim_matrix[i,j] = 1 - spatial.distance.cosine(vec[i], vec[j])
+            sim_matrix[j,i] = sim_matrix[i,j]
+
     for num_training in range(max_samples_batch):
 
         # Calculate the confidence on the training pool (train_set_new) using the current CRF.
@@ -129,12 +137,7 @@ def cv_edit_active_learn(args):
             prob_list.append(1 - crf.tagger_.probability(y_sequence))
 
         # Calculate the average similarity to all other unlabeled sample.
-        sim_list = []
-        for i in range(len_train_new):
-            tmp_sim = 0
-            for j in range(len_train_new):
-                tmp_sim += 1 - spatial.distance.cosine(vec[i], vec[j])
-            sim_list.append(tmp_sim/len_train_new)
+        sim_list = np.sum(sim_matrix, axis=0)/len_train_new
 
         # Calculate information density.
         info_den = [prob_list[i]*sim_list[i] for i in range(len_train_new)]
@@ -154,7 +157,8 @@ def cv_edit_active_learn(args):
         idx_to_remove = sort_idx[:batch_size]
         idx_to_remove = np.sort(idx_to_remove, kind='mergesort').tolist()
         for i in range(batch_size):
-            del vec[idx_to_remove[-i-1]]
+            sim_matrix = np.delete(sim_matrix, idx_to_remove[-i-1], 0)
+            sim_matrix = np.delete(sim_matrix, idx_to_remove[-i-1], 1)
             train_set_current.append(train_set_new[idx_to_remove[-i-1]])
             del train_set_new[idx_to_remove[-i-1]]
 
