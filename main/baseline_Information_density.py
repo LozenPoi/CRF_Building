@@ -114,6 +114,7 @@ def cv_edit_active_learn(args):
 
     # Vectorize the unlabeled set.
     vec, _ = utils.string_vectorize(train_string_new)
+    vec = vec.tolist()
 
     for num_training in range(max_samples_batch):
 
@@ -133,13 +134,13 @@ def cv_edit_active_learn(args):
             tmp_sim = 0
             for j in range(len_train_new):
                 tmp_sim += 1 - spatial.distance.cosine(vec[i], vec[j])
-            sim_list[i] = tmp_sim/len_train_new
+            sim_list.append(tmp_sim/len_train_new)
 
         # Calculate information density.
         info_den = [prob_list[i]*sim_list[i] for i in range(len_train_new)]
 
         # Sort the training pool based on confidence.
-        sort_idx = np.argsort(np.array(info_den), kind='mergesort').tolist()
+        sort_idx = np.argsort(-np.array(info_den), kind='mergesort').tolist()
 
         # if (num_training>=20)&(num_training<=40):
         #     print([train_string_new[i] for i in sort_idx[:batch_size]])
@@ -183,9 +184,13 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -193,7 +198,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 20
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())

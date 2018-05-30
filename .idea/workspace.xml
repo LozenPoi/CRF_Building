@@ -14,47 +14,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="active_learning_partial_1.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
+      <file leaf-file-name="baseline_Information_density.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main/baseline_Information_density.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="239" column="29" selection-start-line="239" selection-start-column="29" selection-end-line="239" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="active_learning_partial_2.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="55">
-              <caret line="121" column="4" selection-start-line="121" selection-start-column="4" selection-end-line="130" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="active_learning_partial_3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="407" selection-start-line="407" selection-end-line="407" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="active_learning_partial_4.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="13" selection-start-line="13" selection-end-line="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="baseline_active_learning_confidence_edit.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="123" column="40" lean-forward="true" selection-start-line="119" selection-start-column="4" selection-end-line="123" selection-end-column="40" />
+            <state relative-caret-position="190">
+              <caret line="116" column="22" lean-forward="false" selection-start-line="116" selection-start-column="22" selection-end-line="116" selection-end-column="22" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -62,11 +26,41 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="baseline_Information_density.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/main/baseline_Information_density.py">
+      <file leaf-file-name="active_learning_partial_2.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-86">
-              <caret line="155" column="27" selection-start-line="155" selection-start-column="27" selection-end-line="155" selection-end-column="27" />
+            <state relative-caret-position="715">
+              <caret line="127" column="12" lean-forward="true" selection-start-line="127" selection-start-column="12" selection-end-line="127" selection-end-column="12" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="active_learning_partial_3.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="7840">
+              <caret line="407" column="0" lean-forward="false" selection-start-line="407" selection-start-column="0" selection-end-line="407" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="active_learning_partial_4.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="260">
+              <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="baseline_active_learning_confidence_edit.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2220">
+              <caret line="123" column="40" lean-forward="false" selection-start-line="119" selection-start-column="4" selection-end-line="123" selection-end-column="40" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -77,8 +71,9 @@
       <file leaf-file-name="plot.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/plot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1634">
-              <caret line="130" selection-start-line="130" selection-end-line="130" />
+            <state relative-caret-position="2540">
+              <caret line="130" column="0" lean-forward="false" selection-start-line="130" selection-start-column="0" selection-end-line="130" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -86,8 +81,19 @@
       <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="333">
-              <caret line="59" selection-start-line="59" selection-end-line="59" />
+            <state relative-caret-position="1080">
+              <caret line="59" column="0" lean-forward="false" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="active_learning_partial_1.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="223" column="4" lean-forward="true" selection-start-line="223" selection-start-column="4" selection-end-line="226" selection-end-column="40" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -166,10 +172,22 @@
     <option name="height" value="930" />
   </component>
   <component name="ProjectView">
-    <navigator proportions="" version="1">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -201,7 +219,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -220,9 +237,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.baseline_active_learning_confidence_edit">
+  <component name="RunManager" selected="Python.baseline_Information_density">
     <configuration name="active_learning_partial_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="CRF_Building" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -233,6 +249,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/active_learning_partial_1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -240,7 +257,6 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <configuration name="active_learning_partial_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="CRF_Building" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -251,6 +267,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/active_learning_partial_2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -258,7 +275,6 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <configuration name="active_learning_partial_3" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="CRF_Building" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -269,32 +285,14 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/active_learning_partial_3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="baseline_active_learning_confidence_edit" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="CRF_Building" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/baseline" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="plot" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="CRF_Building" />
+    <configuration name="baseline_Information_density" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -305,28 +303,50 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/baseline_Information_density.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="plot" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CRF_Building" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/plot.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <list>
-      <item itemvalue="Python.active_learning_partial_2" />
-      <item itemvalue="Python.active_learning_partial_3" />
-      <item itemvalue="Python.active_learning_partial_1" />
-      <item itemvalue="Python.baseline_active_learning_confidence_edit" />
-      <item itemvalue="Python.plot" />
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.plot" />
+      <item index="1" class="java.lang.String" itemvalue="Python.active_learning_partial_1" />
+      <item index="2" class="java.lang.String" itemvalue="Python.active_learning_partial_2" />
+      <item index="3" class="java.lang.String" itemvalue="Python.active_learning_partial_3" />
+      <item index="4" class="java.lang.String" itemvalue="Python.baseline_Information_density" />
     </list>
     <recent_temporary>
-      <list>
-        <item itemvalue="Python.baseline_active_learning_confidence_edit" />
-        <item itemvalue="Python.active_learning_partial_3" />
-        <item itemvalue="Python.active_learning_partial_2" />
-        <item itemvalue="Python.active_learning_partial_1" />
-        <item itemvalue="Python.plot" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.baseline_Information_density" />
+        <item index="1" class="java.lang.String" itemvalue="Python.active_learning_partial_3" />
+        <item index="2" class="java.lang.String" itemvalue="Python.active_learning_partial_2" />
+        <item index="3" class="java.lang.String" itemvalue="Python.active_learning_partial_1" />
+        <item index="4" class="java.lang.String" itemvalue="Python.plot" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -342,46 +362,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21621622" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32899022" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.32899022" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.30944625" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32899022" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3993644" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24973656" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.30944625" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17292438" />
-      <window_info id="Structure" order="1" weight="0.25" />
-      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3993644" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.32899022" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32899022" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Python Console" order="9" weight="0.32899022" />
-    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -390,6 +391,7 @@
     <breakpoint-manager>
       <option name="time" value="4" />
     </breakpoint-manager>
+    <watches-manager />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/data_process.py" />
@@ -426,7 +428,7 @@
     <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_uniform.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="371">
-          <caret line="172" column="46" selection-start-line="172" selection-start-column="32" selection-end-line="172" selection-end-column="46" />
+          <caret line="172" column="46" lean-forward="false" selection-start-line="172" selection-start-column="32" selection-end-line="172" selection-end-column="46" />
         </state>
       </provider>
     </entry>
@@ -446,46 +448,38 @@
     <entry file="file://$PROJECT_DIR$/utils/data_process_sdh.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="753">
-          <caret line="198" selection-start-line="198" selection-end-line="199" selection-end-column="44" />
+          <caret line="198" column="0" lean-forward="false" selection-start-line="198" selection-start-column="0" selection-end-line="199" selection-end-column="44" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utils/data_process_ibm.py" />
     <entry file="file://$PROJECT_DIR$/main/plot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1634">
-          <caret line="130" selection-start-line="130" selection-end-line="130" />
+        <state relative-caret-position="2540">
+          <caret line="130" column="0" lean-forward="false" selection-start-line="130" selection-start-column="0" selection-end-line="130" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial_4.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="260">
+          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="446">
-          <caret line="197" lean-forward="true" selection-end-line="197" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="239" column="29" selection-start-line="239" selection-start-column="29" selection-end-line="239" selection-end-column="29" />
+          <caret line="197" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="197" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/baseline/baseline_active_learning_confidence_edit.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="123" column="40" lean-forward="true" selection-start-line="119" selection-start-column="4" selection-end-line="123" selection-end-column="40" />
+        <state relative-caret-position="2220">
+          <caret line="123" column="40" lean-forward="false" selection-start-line="119" selection-start-column="4" selection-end-line="123" selection-end-column="40" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -494,36 +488,48 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="333">
-          <caret line="59" selection-start-line="59" selection-end-line="59" />
+        <state relative-caret-position="1080">
+          <caret line="59" column="0" lean-forward="false" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial_3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="407" selection-start-line="407" selection-end-line="407" />
+        <state relative-caret-position="7840">
+          <caret line="407" column="0" lean-forward="false" selection-start-line="407" selection-start-column="0" selection-end-line="407" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/active_learning_partial_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="223" column="4" lean-forward="true" selection-start-line="223" selection-start-column="4" selection-end-line="226" selection-end-column="40" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/active_learning_partial_2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="55">
-          <caret line="121" column="4" selection-start-line="121" selection-start-column="4" selection-end-line="130" selection-end-column="35" />
+        <state relative-caret-position="715">
+          <caret line="127" column="12" lean-forward="true" selection-start-line="127" selection-start-column="12" selection-end-line="127" selection-end-column="12" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utils/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="31" column="30" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="30" />
+        <state relative-caret-position="330">
+          <caret line="123" column="12" lean-forward="false" selection-start-line="123" selection-start-column="12" selection-end-line="123" selection-end-column="12" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/baseline_Information_density.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-86">
-          <caret line="155" column="27" selection-start-line="155" selection-start-column="27" selection-end-line="155" selection-end-column="27" />
+        <state relative-caret-position="190">
+          <caret line="116" column="22" lean-forward="false" selection-start-line="116" selection-start-column="22" selection-end-line="116" selection-end-column="22" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
