@@ -192,9 +192,9 @@ if __name__ == '__main__':
     #     dataset = pickle.load(my_dataset)
     # with open("../dataset/filtered_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
-    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/ibm_string.bin", "rb") as my_string:
+    with open("../dataset/sdh_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -202,7 +202,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 20
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
@@ -229,16 +229,17 @@ if __name__ == '__main__':
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(label_count, phrase_acc_av, 'r', label_count, out_acc_av, 'b')
+    plt.plot(np.arange(2, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
+             np.arange(2, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
     plt.xlabel('number of training samples')
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_information_density.bin", "wb") as phrase_acc_file:
+    with open("sdh_phrase_acc_information_density.bin", "wb") as phrase_acc_file:
         pickle.dump(phrase_acc, phrase_acc_file)
-    with open("out_acc_information_density.bin", "wb") as out_acc_file:
+    with open("sdh_out_acc_information_density.bin", "wb") as out_acc_file:
         pickle.dump(out_acc, out_acc_file)
-    with open("label_count_information_density.bin", "wb") as label_count_file:
+    with open("sdh_label_count_information_density.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
