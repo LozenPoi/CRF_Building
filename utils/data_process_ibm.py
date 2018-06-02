@@ -120,7 +120,7 @@ with open(filepath, 'r') as fp:
                     else:
                         idx = idx + 1
                 name_part = name_part[:-2]  # get rid of the ":c" or ":v"
-                # print(name_part)
+                # print(label_part, name_part)
                 if '-id' in label_part:
                     id_label_part.append(label_part)
                     id_name_part.append(name_part)
@@ -137,7 +137,7 @@ with open(filepath, 'r') as fp:
         for i in range(len(id_name_part)):
             current_vector = assign_value(current_vector, point_name, id_name_part[i], id_label_part[i])
         vector_labeled.append(current_vector)
-        print("Line {}: {}".format(count, current_vector))
+    #     print("Line {}: {}".format(count, current_vector))
     # print(len(dict))
     # print(len(vector_labeled))
 fp.close()
@@ -168,20 +168,22 @@ with open(filepath, 'r') as fp:
     for num_line in range(1366):
         point_name = fp.readline()
         label = fp.readline()
-        point_name = point_name[:-2]  # get rid of the space and newline at the end
+        point_name = point_name[:-1]  # get rid of the space and newline at the end
+        # print(point_name)
         idx = 0
         sent = []
         for i in point_name:
             sent.append((i, 'none', dict[vector_labeled[count][idx]]))
             idx = idx + 1
         dataset.append(sent)
+        # print(sent)
         count = count + 1
         filtered_string.append(point_name)
     #     print("Line {}: {}".format(count, sent))
     # print(len(dataset))
 fp.close()
 
-# with open("ibm_dataset.bin", "wb") as ibm_dataset:
-#     pickle.dump(dataset, ibm_dataset)
-# with open("ibm_string.bin", "wb") as ibm_string:
-#     pickle.dump(filtered_string, ibm_string)
+with open("ibm_dataset.bin", "wb") as ibm_dataset:
+    pickle.dump(dataset, ibm_dataset)
+with open("ibm_string.bin", "wb") as ibm_string:
+    pickle.dump(filtered_string, ibm_string)

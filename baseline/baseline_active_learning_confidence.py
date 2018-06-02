@@ -7,7 +7,7 @@ from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
-from pycrfsuite import Tagger
+# from pycrfsuite import Tagger
 
 import utils.utils as utils
 
@@ -126,8 +126,8 @@ def cv_edit_active_learn(args):
         # Sort the training pool based on confidence.
         sort_idx = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
-        if (num_training>=0)&(num_training<=20):
-            print([train_string_new[i] for i in sort_idx[:batch_size]])
+        # if (num_training>=0)&(num_training<=20):
+        #     print([train_string_new[i] for i in sort_idx[:batch_size]])
 
         label_count[num_training + 1] = label_count[num_training] + len(
             train_set_new[sort_idx[0]])  # assume batch_size = 1
