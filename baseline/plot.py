@@ -3,107 +3,143 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Read data.
-with open("phrase_acc_uniform.bin", "rb") as phrase_uniform:
-    phrase_acc_uniform = pickle.load(phrase_uniform)
-with open("out_acc_uniform.bin", "rb") as out_uniform:
-    out_acc_uniform = pickle.load(out_uniform)
+with open("sod_phrase_acc_uniform.bin", "rb") as sod_phrase_uniform:
+    sod_phrase_acc_uniform = pickle.load(sod_phrase_uniform)
+with open("sdh_phrase_acc_uniform.bin", "rb") as sdh_phrase_uniform:
+    sdh_phrase_acc_uniform = pickle.load(sdh_phrase_uniform)
+with open("ibm_phrase_acc_uniform.bin", "rb") as ibm_phrase_uniform:
+    ibm_phrase_acc_uniform = pickle.load(ibm_phrase_uniform)
 
-with open("phrase_acc_confidence.bin", "rb") as phrase_confidence:
-    phrase_acc_confidence = pickle.load(phrase_confidence)
-with open("out_acc_confidence.bin", "rb") as out_confidence:
-    out_acc_confidence = pickle.load(out_confidence)
+with open("sod_label_count_uniform.bin", "rb") as sod_phrase_uniform:
+    sod_label_count_uniform = pickle.load(sod_phrase_uniform)
+with open("sdh_label_count_uniform.bin", "rb") as sdh_phrase_uniform:
+    sdh_label_count_uniform = pickle.load(sdh_phrase_uniform)
+with open("ibm_label_count_uniform.bin", "rb") as ibm_phrase_uniform:
+    ibm_label_count_uniform = pickle.load(ibm_phrase_uniform)
 
-with open("phrase_acc_confidence_edit.bin", "rb") as phrase_edit:
-    phrase_acc_confidence_edit = pickle.load(phrase_edit)
-with open("out_acc_confidence_edit.bin", "rb") as out_edit:
-    out_acc_confidence_edit = pickle.load(out_edit)
 
-with open("phrase_acc_confidence_cluster.bin", "rb") as phrase_confidence:
-    phrase_acc_confidence_cluster = pickle.load(phrase_confidence)
-with open("out_acc_confidence_cluster.bin", "rb") as out_confidence:
-    out_acc_confidence_cluster = pickle.load(out_confidence)
+with open("sod_phrase_acc_confidence.bin", "rb") as sod_phrase_confidence:
+    sod_phrase_acc_confidence = pickle.load(sod_phrase_confidence)
+with open("sdh_phrase_acc_confidence.bin", "rb") as sdh_phrase_confidence:
+    sdh_phrase_acc_confidence = pickle.load(sdh_phrase_confidence)
+with open("ibm_phrase_acc_confidence.bin", "rb") as ibm_phrase_confidence:
+    ibm_phrase_acc_confidence = pickle.load(ibm_phrase_confidence)
+
+with open("sod_label_count_confidence.bin", "rb") as sod_phrase_confidence:
+    sod_label_count_confidence = pickle.load(sod_phrase_confidence)
+with open("sdh_label_count_confidence.bin", "rb") as sdh_phrase_confidence:
+    sdh_label_count_confidence = pickle.load(sdh_phrase_confidence)
+with open("ibm_label_count_confidence.bin", "rb") as ibm_phrase_confidence:
+    ibm_label_count_confidence = pickle.load(ibm_phrase_confidence)
+
+
+with open("../main/sod_phrase_acc_information_density.bin", "rb") as sod_phrase_information_density:
+    sod_phrase_acc_information_density = pickle.load(sod_phrase_information_density)
+with open("../main/sdh_phrase_acc_information_density.bin", "rb") as sdh_phrase_information_density:
+    sdh_phrase_acc_information_density = pickle.load(sdh_phrase_information_density)
+with open("../main/ibm_phrase_acc_information_density.bin", "rb") as ibm_phrase_information_density:
+    ibm_phrase_acc_information_density = pickle.load(ibm_phrase_information_density)
+
+with open("../main/sod_label_count_information_density.bin", "rb") as sod_phrase_information_density:
+    sod_label_count_information_density = pickle.load(sod_phrase_information_density)
+with open("../main/sdh_label_count_information_density.bin", "rb") as sdh_phrase_information_density:
+    sdh_label_count_information_density = pickle.load(sdh_phrase_information_density)
+with open("../main/ibm_label_count_information_density.bin", "rb") as ibm_phrase_information_density:
+    ibm_label_count_information_density = pickle.load(ibm_phrase_information_density)
+
+
+with open("phrase_acc_confidence_edit.bin", "rb") as sod_phrase_confidence_edit:
+    sod_phrase_acc_confidence_edit = pickle.load(sod_phrase_confidence_edit)
+with open("sdh_phrase_acc_confidence_edit.bin", "rb") as sdh_phrase_confidence_edit:
+    sdh_phrase_acc_confidence_edit = pickle.load(sdh_phrase_confidence_edit)
+with open("ibm_phrase_acc_confidence_edit.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_phrase_acc_confidence_edit = pickle.load(ibm_phrase_confidence_edit)
+
+# with open("label_count_confidence_edit.bin", "rb") as sod_phrase_confidence_edit:
+#     sod_label_count_confidence_edit = pickle.load(sod_phrase_confidence_edit)
+with open("sdh_confidence_edit_num.bin", "rb") as sdh_phrase_confidence_edit:
+    sdh_label_count_confidence_edit = pickle.load(sdh_phrase_confidence_edit)
+with open("ibm_confidence_edit_num.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_label_count_confidence_edit = pickle.load(ibm_phrase_confidence_edit)
+
 
 # Plot figures.
 num_fold = 8
 max_samples_batch = 100
 batch_size = 1
 
-phrase_acc_av_uniform = np.sum(phrase_acc_uniform, axis=0)/num_fold
-out_acc_av_uniform = np.sum(out_acc_uniform, axis=0)/num_fold
+sod_phrase_acc_uniform_av = np.sum(sod_phrase_acc_uniform, axis=0)/num_fold
+sod_label_count_uniform_av = np.sum(sod_label_count_uniform, axis=0)/num_fold
 
-phrase_acc_av_confidence = np.sum(phrase_acc_confidence, axis=0)/num_fold
-out_acc_av_confidence = np.sum(out_acc_confidence, axis=0)/num_fold
+sdh_phrase_acc_uniform_av = np.sum(sdh_phrase_acc_uniform, axis=0)/num_fold
+sdh_label_count_uniform_av = np.sum(sdh_label_count_uniform, axis=0)/num_fold
 
-phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0)/num_fold
-out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0)/num_fold
+ibm_phrase_acc_uniform_av = np.sum(ibm_phrase_acc_uniform, axis=0)/num_fold
+ibm_label_count_uniform_av = np.sum(ibm_label_count_uniform, axis=0)/num_fold
 
-phrase_acc_av_confidence_cluster = np.sum(phrase_acc_confidence_cluster, axis=0)/num_fold
-out_acc_av_confidence_cluster = np.sum(out_acc_confidence_cluster, axis=0)/num_fold
 
-plt.plot(np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence, 'c',
-         np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_uniform, 'b',
-         np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_edit, 'r',
-         np.arange(14*3, (max_samples_batch+2) * 14 + 14, 14), phrase_acc_av_confidence_cluster, 'k')
+sod_phrase_acc_confidence_av = np.sum(sod_phrase_acc_confidence, axis=0)/num_fold
+sod_label_count_confidence_av = np.sum(sod_label_count_confidence, axis=0)/num_fold
+
+sdh_phrase_acc_confidence_av = np.sum(sdh_phrase_acc_confidence, axis=0)/num_fold
+sdh_label_count_confidence_av = np.sum(sdh_label_count_confidence, axis=0)/num_fold
+
+ibm_phrase_acc_confidence_av = np.sum(ibm_phrase_acc_confidence, axis=0)/num_fold
+ibm_label_count_confidence_av = np.sum(ibm_label_count_confidence, axis=0)/num_fold
+
+
+sod_phrase_acc_information_density_av = np.sum(sod_phrase_acc_information_density, axis=0)/num_fold
+sod_label_count_information_density_av = np.sum(sod_label_count_information_density, axis=0)/num_fold
+
+sdh_phrase_acc_information_density_av = np.sum(sdh_phrase_acc_information_density, axis=0)/num_fold
+sdh_label_count_information_density_av = np.sum(sdh_label_count_information_density, axis=0)/num_fold
+
+ibm_phrase_acc_information_density_av = np.sum(ibm_phrase_acc_information_density, axis=0)/num_fold
+ibm_label_count_information_density_av = np.sum(ibm_label_count_information_density, axis=0)/num_fold
+
+
+sod_phrase_acc_confidence_edit_av = np.sum(sod_phrase_acc_confidence_edit, axis=0)/num_fold
+# sod_label_count_confidence_edit_av = np.sum(sod_label_count_confidence_edit, axis=0)/num_fold
+
+sdh_phrase_acc_confidence_edit_av = np.sum(sdh_phrase_acc_confidence_edit, axis=0)/num_fold
+sdh_label_count_confidence_edit_av = np.sum(sdh_label_count_confidence_edit, axis=0)/num_fold
+
+ibm_phrase_acc_confidence_edit_av = np.sum(ibm_phrase_acc_confidence_edit, axis=0)/num_fold
+ibm_label_count_confidence_edit_av = np.sum(ibm_label_count_confidence_edit, axis=0)/num_fold
+
+
+plt.figure()
+plt.plot(sod_label_count_uniform_av, sod_phrase_acc_uniform_av, 'c',
+         sod_label_count_confidence_av, sod_phrase_acc_confidence_av, 'b',
+         sod_label_count_information_density_av, sod_phrase_acc_information_density_av, 'r',
+         np.arange(2*14, 102*14, 14), sod_phrase_acc_confidence_edit_av, 'k')
 
 plt.xlabel('number of labeled characters')
 plt.ylabel('testing accuracy')
-plt.legend(['confidence', 'uniform', 'confidence_edit', 'confidence_cluster'])
+plt.legend(['uniform', 'confidence', 'information_density', 'confidence_edit'])
 plt.grid()
 plt.show()
 
-# # Plot individual figures to see variance among different folds.
-# phrase_max_uniform = np.max(phrase_acc_uniform, axis=0)
-# phrase_min_uniform = np.min(phrase_acc_uniform, axis=0)
-# out_max_uniform = np.max(out_acc_uniform, axis=0)
-# out_min_uniform = np.min(out_acc_uniform, axis=0)
-# plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_uniform, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_uniform, 'b',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_uniform, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_uniform, 'b')
-# plt.xlabel('number of training samples')
-# plt.ylabel('testing accuracy')
-# plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-# plt.title('uniform')
-# plt.show()
-#
-# phrase_max_edit = np.max(phrase_acc_edit, axis=0)
-# phrase_min_edit = np.min(phrase_acc_edit, axis=0)
-# out_max_edit = np.max(out_acc_edit, axis=0)
-# out_min_edit = np.min(out_acc_edit, axis=0)
-# plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_edit, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_edit, 'b',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_edit, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_edit, 'b')
-# plt.xlabel('number of training samples')
-# plt.ylabel('testing accuracy')
-# plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-# plt.title('edit')
-# plt.show()
-#
-# phrase_max_kmedoids = np.max(phrase_acc_kmedoids, axis=0)
-# phrase_min_kmedoids = np.min(phrase_acc_kmedoids, axis=0)
-# out_max_kmedoids = np.max(out_acc_kmedoids, axis=0)
-# out_min_kmedoids = np.min(out_acc_kmedoids, axis=0)
-# plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_kmedoids, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_kmedoids, 'b',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_kmedoids, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_kmedoids, 'b')
-# plt.xlabel('number of training samples')
-# plt.ylabel('testing accuracy')
-# plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-# plt.title('kmedoids')
-# plt.show()
-#
-# phrase_max_confidence = np.max(phrase_acc_confidence, axis=0)
-# phrase_min_confidence = np.min(phrase_acc_confidence, axis=0)
-# out_max_confidence = np.max(out_acc_confidence, axis=0)
-# out_min_confidence = np.min(out_acc_confidence, axis=0)
-# plt.plot(np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_max_confidence, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_max_confidence, 'b',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), phrase_min_confidence, 'r',
-#          np.arange(3, max_samples_batch * batch_size + 3, batch_size), out_min_confidence, 'b')
-# plt.xlabel('number of training samples')
-# plt.ylabel('testing accuracy')
-# plt.legend(['phrase accuracy', 'out_of_phrase accuracy'])
-# plt.title('confidence')
-# plt.show()
+plt.figure()
+plt.plot(sdh_label_count_uniform_av, sdh_phrase_acc_uniform_av, 'c',
+         sdh_label_count_confidence_av, sdh_phrase_acc_confidence_av, 'b',
+         sdh_label_count_information_density_av, sdh_phrase_acc_information_density_av, 'r',
+         sdh_label_count_confidence_edit_av, sdh_phrase_acc_confidence_edit_av, 'k')
+
+plt.xlabel('number of labeled characters')
+plt.ylabel('testing accuracy')
+plt.legend(['uniform', 'confidence', 'information_density', 'confidence_edit'])
+plt.grid()
+plt.show()
+
+plt.figure()
+plt.plot(ibm_label_count_uniform_av, ibm_phrase_acc_uniform_av, 'c',
+         ibm_label_count_confidence_av, ibm_phrase_acc_confidence_av, 'b',
+         ibm_label_count_information_density_av, ibm_phrase_acc_information_density_av, 'r',
+         ibm_label_count_confidence_edit_av, ibm_phrase_acc_confidence_edit_av, 'k')
+
+plt.xlabel('number of labeled characters')
+plt.ylabel('testing accuracy')
+plt.legend(['uniform', 'confidence', 'information_density', 'confidence_edit'])
+plt.grid()
+plt.show()

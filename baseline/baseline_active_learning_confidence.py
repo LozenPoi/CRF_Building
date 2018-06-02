@@ -21,8 +21,12 @@ def word2features(sent, i):
             cum_dig = cum_dig + 1
         else:
             cum_dig = 0
+    if word.isdigit():
+        itself = 'NUM'
+    else:
+        itself = word
     features = {
-        'word': word,
+        'word': itself,
         'word.isdigit()': word.isdigit(),
         'first_digit': cum_dig == 1,
         'second_digit': cum_dig == 2,
@@ -66,8 +70,9 @@ def cv_edit_active_learn(args):
     max_samples_batch = args['max_samples_batch']
     batch_size = args['batch_size']
 
-    phrase_acc = np.zeros([max_samples_batch])
-    out_acc = np.zeros([max_samples_batch])
+    phrase_acc = np.zeros([max_samples_batch + 1])
+    out_acc = np.zeros([max_samples_batch + 1])
+    label_count = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set.
     train_set = [dataset[i] for i in train_idx]
@@ -76,10 +81,13 @@ def cv_edit_active_learn(args):
     test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set from the training pool.
-    train_set_current = train_set[:2]
-    train_set_new = train_set[2:]
-    train_string_current = train_string[:2]
-    train_string_new = train_string[2:]
+    initial_size = 2
+    train_set_current = train_set[:initial_size]
+    train_set_new = train_set[initial_size:]
+    train_string_current = train_string[:initial_size]
+    train_string_new = train_string[initial_size:]
+    for i in range(initial_size):
+        label_count[0] += len(train_string[i])
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -97,6 +105,12 @@ def cv_edit_active_learn(args):
     )
     crf.fit(X_train_current, y_train_current)
 
+    # Use the estimator.
+    y_pred = crf.predict(X_test)
+    phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
+    phrase_acc[0] = phrase_correct / phrase_count
+    out_acc[0] = out_correct / out_count
+
     for num_training in range(max_samples_batch):
 
         # Calculate the confidence on the training pool (train_set_new) using the current CRF.
@@ -112,9 +126,11 @@ def cv_edit_active_learn(args):
         # Sort the training pool based on confidence.
         sort_idx = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
-        # if (num_training>=20)&(num_training<=40):
-        #     print([train_string_new[i] for i in sort_idx[:batch_size]])
+        if (num_training>=0)&(num_training<=20):
+            print([train_string_new[i] for i in sort_idx[:batch_size]])
 
+        label_count[num_training + 1] = label_count[num_training] + len(
+            train_set_new[sort_idx[0]])  # assume batch_size = 1
         # update training set
         sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
         for i in sample_to_remove:
@@ -139,17 +155,21 @@ def cv_edit_active_learn(args):
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
         # print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training] = phrase_correct / phrase_count
-        out_acc[num_training] = out_correct / out_count
+        phrase_acc[num_training+1] = phrase_correct / phrase_count
+        out_acc[num_training+1] = out_correct / out_count
 
-    return phrase_acc, out_acc
+    return phrase_acc, out_acc, label_count
 
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -174,24 +194,25 @@ if __name__ == '__main__':
         }
         args.append(tmp_args)
     results = pool.map(cv_edit_active_learn, args)
-    # print(len(results))
-    # print(len(results[0]))
     phrase_acc = [results[i][0] for i in range(num_fold)]
     out_acc = [results[i][1] for i in range(num_fold)]
-    # print(len(phrase_acc))
-    # print(len(phrase_acc[0]))
+    label_count = [results[i][2] for i in range(num_fold)]
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
-    plt.plot(np.arange(3, max_samples_batch*batch_size+3, batch_size), phrase_acc_av, 'r',
-             np.arange(3, max_samples_batch*batch_size+3, batch_size), out_acc_av, 'b')
+    label_count_av = np.sum(label_count, axis=0) / num_fold
+
+    plt.plot(label_count_av, phrase_acc_av, 'r',
+             label_count_av, out_acc_av, 'b')
     plt.xlabel('number of training samples')
     plt.ylabel('testing accuracy')
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
     # Save data for future plotting.
-    with open("phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
+    with open("ibm_phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_confidence.bin", "wb") as out_confidence_file:
+    with open("ibm_out_acc_confidence.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
+    with open("ibm_label_count_confidence.bin", "wb") as label_count_file:
+        pickle.dump(label_count, label_count_file)

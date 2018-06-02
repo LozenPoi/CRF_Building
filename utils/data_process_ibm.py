@@ -94,11 +94,10 @@ with open(filepath, 'r') as fp:
         count = count + 1
         point_name = fp.readline()   # point name string
         label = fp.readline()   # labels
-        # print(point_name)
-        # print(label)
         point_name = point_name[:-1]    # get rid of the newline at the end
         label = label[:-1]  # get rid of the newline at the end
         # print(point_name)
+        # print(label)
         label = label + ',' # for segmentation purpose
 
         # Segment and recognize the manual labels spanned by commas.
@@ -139,8 +138,8 @@ with open(filepath, 'r') as fp:
             current_vector = assign_value(current_vector, point_name, id_name_part[i], id_label_part[i])
         vector_labeled.append(current_vector)
         print("Line {}: {}".format(count, current_vector))
-    print(len(dict))
-    print(len(vector_labeled))
+    # print(len(dict))
+    # print(len(vector_labeled))
 fp.close()
 
 
@@ -178,8 +177,8 @@ with open(filepath, 'r') as fp:
         dataset.append(sent)
         count = count + 1
         filtered_string.append(point_name)
-        print("Line {}: {}".format(count, sent))
-    print(len(dataset))
+    #     print("Line {}: {}".format(count, sent))
+    # print(len(dataset))
 fp.close()
 
 # with open("ibm_dataset.bin", "wb") as ibm_dataset:

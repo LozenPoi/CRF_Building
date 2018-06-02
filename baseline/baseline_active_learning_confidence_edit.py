@@ -252,19 +252,6 @@ if __name__ == '__main__':
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
-    # Save data for future plotting.
-    # with open("phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
-    #     pickle.dump(phrase_acc, phrase_confidence_file)
-    # with open("out_acc_confidence_edit.bin", "wb") as out_confidence_file:
-    #     pickle.dump(out_acc, out_confidence_file)
-
-    # with open("ibm_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
-    #     pickle.dump(phrase_acc, phrase_confidence_file)
-    # with open("ibm_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
-    #     pickle.dump(out_acc, out_confidence_file)
-    # with open("ibm_confidence_edit_num.bin", "wb") as label_count_file:
-    #     pickle.dump(label_count, label_count_file)
-
     with open("sdh_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
     with open("sdh_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
