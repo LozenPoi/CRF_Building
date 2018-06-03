@@ -121,7 +121,9 @@ def cv_edit_active_learn(args):
             #crf.tagger_.set(X_train_new[i])
             y_sequence = crf.tagger_.tag(X_train_new[i])
             #print(crf.tagger_.probability(y_sequence))
-            prob_list.append(crf.tagger_.probability(y_sequence))
+            # normalized sequence probability
+            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(train_string_new[i]))
+            prob_list.append(prob_norm)
 
         # Sort the training pool based on confidence.
         sort_idx = np.argsort(np.array(prob_list), kind='mergesort').tolist()
