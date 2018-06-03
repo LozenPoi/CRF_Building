@@ -7,7 +7,7 @@ from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
-# from pycrfsuite import Tagger
+from pycrfsuite import Tagger
 
 import utils.utils as utils
 
