@@ -9,6 +9,7 @@ from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 from pycrfsuite import Tagger
 from scipy import spatial
+import math
 
 import utils.utils as utils
 
@@ -134,7 +135,9 @@ def cv_edit_active_learn(args):
             #crf.tagger_.set(X_train_new[i])
             y_sequence = crf.tagger_.tag(X_train_new[i])
             #print(crf.tagger_.probability(y_sequence))
-            prob_list.append(1 - crf.tagger_.probability(y_sequence))
+            # normalized sequence probability
+            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence))/len(train_string_new[i]))
+            prob_list.append(1 - prob_norm)
 
         # Calculate the average similarity to all other unlabeled sample.
         sim_list = np.sum(sim_matrix, axis=0)/len_train_new
