@@ -195,9 +195,9 @@ if __name__ == '__main__':
         dataset = pickle.load(my_dataset)
     with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
-    # with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
     #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/sdh_string.bin", "rb") as my_string:
+    # with open("../dataset/ibm_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
