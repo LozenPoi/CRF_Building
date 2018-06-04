@@ -9,6 +9,7 @@ from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 from pycrfsuite import Tagger
 import editdistance
+import math
 
 import utils.utils as utils
 
@@ -210,10 +211,14 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/sdh_string.bin", "rb") as my_string:
+    with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
+    # with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/ibm_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
     num_fold = 8
@@ -254,9 +259,9 @@ if __name__ == '__main__':
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
-    with open("sdh_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+    with open("sod_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("sdh_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+    with open("sod_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("sdh_confidence_edit_num.bin", "wb") as label_count_file:
+    with open("sod_confidence_edit_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
