@@ -10,6 +10,8 @@ import multiprocessing
 from pycrfsuite import Tagger
 import editdistance
 import math
+from scipy import spatial
+import sys
 
 import utils.utils as utils
 
@@ -26,40 +28,54 @@ import utils.utils as utils
 
 # Define feature dictionary.
 def word2features(sent, i):
-    word = sent[i][0]
-    # Number of cumulative digits.
-    cum_dig = 0
-    for k in range(i+1):
-        if sent[k][0].isdigit():
-            cum_dig = cum_dig + 1
+    # obtain some overall information of the point name string
+    num_part = 4
+    len_string = len(sent)
+    mod = len_string % num_part
+    part_size = int(math.floor(len_string/num_part))
+    # determine which part the current character belongs to
+    # larger part will be at the beginning if the whole sequence can't be divided evenly
+    size_list = []
+    mod_count = 0
+    for j in range(num_part):
+        if mod_count < mod:
+            size_list.append(part_size+1)
+            mod_count += 1
         else:
-            cum_dig = 0
+            size_list.append(part_size)
+    # for current character
+    part_indicator = []
+    for j in size_list:
+        #
+    word = sent[i][0]
     if word.isdigit():
         itself = 'NUM'
     else:
         itself = word
     features = {
         'word': itself,
-        'word.isdigit()': word.isdigit(),
-        'first_digit': cum_dig == 1,
-        'second_digit': cum_dig == 2,
-        'third_digit': cum_dig == 3,
     }
     # for previous character
     if i > 0:
         word1 = sent[i-1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '-1:word': word1,
-            '-1:isdigit()': word1.isdigit(),
+            '-1:word': itself1,
         })
     else:
         features['BOS'] = True
     # for next character
     if i < len(sent)-1:
         word1 = sent[i+1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '+1:word': word1,
-            '+1:isdigit()': word1.isdigit(),
+            '+1:word': itself1,
         })
     else:
         features['EOS'] = True
@@ -124,6 +140,20 @@ def cv_edit_active_learn(args):
     phrase_acc[0] = phrase_correct / phrase_count
     out_acc[0] = out_correct / out_count
 
+    # Vectorized and clustered test set.
+    total_string = test_string[:]
+    total_string.extend(train_string_new)
+    vec, _ = utils.string_vectorize(total_string)
+    test_vec = vec[:len(test_string)].tolist()
+    train_new_vec = vec[len(test_string):].tolist()
+
+    # Pre-calculate similarity.
+    # This will be efficient if the number of iterations is large.
+    sim_matrix = np.zeros((len(train_new_vec), len(test_vec)))
+    for i in range(len(train_new_vec)):
+        for j in range(len(test_vec)):
+            sim_matrix[i, j] = 1 - spatial.distance.cosine(train_new_vec[i], test_vec[j])
+
     len_test = len(test_set)
 
     for num_training in range(max_samples_batch):
@@ -142,9 +172,28 @@ def cv_edit_active_learn(args):
         sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
         # Find samples from training pool that are closest to the least confident.
-        temp_set = [test_string[i] for i in sort_idx_temp[:3]]
-        distance = utils.avr_edit_distance(temp_set, train_string_new, True)
-        sort_idx = np.argsort(distance, kind='mergesort').tolist()
+        # temp_set = [test_string[i] for i in sort_idx_temp[:5]]
+        # distance = utils.avr_edit_distance(temp_set, train_string_new, True)
+        group_size = 5
+        avr_sim = np.sum(sim_matrix[:, sort_idx_temp[:group_size]], axis=1)/group_size
+        distance = avr_sim
+
+        # We want to have information weighted by such distance.
+        X_train_new = [sent2features(s) for s in train_set_new]
+        len_train_new = len(train_set_new)
+        prob_list_candidate = []
+        for i in range(len_train_new):
+            y_sequence = crf.tagger_.tag(X_train_new[i])
+            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(train_string_new[i]))
+            prob_list_candidate.append(prob_norm)
+        candidate_score = []
+        for i in range(len_train_new):
+            if distance[i] == 0:
+                candidate_score.append(sys.float_info.max)
+            else:
+                candidate_score.append(prob_list_candidate[i] / distance[i])
+
+        sort_idx = np.argsort(candidate_score, kind='mergesort').tolist()
 
         # if (num_training>=20)&(num_training<=40):
         #     print([train_string_new[i] for i in sort_idx[:batch_size]])
@@ -153,14 +202,22 @@ def cv_edit_active_learn(args):
         label_count[num_training + 1] = label_count[num_training] + len(train_set_new[sort_idx[0]])
 
         # update training set
-        sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-        for i in sample_to_remove:
-            train_set_current.append(i)
-            train_set_new.remove(i)
-        string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-        for i in string_to_remove:
-            train_string_current.append(i)
-            train_string_new.remove(i)
+        # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
+        # for i in sample_to_remove:
+        #     train_set_current.append(i)
+        #     train_set_new.remove(i)
+        # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
+        # for i in string_to_remove:
+        #     train_string_current.append(i)
+        #     train_string_new.remove(i)
+        idx_to_remove = sort_idx[:batch_size]
+        idx_to_remove = np.sort(idx_to_remove, kind='mergesort').tolist()
+        for i in range(batch_size):
+            sim_matrix = np.delete(sim_matrix, idx_to_remove[-i-1], 0)
+            train_set_current.append(train_set_new[idx_to_remove[-i-1]])
+            del train_set_new[idx_to_remove[-i-1]]
+            train_string_current.append(train_string_new[idx_to_remove[-i-1]])
+            del train_string_new[idx_to_remove[-i-1]]
 
         # Obtain current training features.
         X_train_current = [sent2features(s) for s in train_set_current]
@@ -211,21 +268,21 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
-        dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
-        strings = pickle.load(my_string)
-    # with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
     #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/ibm_string.bin", "rb") as my_string:
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
+    with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+        dataset = pickle.load(my_dataset)
+    with open("../dataset/sdh_string.bin", "rb") as my_string:
+        strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
     num_fold = 8
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 100
+    max_samples_batch = 50
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
@@ -259,9 +316,9 @@ if __name__ == '__main__':
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
-    with open("sod_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+    with open("sdh_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("sod_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+    with open("sdh_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("sod_confidence_edit_num.bin", "wb") as label_count_file:
+    with open("sdh_confidence_edit_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)

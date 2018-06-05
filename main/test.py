@@ -58,6 +58,9 @@ def string_vectorize(input_list):
 #     test_prob_list.append(margin_list)
 #     print(margin_list)
 
+a = np.zeros((5,10))
+a[:,1] = np.ones((5))
 
+print(a[:, [3,1,2]])
 
 
