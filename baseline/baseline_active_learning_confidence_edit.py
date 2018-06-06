@@ -44,9 +44,9 @@ def word2features(sent, i):
         else:
             size_list.append(part_size)
     # for current character
-    part_indicator = []
-    for j in size_list:
-        #
+    # part_indicator = []
+    # for j in size_list:
+    #     #
     word = sent[i][0]
     if word.isdigit():
         itself = 'NUM'
