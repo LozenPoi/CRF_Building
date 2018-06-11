@@ -1,7 +1,5 @@
 SDH.S1-17:CTL FLOW MIN:PRIORITY 
 site:SDH:c,vav:S:c,vav-id:1-17:v,min air flow sensor:CTL FLOW MIN:c,priority point:PRIORITY:c
-SDH.AH2A_MIN.OAD 
-site:SDH:c,ahu:AH:c,ahu-id:2A:v,outside air damper:OAD:c
 SDH.S2-11:CTL FLOW MAX 
 site:SDH:c,vav:S:c,vav-id:2-11:v,max air flow sensor:CTL FLOW MAX:c
 SDH.S4-17:ROOM TEMP 
