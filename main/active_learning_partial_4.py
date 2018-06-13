@@ -210,7 +210,10 @@ def cv_edit_active_learn(args):
         len_ptname = len(train_set_new[sort_idx])
         for j in range(len_ptname):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-            candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
+            # candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
+            sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
+            sorted_marginal_prob.reverse()
+            candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
         substring_score = {}
         for i in range(len_ptname-4):
             for j in range(i+5,len_ptname): # should be len_ptname+1 if want to include full string
@@ -220,7 +223,7 @@ def cv_edit_active_learn(args):
 
         # Rank the substrings based on their scores in descending order.
         sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
-        sorted_substring_score.reverse()
+        # sorted_substring_score.reverse()
         index_tuple = sorted_substring_score[0][0]
         label_index = []
         for i in range(index_tuple[0],index_tuple[1]):
