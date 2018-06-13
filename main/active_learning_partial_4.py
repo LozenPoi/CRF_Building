@@ -198,8 +198,8 @@ def cv_edit_active_learn(args):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
             candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
         substring_score = {}
-        for i in range(len_ptname-1):
-            for j in range(i+2,len_ptname): # should be len_ptname+1 if want to include full string
+        for i in range(len_ptname-3):
+            for j in range(i+4,len_ptname): # should be len_ptname+1 if want to include full string
                 selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
                 rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
                 substring_score[(i,j)] = selected_entropy - rest_entropy
@@ -273,7 +273,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 200
+    max_samples_batch = 100
     batch_size = 1
 
     pool = multiprocessing.Pool(os.cpu_count())
