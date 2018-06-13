@@ -148,8 +148,8 @@ def cv_edit_active_learn(args):
 
     for num_training in range(max_samples_batch):
 
+        label_list = crf.tagger_.labels()
         # # Want to look at the model confidence  the test set.
-        # label_list = crf.tagger_.labels()
         # entropy_list = []
         # for i in test_set:
         #     len_ptname = len(i)
@@ -212,8 +212,8 @@ def cv_edit_active_learn(args):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
             candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
         substring_score = {}
-        for i in range(len_ptname-3):
-            for j in range(i+4,len_ptname): # should be len_ptname+1 if want to include full string
+        for i in range(len_ptname-4):
+            for j in range(i+5,len_ptname): # should be len_ptname+1 if want to include full string
                 selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
                 rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
                 substring_score[(i,j)] = selected_entropy - rest_entropy
