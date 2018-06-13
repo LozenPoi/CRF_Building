@@ -171,7 +171,7 @@ def cv_edit_active_learn(args):
         # Sort the test set based on confidence.
         sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
 
-        # Find samples from training pool that are closest to the least confident.
+        # Calculate the average similarity between the unlabeled samples and the selected test samples.
         # temp_set = [test_string[i] for i in sort_idx_temp[:5]]
         # distance = utils.avr_edit_distance(temp_set, train_string_new, True)
         group_size = 5

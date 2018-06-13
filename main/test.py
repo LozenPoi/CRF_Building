@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer as CV
 import re
 
+import operator
+
 # Vectorize a set of string by n-grams.
 def string_vectorize(input_list):
     vc = CV(analyzer='char_wb', ngram_range=(3, 4), min_df=1, token_pattern='[a-z]{2,}')
@@ -58,9 +60,17 @@ def string_vectorize(input_list):
 #     test_prob_list.append(margin_list)
 #     print(margin_list)
 
-a = np.zeros((5,10))
-a[:,1] = np.ones((5))
+a = [1,2,3,4]
 
-print(a[:, [3,1,2]])
+print(sum(a[2:4]))
 
+
+x = {(1,2): 2, (3,4): 4, (5,6): 3}
+sorted_x = sorted(x.items(), key=operator.itemgetter(1))
+print(sorted_x[0][0][0])
+
+
+y={}
+y[(1,2)]=3
+print(y)
 

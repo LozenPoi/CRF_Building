@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import sklearn_crfsuite
 import scipy.stats
+import math
 from sklearn.model_selection import RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
@@ -11,8 +12,12 @@ from collections import Counter
 import editdistance
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans
+from scipy import spatial
+import sys
+import operator
 
 import utils.utils as utils
+
 
 # Define the feature dictionary.
 def word2features(sent, i):
@@ -24,8 +29,12 @@ def word2features(sent, i):
             cum_dig = cum_dig + 1
         else:
             cum_dig = 0
+    if word.isdigit():
+        itself = 'NUM'
+    else:
+        itself = word
     features = {
-        'word': word,
+        'word': itself,
         'word.isdigit()': word.isdigit(),
         'first_digit': cum_dig == 1,
         'second_digit': cum_dig == 2,
@@ -70,11 +79,10 @@ def cv_edit_active_learn(args):
     batch_size = args['batch_size']
 
     # Initialize arrays to store results.
-    phrase_acc = np.zeros([max_samples_batch])
-    out_acc = np.zeros([max_samples_batch])
-    label_count = np.zeros([max_samples_batch])
-    pseudo_acc = np.zeros([max_samples_batch])
-    count = 0
+    phrase_acc = np.zeros([max_samples_batch+1])
+    out_acc = np.zeros([max_samples_batch+1])
+    label_count = np.zeros([max_samples_batch+1])
+    pseudo_acc = np.zeros([max_samples_batch + 1])
 
     # Define training set and testing set and corresponding original strings.
     train_set = [dataset[i] for i in train_idx]
@@ -83,10 +91,14 @@ def cv_edit_active_learn(args):
     test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set and the training pool (unlabeled data).
-    train_set_current = train_set[:2]
-    train_set_new = train_set[2:]
-    train_string_current = train_string[:2]
-    train_string_new = train_string[2:]
+    initial_size = 2
+    train_set_current = train_set[:initial_size]
+    train_set_new = train_set[initial_size:]
+    train_string_current = train_string[:initial_size]
+    train_string_new = train_string[initial_size:]
+    count = 0
+    for i in range(initial_size):
+        count += len(train_string[i])
 
     # Obtain testing features and labels.
     X_test = [sent2features(s) for s in test_set]
@@ -104,50 +116,44 @@ def cv_edit_active_learn(args):
     )
     crf.fit(X_train_current, y_train_current)
 
+    # Use the estimator.
+    y_pred = crf.predict(X_test)
+    phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
+    phrase_acc[0] = phrase_correct / phrase_count
+    out_acc[0] = out_correct / out_count
+    label_count[0] = count
+    pseudo_acc[0] = 1  # There is no pseudo-label at the beginning.
+
     # Vectorized and clustered test set.
-    num_cluster = 5
     total_string = test_string[:]
     total_string.extend(train_string_new)
     vec, _ = utils.string_vectorize(total_string)
-    test_vec = vec[:len(test_string)]
+    test_vec = vec[:len(test_string)].tolist()
     train_new_vec = vec[len(test_string):].tolist()
-    kmeans = KMeans(n_clusters=num_cluster, random_state=0).fit(test_vec)
-    cluster_centers = kmeans.cluster_centers_
-    cluster_labels = kmeans.labels_
 
-    # Calculate cluster size.
-    cluster_size = np.zeros(num_cluster)
-    for i in cluster_labels:
-        cluster_size[i] += 1
-    largest_cluster = np.argmax(cluster_size)
-    weight_cluster = [i / sum(cluster_size) for i in cluster_size]
-
-    # Calculate the representative of each test sample by distance to its corresponding cluster center.
-    len_test = len(test_set)
-    dist_list = np.zeros(len_test)
-    for i in range(len_test):
-        dist_list[i] = np.linalg.norm(test_vec[i] - cluster_centers[cluster_labels[i]])
-
-    # Weighted distance to cluster centers for each unlabeled instance.
-    distance_to_cluster = []
+    # Pre-calculate similarity.
+    # This will be efficient if the number of iterations is large.
+    sim_matrix = np.zeros((len(train_new_vec), len(test_vec)))
     for i in range(len(train_new_vec)):
-        weighted_distance = [weight_cluster[j] * np.linalg.norm(train_new_vec[i] - cluster_centers[j])
-                             for j in range(num_cluster)]
-        distance_to_cluster.append(sum(weighted_distance))
+        for j in range(len(test_vec)):
+            sim_matrix[i, j] = 1 - spatial.distance.cosine(train_new_vec[i], test_vec[j])
 
     len_test = len(test_set)
-    len_ptname = len(test_set[0])
-    labeled_instance = []   # Store the indices of partial labeled instances in the unlabeled set
-    labeled_positions = []  # Store the manual labeled positions for partial labeled instances
-    labeled_istance_train = []  # Store the location where the instance added to (the training set)
+
+    initial_budget = 100
+    if count >= initial_budget:
+        print('Error: initial budget is less than initial number of labels.')
+    else:
+        label_threshold = initial_budget
 
     for num_training in range(max_samples_batch):
 
-        # Want to look at the model confidence using entropy.
+        # Want to look at the model confidence at the test set using entropy.
         # Calculate entropy for each character of each string in the test set.
         label_list = crf.tagger_.labels()
         entropy_list = []
         for i in test_set:
+            len_ptname = len(i)
             crf.tagger_.set(sent2features(i))
             entropy_seq = []
             for j in range(len_ptname):
@@ -155,126 +161,82 @@ def cv_edit_active_learn(args):
                 entropy_seq.append(scipy.stats.entropy(marginal_prob))
             entropy_list.append(entropy_seq)
 
-        # Sort the test set based on the entropy sum.
-        entropy_sum = [sum(i) for i in entropy_list]
+        # Sort the test set based on the average entropy.
+        entropy_sum = [sum(i)/len(i) for i in entropy_list]
         sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
 
-        # Select the string with the minimum average distance to the selected group.
-        temp_set = [test_string[i] for i in sort_idx_temp[:2]]
-        distance = utils.avr_edit_distance(temp_set, train_string_new, True)
-        # sorted_idx = np.argsort(distance, kind='mergesort').tolist()
-        sort_idx = np.argmin(distance)
+        # Calculate the average similarity between the unlabeled samples and the selected test samples.
+        group_size = 5
+        avr_sim = np.sum(sim_matrix[:, sort_idx_temp[:group_size]], axis=1) / group_size
+        distance = avr_sim
 
-        # Store the index of the selected instance.
-        if sort_idx not in labeled_instance:
-            labeled_instance.append(sort_idx)
-            revisit_flag = False
-        else:
-            revisit_flag = True
+        # We want to have information weighted by such distance.
+        X_train_new = [sent2features(s) for s in train_set_new]
+        len_train_new = len(train_set_new)
+        prob_list_candidate = []
+        for i in range(len_train_new):
+            y_sequence = crf.tagger_.tag(X_train_new[i])
+            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(train_string_new[i]))
+            prob_list_candidate.append(prob_norm)
+        candidate_score = []
+        for i in range(len_train_new):
+            if distance[i] == 0:
+                candidate_score.append(sys.float_info.max)
+            else:
+                candidate_score.append(prob_list_candidate[i] / distance[i])
 
-        # Only label the part with low confidence/high entropy.
+        # Obtain the candidate index.
+        sort_idx = np.argsort(candidate_score, kind='mergesort').tolist()
+        sort_idx = sort_idx[0]
+
+        # Exhausted search through all substrings.
+        # Search substrings with length 2 to len_ptname.
         y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
-        entropy_tmp = []
+        candidate_entropy_list = []
+        len_ptname = len(train_set_new[sort_idx])
         for j in range(len_ptname):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-            entropy_tmp.append(scipy.stats.entropy(marginal_prob))
-        y_sequence_truth = sent2labels(train_set_new[sort_idx])
+            candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
+        substring_score = {}
+        for i in range(len_ptname-1):
+            for j in range(i+2,len_ptname): # should be len_ptname+1 if want to include full string
+                selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
+                rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
+                substring_score[(i,j)] = selected_entropy - rest_entropy
 
-        tmp_position = []
-        tmp_count = 0
-        if revisit_flag:
-            tmp_position = labeled_positions[labeled_instance.index(sort_idx)]
-            entropy_tmp_revise = []
-            for i in range(len_ptname):
-                if i not in tmp_position:
-                    entropy_tmp_revise.append(entropy_tmp[i])
-            mean_entropy_tmp = np.mean(entropy_tmp_revise)
-            std_entropy_tmp = np.std(entropy_tmp_revise)
-            if len(entropy_tmp_revise) == 1:
-                z_score_revise = [100]
-            else:
-                z_score_revise = [(entropy_tmp_revise[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len(entropy_tmp_revise))]
-            z_score = []
-            j = 0
-            for i in range(len_ptname):
-                if i in tmp_position:
-                    z_score.append(-100)
-                else:
-                    z_score.append(z_score_revise[j])
-                    j = j+1
-            train_position = labeled_istance_train[labeled_instance.index(sort_idx)]
-            y_sequence = y_train_current[train_position]
-            for i in range(len_ptname):
-                if i not in tmp_position:
-                    if z_score[i] > 0:
-                        count += 1
-                        tmp_count += 1
-                        y_sequence[i] = y_sequence_truth[i]
-                        tmp_position.append(i)
-            # Check if no character is labeled.
-            if tmp_count == 0:
-                for i in range(len_ptname):
-                    if i not in tmp_position:
-                        count += 1
-                        tmp_count += 1
-                        y_sequence[i] = y_sequence_truth[i]
-                        tmp_position.append(i)
-                        break
-            # Sort the tmp_position.
-            tmp_position = np.sort(tmp_position, kind='mergesort').tolist()
-            labeled_positions[labeled_instance.index(sort_idx)] = tmp_position
+        # Rank the substrings based on their scores in descending order.
+        sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
+        sorted_substring_score.reverse()
+        index_tuple = sorted_substring_score[0][0]
+        label_index = []
+        for i in range(index_tuple[0],index_tuple[1]):
+            label_index.append(i)
+
+        # Apply pseudo-labeling.
+        y_sequence_truth = sent2labels(train_set_new[sort_idx])
+        pseudo_label_total = 0
+        pseudo_label_correct = 0
+        for i in label_index:
+            count += 1
+            if y_sequence[i] == sent2labels(train_set_new[sort_idx])[i]:
+                pseudo_label_correct += 1
+            y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+            pseudo_label_total += 1
+        label_count[num_training + 1] = count
+        if pseudo_label_total != 0:
+            pseudo_acc[num_training + 1] = pseudo_label_correct / pseudo_label_total
         else:
-            mean_entropy_tmp = np.mean(entropy_tmp)
-            std_entropy_tmp = np.std(entropy_tmp)
-            z_score = [(entropy_tmp[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len_ptname)]
-            for i in range(len_ptname):
-                if z_score[i] > 0:
-                    count += 1
-                    tmp_count += 1
-                    y_sequence[i] = y_sequence_truth[i]
-                    tmp_position.append(i)
-            labeled_positions.append(tmp_position)
-        label_count[num_training] = count
+            pseudo_acc[num_training + 1] = 1
 
         # Update training set.
-        if revisit_flag:
-            y_train_current[train_position] = y_sequence
-        else:
-            # sample_to_remove = [train_set_new[i] for i in sort_idx[:batch_size]]
-            sample_to_remove = [train_set_new[sort_idx]]
-            for i in sample_to_remove:
-                train_set_current.append(i)
-                #train_set_new.remove(i)
-                X_train_current.append(sent2features(i))
-                y_train_current.append(y_sequence)
-                # print(X_train_current)
-            # string_to_remove = [train_string_new[i] for i in sort_idx[:batch_size]]
-            string_to_remove = [train_string_new[sort_idx]]
-            for i in string_to_remove:
-                train_string_current.append(i)
-                labeled_istance_train.append(len(train_string_current)-1)
-                # train_string_new.remove(i)
-            # Remove the pre-calculate vectors and distances.
-            #del train_new_vec[sort_idx]
-            #del distance_to_cluster[sort_idx]
-
-        # Remove the full labeled instances from the unlabeled set.
-        tmp_idx_record = []
-        for i in range(len(labeled_positions)):
-            if len(labeled_positions[i]) == len_ptname:
-                tmp_idx_record.append(i)
-        idx_record = []
-        for i in range(len(tmp_idx_record)):
-            j = len(tmp_idx_record) - i - 1
-            idx_record.append(labeled_instance[tmp_idx_record[j]])
-            del labeled_instance[j]
-            del labeled_positions[j]
-            del labeled_istance_train[j]
-        idx_record = np.sort(idx_record, kind='mergesort').tolist()
-        for i in range(len(idx_record)):
-            j = len(idx_record) - i - 1
-            del train_set_new[j]
-            del train_string_new[j]
+        train_set_current.append(train_set_new[sort_idx])
+        train_string_current.append(train_string_new[sort_idx])
+        X_train_current.append(sent2features(train_set_new[sort_idx]))
+        y_train_current.append(y_sequence)
+        del train_set_new[sort_idx]
+        del train_string_new[sort_idx]
+        del train_new_vec[sort_idx]
+        sim_matrix = np.delete(sim_matrix, sort_idx, 0)
 
         # Train the CRF.
         crf = sklearn_crfsuite.CRF(
@@ -289,18 +251,21 @@ def cv_edit_active_learn(args):
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
-        # print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training] = phrase_correct / phrase_count
-        out_acc[num_training] = out_correct / out_count
+        phrase_acc[num_training+1] = phrase_correct / phrase_count
+        out_acc[num_training+1] = out_correct / out_count
 
-    return phrase_acc, out_acc, label_count
+    return phrase_acc, out_acc, label_count, pseudo_acc
 
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -332,29 +297,41 @@ if __name__ == '__main__':
     # print(len(phrase_acc))
     # print(len(phrase_acc[0]))
     label_count = [results[i][2] for i in range(num_fold)]
+    pseudo_acc = [results[i][3] for i in range(num_fold)]
 
-    with open("../baseline/phrase_acc_confidence_edit.bin", "rb") as phrase_confidence:
-        phrase_acc_confidence_edit = pickle.load(phrase_confidence)
-    with open("../baseline/out_acc_confidence_edit.bin", "rb") as out_confidence:
-        out_acc_confidence_edit = pickle.load(out_confidence)
-    phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0) / 8.0
+    with open("../baseline/ibm_phrase_acc_confidence_edit.bin", "rb") as phrase_confidence_file_temp:
+        phrase_acc_confidence_edit = pickle.load(phrase_confidence_file_temp)
+    with open("../baseline/ibm_out_acc_confidence_edit.bin", "rb") as out_confidence_file_temp:
+        out_acc_confidence_edit = pickle.load(out_confidence_file_temp)
+    with open("../baseline/ibm_confidence_edit_num.bin", "rb") as label_count_file_temp:
+        label_count_confidence_edit = pickle.load(label_count_file_temp)
+
+    phrase_acc_av_confidence_edit = np.sum(phrase_acc_confidence_edit, axis=0) / num_fold
     phrase_acc_max_confidence_edit = np.max(phrase_acc_confidence_edit, axis=0)
     phrase_acc_min_confidence_edit = np.min(phrase_acc_confidence_edit, axis=0)
-    out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / 8.0
+    label_count_av_confidence_edit = np.sum(label_count_confidence_edit, axis=0) / num_fold
+    out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / num_fold
 
     phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
     phrase_acc_max = np.max(phrase_acc, axis=0)
     phrase_acc_min = np.min(phrase_acc, axis=0)
+
     out_acc_av = np.sum(out_acc, axis=0)/num_fold
+
     label_count_av = np.sum(label_count, axis=0)/num_fold
     label_count_max = np.max(label_count, axis=0)
     label_count_min = np.min(label_count, axis=0)
+
+    pseudo_acc_av = np.sum(pseudo_acc, axis=0) / num_fold
+    pseudo_acc_max = np.max(pseudo_acc, axis=0)
+    pseudo_acc_min = np.min(pseudo_acc, axis=0)
+
     plt.plot(label_count_av, phrase_acc_av, 'r',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_av_confidence_edit, 'b',
+             label_count_av_confidence_edit, phrase_acc_av_confidence_edit, 'b',
              label_count_av, phrase_acc_max, '--r',
              label_count_av, phrase_acc_min, '--r',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_max_confidence_edit, '--b',
-             np.arange(14, 14 * 100 + 14, 14), phrase_acc_min_confidence_edit, '--b')
+             label_count_av_confidence_edit, phrase_acc_max_confidence_edit, '--b',
+             label_count_av_confidence_edit, phrase_acc_min_confidence_edit, '--b')
     plt.xlabel('number of manual labels')
     plt.ylabel('testing accuracy')
     plt.legend(['partial label', 'full label'])
@@ -367,10 +344,38 @@ if __name__ == '__main__':
     plt.ylabel('average manual labels')
     plt.show()
 
+    plt.plot(np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_av, 'r',
+             np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_max, '--r',
+             np.arange(1, len(pseudo_acc_av) + 1, 1), pseudo_acc_min, '--r')
+    plt.xlabel('number of iterations')
+    plt.ylabel('pseudo-label accuracy')
+    plt.show()
+
     # Save data for future plotting.
-    with open("phrase_acc_partial_entropy_sum_edit_aligned.bin", "wb") as phrase_confidence_file:
+    # with open("sod_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("sod_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+    # with open("sod_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
+    # with open("sod_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    #     pickle.dump(pseudo_acc, pseudo_acc_file)
+
+    # Save data for future plotting.
+    with open("ibm_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("out_acc_partial_entropy_sum_edit_aligned.bin", "wb") as out_confidence_file:
+    with open("ibm_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("partial_entropy_sum_edit_num.bin_aligned", "wb") as label_count_file:
+    with open("ibm_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
+    with open("ibm_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+        pickle.dump(pseudo_acc, pseudo_acc_file)
+
+    # with open("sdh_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    #     pickle.dump(phrase_acc, phrase_confidence_file)
+    # with open("sdh_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    #     pickle.dump(out_acc, out_confidence_file)
+    # with open("sdh_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    #     pickle.dump(label_count, label_count_file)
+    # with open("sdh_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    #     pickle.dump(pseudo_acc, pseudo_acc_file)
