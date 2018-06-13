@@ -19,42 +19,86 @@ import operator
 import utils.utils as utils
 
 
-# Define the feature dictionary.
+# Define feature dictionary.
 def word2features(sent, i):
-    word = sent[i][0]
-    # Number of cumulative digits.
-    cum_dig = 0
-    for k in range(i+1):
-        if sent[k][0].isdigit():
-            cum_dig = cum_dig + 1
+    # obtain some overall information of the point name string
+    num_part = 4
+    len_string = len(sent)
+    mod = len_string % num_part
+    part_size = int(math.floor(len_string/num_part))
+    # determine which part the current character belongs to
+    # larger part will be at the beginning if the whole sequence can't be divided evenly
+    size_list = []
+    mod_count = 0
+    for j in range(num_part):
+        if mod_count < mod:
+            size_list.append(part_size+1)
+            mod_count += 1
         else:
-            cum_dig = 0
+            size_list.append(part_size)
+    # for current character
+    part_cumulative = [0]*num_part
+    for j in range(num_part):
+        if j > 0:
+            part_cumulative[j] = part_cumulative[j-1] + size_list[j]
+        else:
+            part_cumulative[j] = size_list[j] - 1   # indices start from 0
+    part_indicator = [0]*num_part
+    for j in range(num_part):
+        if part_cumulative[j] >= i:
+            part_indicator[j] = 1
+            break
+    word = sent[i][0]
     if word.isdigit():
         itself = 'NUM'
     else:
         itself = word
     features = {
         'word': itself,
-        'word.isdigit()': word.isdigit(),
-        'first_digit': cum_dig == 1,
-        'second_digit': cum_dig == 2,
-        'third_digit': cum_dig == 3,
+        'part0': part_indicator[0] == 1,
+        'part1': part_indicator[1] == 1,
+        'part2': part_indicator[2] == 1,
+        'part3': part_indicator[3] == 1,
     }
     # for previous character
     if i > 0:
+        part_indicator = [0] * num_part
+        for j in range(num_part):
+            if part_cumulative[j] >= i-1:
+                part_indicator[j] = 1
+                break
         word1 = sent[i-1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '-1:word': word1,
-            '-1:isdigit()': word1.isdigit(),
+            '-1:word': itself1,
+            '-1:part0': part_indicator[0] == 1,
+            '-1:part1': part_indicator[1] == 1,
+            '-1:part2': part_indicator[2] == 1,
+            '-1:part3': part_indicator[3] == 1,
         })
     else:
         features['BOS'] = True
     # for next character
     if i < len(sent)-1:
+        part_indicator = [0] * num_part
+        for j in range(num_part):
+            if part_cumulative[j] >= i + 1:
+                part_indicator[j] = 1
+                break
         word1 = sent[i+1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '+1:word': word1,
-            '+1:isdigit()': word1.isdigit(),
+            '+1:word': itself1,
+            '+1:part0': part_indicator[0] == 1,
+            '+1:part1': part_indicator[1] == 1,
+            '+1:part2': part_indicator[2] == 1,
+            '+1:part3': part_indicator[3] == 1,
         })
     else:
         features['EOS'] = True
@@ -210,10 +254,10 @@ def cv_edit_active_learn(args):
         len_ptname = len(train_set_new[sort_idx])
         for j in range(len_ptname):
             marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-            # candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
-            sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
-            sorted_marginal_prob.reverse()
-            candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
+            candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
+            # sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
+            # sorted_marginal_prob.reverse()
+            # candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
         substring_score = {}
         for i in range(len_ptname-4):
             for j in range(i+5,len_ptname): # should be len_ptname+1 if want to include full string
@@ -223,7 +267,7 @@ def cv_edit_active_learn(args):
 
         # Rank the substrings based on their scores in descending order.
         sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
-        # sorted_substring_score.reverse()
+        sorted_substring_score.reverse()
         index_tuple = sorted_substring_score[0][0]
         label_index = []
         for i in range(index_tuple[0],index_tuple[1]):
