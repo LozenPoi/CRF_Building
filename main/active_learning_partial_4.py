@@ -148,22 +148,36 @@ def cv_edit_active_learn(args):
 
     for num_training in range(max_samples_batch):
 
-        # Want to look at the model confidence at the test set using entropy.
-        # Calculate entropy for each character of each string in the test set.
-        label_list = crf.tagger_.labels()
-        entropy_list = []
-        for i in test_set:
-            len_ptname = len(i)
-            crf.tagger_.set(sent2features(i))
-            entropy_seq = []
-            for j in range(len_ptname):
-                marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-                entropy_seq.append(scipy.stats.entropy(marginal_prob))
-            entropy_list.append(entropy_seq)
+        # # Want to look at the model confidence  the test set.
+        # label_list = crf.tagger_.labels()
+        # entropy_list = []
+        # for i in test_set:
+        #     len_ptname = len(i)
+        #     crf.tagger_.set(sent2features(i))
+        #     entropy_seq = []
+        #     for j in range(len_ptname):
+        #         marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
+        #         entropy_seq.append(scipy.stats.entropy(marginal_prob))
+        #     entropy_list.append(entropy_seq)
+        #
+        # # Sort the test set based on the average entropy.
+        # entropy_sum = [sum(i)/len(i) for i in entropy_list]
+        # sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
 
-        # Sort the test set based on the average entropy.
-        entropy_sum = [sum(i)/len(i) for i in entropy_list]
-        sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
+
+        # Calculate the confidence on the testing set using the current CRF.
+        prob_list = []
+        for i in range(len_test):
+            # crf.tagger_.set(X_train_new[i])
+            y_sequence = crf.tagger_.tag(X_test[i])
+            # print(crf.tagger_.probability(y_sequence))
+            # normalized sequence probability
+            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(test_string[i]))
+            prob_list.append(prob_norm)
+
+        # Sort the test set based on confidence.
+        sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
+
 
         # Calculate the average similarity between the unlabeled samples and the selected test samples.
         group_size = 5
