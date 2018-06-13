@@ -10,10 +10,6 @@ from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 from collections import Counter
 import editdistance
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.cluster import KMeans
-from scipy import spatial
-import sys
 import operator
 
 import utils.utils as utils
@@ -126,7 +122,7 @@ def cv_edit_active_learn(args):
     phrase_acc = np.zeros([max_samples_batch+1])
     out_acc = np.zeros([max_samples_batch+1])
     label_count = np.zeros([max_samples_batch+1])
-    pseudo_acc = np.zeros([max_samples_batch + 1])
+    pseudo_acc = np.zeros([max_samples_batch+1])
 
     # Define training set and testing set and corresponding original strings.
     train_set = [dataset[i] for i in train_idx]
@@ -166,24 +162,9 @@ def cv_edit_active_learn(args):
     phrase_acc[0] = phrase_correct / phrase_count
     out_acc[0] = out_correct / out_count
     label_count[0] = count
-    pseudo_acc[0] = 1  # There is no pseudo-label at the beginning.
+    pseudo_acc[0] = 1   # There is no pseudo-label at the beginning.
 
-    # Vectorized and clustered test set.
-    total_string = test_string[:]
-    total_string.extend(train_string_new)
-    vec, _ = utils.string_vectorize(total_string)
-    test_vec = vec[:len(test_string)].tolist()
-    train_new_vec = vec[len(test_string):].tolist()
-
-    # Pre-calculate similarity.
-    # This will be efficient if the number of iterations is large.
-    sim_matrix = np.zeros((len(train_new_vec), len(test_vec)))
-    for i in range(len(train_new_vec)):
-        for j in range(len(test_vec)):
-            sim_matrix[i, j] = 1 - spatial.distance.cosine(train_new_vec[i], test_vec[j])
-
-    len_test = len(test_set)
-
+    # len_test = len(test_set)
     initial_budget = 100
     if count >= initial_budget:
         print('Error: initial budget is less than initial number of labels.')
@@ -193,58 +174,35 @@ def cv_edit_active_learn(args):
     for num_training in range(max_samples_batch):
 
         label_list = crf.tagger_.labels()
-        # # Want to look at the model confidence  the test set.
+        # # Want to look at the confidence (average entropy for each character of each string) on unlabeled data.
         # entropy_list = []
-        # for i in test_set:
-        #     len_ptname = len(i)
+        # for i in train_set_new:
         #     crf.tagger_.set(sent2features(i))
         #     entropy_seq = []
+        #     len_ptname = len(i)
         #     for j in range(len_ptname):
         #         marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
         #         entropy_seq.append(scipy.stats.entropy(marginal_prob))
         #     entropy_list.append(entropy_seq)
         #
-        # # Sort the test set based on the average entropy.
-        # entropy_sum = [sum(i)/len(i) for i in entropy_list]
-        # sort_idx_temp = np.argsort(-np.array(entropy_sum), kind='mergesort').tolist()
+        # # Select the string with the largest entropy sum.
+        # candidate_score = []
+        # for i in range(len(entropy_list)):
+        #     candidate_score.append(sum(entropy_list[i]))
+        # sort_idx = np.argmax(candidate_score)
 
-
-        # Calculate the confidence on the testing set using the current CRF.
-        prob_list = []
-        for i in range(len_test):
-            # crf.tagger_.set(X_train_new[i])
-            y_sequence = crf.tagger_.tag(X_test[i])
-            # print(crf.tagger_.probability(y_sequence))
-            # normalized sequence probability
-            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(test_string[i]))
-            prob_list.append(prob_norm)
-
-        # Sort the test set based on confidence.
-        sort_idx_temp = np.argsort(np.array(prob_list), kind='mergesort').tolist()
-
-
-        # Calculate the average similarity between the unlabeled samples and the selected test samples.
-        group_size = 5
-        avr_sim = np.sum(sim_matrix[:, sort_idx_temp[:group_size]], axis=1) / group_size
-        distance = avr_sim
-
-        # We want to have information weighted by such distance.
+        # Calculate the confidence on the training pool (train_set_new) using the current CRF.
         X_train_new = [sent2features(s) for s in train_set_new]
         len_train_new = len(train_set_new)
-        prob_list_candidate = []
+        prob_list = []
         for i in range(len_train_new):
             y_sequence = crf.tagger_.tag(X_train_new[i])
+            # normalized sequence probability
             prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(train_string_new[i]))
-            prob_list_candidate.append(prob_norm)
-        candidate_score = []
-        for i in range(len_train_new):
-            if distance[i] == 0:
-                candidate_score.append(sys.float_info.max)
-            else:
-                candidate_score.append(prob_list_candidate[i] / distance[i])
+            prob_list.append(prob_norm)
 
-        # Obtain the candidate index.
-        sort_idx = np.argsort(candidate_score, kind='mergesort').tolist()
+        # Sort the training pool based on confidence.
+        sort_idx = np.argsort(np.array(prob_list), kind='mergesort').tolist()
         sort_idx = sort_idx[0]
 
         # Exhausted search through all substrings.
@@ -259,18 +217,18 @@ def cv_edit_active_learn(args):
             # sorted_marginal_prob.reverse()
             # candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
         substring_score = {}
-        for i in range(len_ptname-4):
-            for j in range(i+5,len_ptname): # should be len_ptname+1 if want to include full string
-                selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
-                rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
-                substring_score[(i,j)] = selected_entropy - rest_entropy
+        for i in range(len_ptname - 4):
+            for j in range(i + 5, len_ptname):  # should be len_ptname+1 if want to include full string
+                selected_entropy = sum(candidate_entropy_list[i:j]) / (j - i)
+                rest_entropy = (sum(candidate_entropy_list) - sum(candidate_entropy_list[i:j])) / (len_ptname - (j - i))
+                substring_score[(i, j)] = selected_entropy - rest_entropy
 
         # Rank the substrings based on their scores in descending order.
         sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
         sorted_substring_score.reverse()
         index_tuple = sorted_substring_score[0][0]
         label_index = []
-        for i in range(index_tuple[0],index_tuple[1]):
+        for i in range(index_tuple[0], index_tuple[1]):
             label_index.append(i)
 
         # Apply pseudo-labeling.
@@ -296,22 +254,21 @@ def cv_edit_active_learn(args):
         y_train_current.append(y_sequence)
         del train_set_new[sort_idx]
         del train_string_new[sort_idx]
-        del train_new_vec[sort_idx]
-        sim_matrix = np.delete(sim_matrix, sort_idx, 0)
 
         # Train the CRF.
-        crf = sklearn_crfsuite.CRF(
-            algorithm='lbfgs',
-            c1=0.1,
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
+        # crf = sklearn_crfsuite.CRF(
+        #     algorithm='lbfgs',
+        #     c1=0.1,
+        #     c2=0.1,
+        #     max_iterations=100,
+        #     all_possible_transitions=True
+        # )
         crf.fit(X_train_current, y_train_current)
 
         # Use the estimator.
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
+        # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training+1] = phrase_correct / phrase_count
         out_acc[num_training+1] = out_correct / out_count
 
@@ -324,9 +281,9 @@ if __name__ == '__main__':
         dataset = pickle.load(my_dataset)
     with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
-    # with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
     #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/sdh_string.bin", "rb") as my_string:
+    # with open("../dataset/ibm_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
@@ -373,13 +330,13 @@ if __name__ == '__main__':
     label_count_av_confidence_edit = np.sum(label_count_confidence_edit, axis=0) / num_fold
     out_acc_av_confidence_edit = np.sum(out_acc_confidence_edit, axis=0) / num_fold
 
-    phrase_acc_av = np.sum(phrase_acc, axis=0)/num_fold
+    phrase_acc_av = np.sum(phrase_acc, axis=0) / num_fold
     phrase_acc_max = np.max(phrase_acc, axis=0)
     phrase_acc_min = np.min(phrase_acc, axis=0)
 
-    out_acc_av = np.sum(out_acc, axis=0)/num_fold
+    out_acc_av = np.sum(out_acc, axis=0) / num_fold
 
-    label_count_av = np.sum(label_count, axis=0)/num_fold
+    label_count_av = np.sum(label_count, axis=0) / num_fold
     label_count_max = np.max(label_count, axis=0)
     label_count_min = np.min(label_count, axis=0)
 
@@ -413,30 +370,29 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("sod_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    with open("sod_phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("sod_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    with open("sod_out_acc_partial_entropy_sum.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("sod_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    with open("sod_partial_entropy_sum_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
-    with open("sod_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    with open("sod_partial_entropy_sum_pseudo_acc.bin", "wb") as pseudo_acc_file:
         pickle.dump(pseudo_acc, pseudo_acc_file)
 
-    # # Save data for future plotting.
-    # with open("ibm_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    # with open("ibm_phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:
     #     pickle.dump(phrase_acc, phrase_confidence_file)
-    # with open("ibm_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    # with open("ibm_out_acc_partial_entropy_sum.bin", "wb") as out_confidence_file:
     #     pickle.dump(out_acc, out_confidence_file)
-    # with open("ibm_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    # with open("ibm_partial_entropy_sum_num.bin", "wb") as label_count_file:
     #     pickle.dump(label_count, label_count_file)
-    # with open("ibm_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    # with open("ibm_partial_entropy_sum_pseudo_acc.bin", "wb") as pseudo_acc_file:
     #     pickle.dump(pseudo_acc, pseudo_acc_file)
 
-    # with open("sdh_phrase_acc_partial_entropy_sum_edit.bin", "wb") as phrase_confidence_file:
+    # with open("sdh_phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:
     #     pickle.dump(phrase_acc, phrase_confidence_file)
-    # with open("sdh_out_acc_partial_entropy_sum_edit.bin", "wb") as out_confidence_file:
+    # with open("sdh_out_acc_partial_entropy_sum.bin", "wb") as out_confidence_file:
     #     pickle.dump(out_acc, out_confidence_file)
-    # with open("sdh_partial_entropy_sum_edit_num.bin", "wb") as label_count_file:
+    # with open("sdh_partial_entropy_sum_num.bin", "wb") as label_count_file:
     #     pickle.dump(label_count, label_count_file)
-    # with open("sdh_partial_entropy_sum_edit_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    # with open("sdh_partial_entropy_sum_pseudo_acc.bin", "wb") as pseudo_acc_file:
     #     pickle.dump(pseudo_acc, pseudo_acc_file)
