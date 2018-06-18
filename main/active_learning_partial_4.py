@@ -232,80 +232,123 @@ def cv_edit_active_learn(args):
         distance = avr_sim
 
         # We want to have information weighted by such distance.
-        X_train_new = [sent2features(s) for s in train_set_new]
+        entropy_list = []
         len_train_new = len(train_set_new)
-        prob_list_candidate = []
         for i in range(len_train_new):
-            y_sequence = crf.tagger_.tag(X_train_new[i])
-            prob_norm = math.exp(math.log(crf.tagger_.probability(y_sequence)) / len(train_string_new[i]))
-            prob_list_candidate.append(prob_norm)
+            crf.tagger_.set(sent2features(train_set_new[i]))
+            entropy_seq = []
+            len_ptname = len(train_set_new[i])
+            if i in visited_idx:
+                revisit_idx_re = visited_idx.index(i)
+                unlabeled_part = pseudo_label_idx[revisit_idx_re]
+                for j in unlabeled_part:
+                    marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
+                    entropy_seq.append(scipy.stats.entropy(marginal_prob))
+            else:
+                for j in range(len_ptname):
+                    marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
+                    entropy_seq.append(scipy.stats.entropy(marginal_prob))
+            entropy_list.append(entropy_seq)
+
+        entropy_list_mean = []
+        for i in range(len(entropy_list)):
+            entropy_list_mean.append(sum(entropy_list[i])/len(entropy_list[i]))
+
         candidate_score = []
         for i in range(len_train_new):
             if distance[i] == 0:
                 candidate_score.append(sys.float_info.max)
             else:
-                candidate_score.append(prob_list_candidate[i] / distance[i])
+                candidate_score.append(entropy_list_mean[i] / distance[i])
 
         # Obtain the candidate index.
         sort_idx = np.argsort(candidate_score, kind='mergesort').tolist()
         sort_idx = sort_idx[0]
-        visited_idx.append(sort_idx)
 
-        # Exhausted search through all substrings.
-        # Search substrings with length 2 to len_ptname.
-        y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
-        candidate_entropy_list = []
-        len_ptname = len(train_set_new[sort_idx])
-        for j in range(len_ptname):
-            marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-            candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
-            # sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
-            # sorted_marginal_prob.reverse()
-            # candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
-        substring_score = {}
-        for i in range(len_ptname-1):
-            for j in range(i+2,len_ptname): # should be len_ptname+1 if want to include full string
-                selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
-                rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
-                substring_score[(i,j)] = selected_entropy - rest_entropy
-
-        # Rank the substrings based on their scores in descending order.
-        sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
-        sorted_substring_score.reverse()
-        index_tuple = sorted_substring_score[0][0]
-        label_index = []
-        for i in range(index_tuple[0],index_tuple[1]):
-            label_index.append(i)
-        pseudo_index = [i for i in range(len_ptname) if i not in label_index]
-        pseudo_label_idx.append(pseudo_index)
-        # print(label_index, pseudo_index)
-
-        # Apply pseudo-labeling.
-        y_sequence_truth = sent2labels(train_set_new[sort_idx])
-        pseudo_label_total = 0
-        pseudo_label_correct = 0
-        for i in label_index:
-            count += 1
-            if y_sequence[i] == y_sequence_truth[i]:
-                pseudo_label_correct += 1
-            y_sequence[i] = y_sequence_truth[i]
-            pseudo_label_total += 1
-        label_count[num_training + 1] = count
-        if pseudo_label_total != 0:
-            pseudo_acc[num_training + 1] = pseudo_label_correct / pseudo_label_total
+        # Check if this is revisiting.
+        if sort_idx in visited_idx:
+            revisit_flag = True
         else:
-            pseudo_acc[num_training + 1] = 1
+            revisit_flag = False
 
-        # Update training set.
-        new_instance_idx.append(len(train_string_current))
-        train_set_current.append(train_set_new[sort_idx])
-        train_string_current.append(train_string_new[sort_idx])
-        X_train_current.append(sent2features(train_set_new[sort_idx]))
-        y_train_current.append(y_sequence)
-        del train_set_new[sort_idx]
-        del train_string_new[sort_idx]
-        del train_new_vec[sort_idx]
-        sim_matrix = np.delete(sim_matrix, sort_idx, 0)
+        if revisit_flag:
+            revisit_idx_un = sort_idx  # the instance index in the unlabeled set
+            revisit_idx_re = visited_idx.index(sort_idx)  # the instance index in the tracking record
+            revisit_idx_tr = new_instance_idx[revisit_idx_re]  # the instance index in the training set
+            # Update the pseudo label to manual label in the training set.
+            y_train_current[revisit_idx_tr] = sent2labels(train_set_current[revisit_idx_tr])
+            # Update the unlabeled set.
+            del train_set_new[revisit_idx_un]
+            del train_string_new[revisit_idx_un]
+            del train_new_vec[revisit_idx_un]
+            sim_matrix = np.delete(sim_matrix, revisit_idx_un, 0)
+            # Update the tracking record.
+            count += len(pseudo_label_idx[revisit_idx_re])
+            del new_instance_idx[revisit_idx_re]
+            del pseudo_label_idx[revisit_idx_re]
+            del visited_idx[revisit_idx_re]
+            for i in range(len(visited_idx)):
+                if visited_idx[i] > revisit_idx_un:
+                    visited_idx[i] = visited_idx[i] - 1
+            label_count[num_training + 1] = count
+        else:
+            # Exhausted search through all substrings.
+            # Search substrings with length 2 to len_ptname.
+            visited_idx.append(sort_idx)
+            y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
+            candidate_entropy_list = []
+            len_ptname = len(train_set_new[sort_idx])
+            for j in range(len_ptname):
+                marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
+                candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
+                # sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
+                # sorted_marginal_prob.reverse()
+                # candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
+            substring_score = {}
+            for i in range(len_ptname-1):
+                for j in range(i+2,len_ptname): # should be len_ptname+1 if want to include full string
+                    selected_entropy = sum(candidate_entropy_list[i:j])/(j-i)
+                    rest_entropy = (sum(candidate_entropy_list)-sum(candidate_entropy_list[i:j]))/(len_ptname-(j-i))
+                    substring_score[(i,j)] = selected_entropy - rest_entropy
+
+            # Rank the substrings based on their scores in descending order.
+            sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
+            sorted_substring_score.reverse()
+            index_tuple = sorted_substring_score[0][0]
+            label_index = []
+            for i in range(index_tuple[0],index_tuple[1]):
+                label_index.append(i)
+            pseudo_index = [i for i in range(len_ptname) if i not in label_index]
+            pseudo_label_idx.append(pseudo_index)
+            # print(label_index, pseudo_index)
+
+            # Apply pseudo-labeling.
+            y_sequence_truth = sent2labels(train_set_new[sort_idx])
+            pseudo_label_total = 0
+            pseudo_label_correct = 0
+            for i in label_index:
+                count += 1
+                if y_sequence[i] == y_sequence_truth[i]:
+                    pseudo_label_correct += 1
+                y_sequence[i] = y_sequence_truth[i]
+                pseudo_label_total += 1
+            label_count[num_training + 1] = count
+            if pseudo_label_total != 0:
+                pseudo_acc[num_training + 1] = pseudo_label_correct / pseudo_label_total
+            else:
+                pseudo_acc[num_training + 1] = 1
+
+            # Update training set.
+            new_instance_idx.append(len(train_string_current))
+            train_set_current.append(train_set_new[sort_idx])
+            train_string_current.append(train_string_new[sort_idx])
+            # X_train_current.append(sent2features(train_set_new[sort_idx]))
+            y_train_current.append(y_sequence)
+            X_train_current = [sent2features(s) for s in train_set_current]
+            # del train_set_new[sort_idx]
+            # del train_string_new[sort_idx]
+            # del train_new_vec[sort_idx]
+            # sim_matrix = np.delete(sim_matrix, sort_idx, 0)
 
         # Update the pseudo labels using the current CRF.
         new_instance_count = 0
