@@ -243,60 +243,23 @@ def cv_edit_active_learn(args):
                     visited_idx[i] = visited_idx[i] - 1
             label_count[num_training + 1] = count
         else:
-            # Exhausted search through all substrings.
-            # Search substrings with length 2 to len_ptname.
+            # Apply z-scores to pseudo-label.
             visited_idx.append(sort_idx)
-            y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))  # generate pseudo-label firstly
-            candidate_entropy_list = []
-            len_ptname = len(train_set_new[sort_idx])
-            for j in range(len_ptname):
-                marginal_prob = [crf.tagger_.marginal(k, j) for k in label_list]
-                candidate_entropy_list.append(scipy.stats.entropy(marginal_prob))
-                # sorted_marginal_prob = np.sort(marginal_prob, kind='mergesort').tolist()
-                # sorted_marginal_prob.reverse()
-                # candidate_entropy_list.append(sorted_marginal_prob[0]-sorted_marginal_prob[1])
-            substring_score = {}
-            for i in range(len_ptname - 1):
-                for j in range(i + 2, len_ptname):  # should be len_ptname+1 if want to include full string
-                    selected_entropy = sum(candidate_entropy_list[i:j]) / (j - i)
-                    rest_entropy = (sum(candidate_entropy_list) - sum(candidate_entropy_list[i:j])) / (len_ptname - (j - i))
-                    substring_score[(i, j)] = selected_entropy - rest_entropy
-
-            # Rank the substrings based on their scores in descending order.
-            sorted_substring_score = sorted(substring_score.items(), key=operator.itemgetter(1))
-            sorted_substring_score.reverse()
-            index_tuple1 = sorted_substring_score[0][0]
-            index_tuple2 = sorted_substring_score[1][0]
-            index_tuple3 = sorted_substring_score[2][0]
-            label_index1 = []
-            label_index2 = []
-            label_index3 = []
-            for i in range(index_tuple1[0], index_tuple1[1]):
-                label_index1.append(i)
-            for i in range(index_tuple2[0], index_tuple2[1]):
-                label_index2.append(i)
-            for i in range(index_tuple3[0], index_tuple3[1]):
-                label_index3.append(i)
-            label_index = list(set(label_index1+label_index2+label_index3))
+            entropy_tmp = entropy_list[sort_idx]
+            len_ptname = len(entropy_tmp)
+            y_sequence = crf.tagger_.tag(sent2features(train_set_new[sort_idx]))
+            mean_entropy_tmp = np.mean(entropy_tmp)
+            std_entropy_tmp = np.std(entropy_tmp)
+            z_score = [(entropy_tmp[i] - mean_entropy_tmp) / std_entropy_tmp for i in range(len_ptname)]
+            label_index = []
+            for i in range(len_ptname):
+                if z_score[i] > 0.0:
+                    count += 1
+                    y_sequence[i] = sent2labels(train_set_new[sort_idx])[i]
+                    label_index.append(i)
             pseudo_index = [i for i in range(len_ptname) if i not in label_index]
             pseudo_label_idx.append(pseudo_index)
-            # print(label_index, pseudo_index, train_string_new[sort_idx], y_sequence)
-
-            # Apply pseudo-labeling.
-            y_sequence_truth = sent2labels(train_set_new[sort_idx])
-            pseudo_label_total = 0
-            pseudo_label_correct = 0
-            for i in label_index:
-                count += 1
-                if y_sequence[i] == y_sequence_truth[i]:
-                    pseudo_label_correct += 1
-                y_sequence[i] = y_sequence_truth[i]
-                pseudo_label_total += 1
             label_count[num_training + 1] = count
-            if pseudo_label_total != 0:
-                pseudo_acc[num_training + 1] = pseudo_label_correct / pseudo_label_total
-            else:
-                pseudo_acc[num_training + 1] = 1
 
             # Update training set.
             new_instance_idx.append(len(train_string_current))
@@ -333,8 +296,8 @@ def cv_edit_active_learn(args):
         y_pred = crf.predict(X_test)
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
         # print(phrase_count, phrase_correct, out_count, out_correct)
-        phrase_acc[num_training+1] = phrase_correct / phrase_count
-        out_acc[num_training+1] = out_correct / out_count
+        phrase_acc[num_training + 1] = phrase_correct / phrase_count
+        out_acc[num_training + 1] = out_correct / out_count
 
     return phrase_acc, out_acc, label_count, pseudo_acc
 
@@ -449,13 +412,13 @@ if __name__ == '__main__':
     # with open("sod_partial_entropy_sum_pseudo_acc.bin", "wb") as pseudo_acc_file:
     #     pickle.dump(pseudo_acc, pseudo_acc_file)
 
-    with open("ibm_phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:
+    with open("ibm_phrase_acc_partial_entropy_sum_z.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("ibm_out_acc_partial_entropy_sum.bin", "wb") as out_confidence_file:
+    with open("ibm_out_acc_partial_entropy_sum_z.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("ibm_partial_entropy_sum_num.bin", "wb") as label_count_file:
+    with open("ibm_partial_entropy_sum_num_z.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
-    with open("ibm_partial_entropy_sum_pseudo_acc.bin", "wb") as pseudo_acc_file:
+    with open("ibm_partial_entropy_sum_pseudo_acc_z.bin", "wb") as pseudo_acc_file:
         pickle.dump(pseudo_acc, pseudo_acc_file)
 
     # with open("sdh_phrase_acc_partial_entropy_sum.bin", "wb") as phrase_confidence_file:

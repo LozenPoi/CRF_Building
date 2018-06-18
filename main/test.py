@@ -4,6 +4,7 @@ import editdistance
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer as CV
 import re
+import random
 
 import operator
 
@@ -74,3 +75,17 @@ y={}
 y[(1,2)]=3
 print(y)
 
+a = [3,2,1,5,6]
+b = [1,2,3]
+print(list(set(a+b)))
+
+
+a = ["Spears", "Adele", "NDubz", "Nicole", "Cristina"]
+b = [1, 2, 3, 4, 5]
+
+combined = list(zip(a, b))
+random.shuffle(combined)
+
+a[:], b[:] = zip(*combined)
+
+print(a,b)

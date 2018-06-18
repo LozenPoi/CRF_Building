@@ -9,45 +9,90 @@ import random
 from sklearn.model_selection import RepeatedKFold
 import multiprocessing
 import pickle
+import math
 
 import utils.utils as utils
 
 # Define feature dictionary.
 def word2features(sent, i):
-    word = sent[i][0]
-    # Number of cumulative digits.
-    cum_dig = 0
-    for k in range(i+1):
-        if sent[k][0].isdigit():
-            cum_dig = cum_dig + 1
+    # obtain some overall information of the point name string
+    num_part = 4
+    len_string = len(sent)
+    mod = len_string % num_part
+    part_size = int(math.floor(len_string/num_part))
+    # determine which part the current character belongs to
+    # larger part will be at the beginning if the whole sequence can't be divided evenly
+    size_list = []
+    mod_count = 0
+    for j in range(num_part):
+        if mod_count < mod:
+            size_list.append(part_size+1)
+            mod_count += 1
         else:
-            cum_dig = 0
+            size_list.append(part_size)
+    # for current character
+    part_cumulative = [0]*num_part
+    for j in range(num_part):
+        if j > 0:
+            part_cumulative[j] = part_cumulative[j-1] + size_list[j]
+        else:
+            part_cumulative[j] = size_list[j] - 1   # indices start from 0
+    part_indicator = [0]*num_part
+    for j in range(num_part):
+        if part_cumulative[j] >= i:
+            part_indicator[j] = 1
+            break
+    word = sent[i][0]
     if word.isdigit():
         itself = 'NUM'
     else:
         itself = word
     features = {
         'word': itself,
-        'word.isdigit()': word.isdigit(),
-        'first_digit': cum_dig == 1,
-        'second_digit': cum_dig == 2,
-        'third_digit': cum_dig == 3,
+        'part0': part_indicator[0] == 1,
+        'part1': part_indicator[1] == 1,
+        'part2': part_indicator[2] == 1,
+        'part3': part_indicator[3] == 1,
     }
     # for previous character
     if i > 0:
+        part_indicator = [0] * num_part
+        for j in range(num_part):
+            if part_cumulative[j] >= i-1:
+                part_indicator[j] = 1
+                break
         word1 = sent[i-1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '-1:word': word1,
-            '-1:isdigit()': word1.isdigit(),
+            '-1:word': itself1,
+            '-1:part0': part_indicator[0] == 1,
+            '-1:part1': part_indicator[1] == 1,
+            '-1:part2': part_indicator[2] == 1,
+            '-1:part3': part_indicator[3] == 1,
         })
     else:
         features['BOS'] = True
     # for next character
     if i < len(sent)-1:
+        part_indicator = [0] * num_part
+        for j in range(num_part):
+            if part_cumulative[j] >= i + 1:
+                part_indicator[j] = 1
+                break
         word1 = sent[i+1][0]
+        if word1.isdigit():
+            itself1 = 'NUM'
+        else:
+            itself1 = word1
         features.update({
-            '+1:word': word1,
-            '+1:isdigit()': word1.isdigit(),
+            '+1:word': itself1,
+            '+1:part0': part_indicator[0] == 1,
+            '+1:part1': part_indicator[1] == 1,
+            '+1:part2': part_indicator[2] == 1,
+            '+1:part3': part_indicator[3] == 1,
         })
     else:
         features['EOS'] = True
@@ -82,7 +127,7 @@ def cv_edit_active_learn(args):
     test_string = [strings[i] for i in test_idx]
 
     # Define an initial actual training set from the training pool.
-    initial_size = 2
+    initial_size = 10
     train_set_current = train_set[:initial_size]
     train_set_new = train_set[initial_size:]
     train_string_current = train_string[:initial_size]
@@ -115,7 +160,7 @@ def cv_edit_active_learn(args):
     for num_training in range(max_samples_batch):
 
         # Uniformly take samples from the training pool.
-        len_train_new = len(train_set_current)
+        len_train_new = len(train_set_new)
         sample_idx = []
         for i in range(batch_size):
             rand_tmp = random.randint(0,len_train_new-1)
@@ -185,14 +230,14 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
-        dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
-        strings = pickle.load(my_string)
-    # with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
     #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/sdh_string.bin", "rb") as my_string:
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+        dataset = pickle.load(my_dataset)
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
+        strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
     num_fold = 8
@@ -201,6 +246,12 @@ if __name__ == '__main__':
     # Define a loop for plotting figures.
     max_samples_batch = 100
     batch_size = 1
+
+    # Shuffle the dataset.
+    combined = list(zip(dataset, strings))
+    random.seed(666)
+    random.shuffle(combined)
+    dataset[:], strings[:] = zip(*combined)
 
     pool = multiprocessing.Pool(os.cpu_count())
     args = []
@@ -243,9 +294,9 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("sod_phrase_acc_uniform.bin", "wb") as phrase_uniform_file:
+    with open("ibm_phrase_acc_uniform.bin", "wb") as phrase_uniform_file:
         pickle.dump(phrase_acc, phrase_uniform_file)
-    with open("sod_out_acc_uniform.bin", "wb") as out_uniform_file:
+    with open("ibm_out_acc_uniform.bin", "wb") as out_uniform_file:
         pickle.dump(out_acc, out_uniform_file)
-    with open("sod_label_count_uniform.bin", "wb") as label_count_file:
+    with open("ibm_label_count_uniform.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
