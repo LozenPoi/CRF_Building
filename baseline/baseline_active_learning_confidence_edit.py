@@ -313,7 +313,7 @@ if __name__ == '__main__':
     kf = RepeatedKFold(n_splits=num_fold, n_repeats=1, random_state=666)
 
     # Define a loop for plotting figures.
-    max_samples_batch = 50
+    max_samples_batch = 100
     batch_size = 1
 
     # Shuffle the dataset.

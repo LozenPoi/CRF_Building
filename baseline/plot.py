@@ -69,30 +69,37 @@ with open("../main/sod_phrase_acc_partial_entropy_sum_edit.bin", "rb") as sod_ph
     sod_phrase_acc_partial_entropy_sum_edit = pickle.load(sod_phrase_confidence_edit)
 with open("../main/sdh_phrase_acc_partial_entropy_sum_edit.bin", "rb") as sdh_phrase_confidence_edit:
     sdh_phrase_acc_partial_entropy_sum_edit = pickle.load(sdh_phrase_confidence_edit)
-with open("../main/ibm_phrase_acc_partial_entropy_sum_edit.bin", "rb") as ibm_phrase_confidence_edit:
+with open("../main/ibm_phrase_acc_partial_entropy_sum_edit_z.bin", "rb") as ibm_phrase_confidence_edit:
     ibm_phrase_acc_partial_entropy_sum_edit = pickle.load(ibm_phrase_confidence_edit)
+with open("../main/ibm_phrase_acc_partial_entropy_sum_edit.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_phrase_acc_partial_entropy_sum_edit_sub = pickle.load(ibm_phrase_confidence_edit)
 
 with open("../main/sod_partial_entropy_sum_edit_num.bin", "rb") as sod_phrase_confidence_edit:
     sod_label_count_partial_entropy_sum_edit = pickle.load(sod_phrase_confidence_edit)
 with open("../main/sdh_partial_entropy_sum_edit_num.bin", "rb") as sdh_phrase_confidence_edit:
     sdh_label_count_partial_entropy_sum_edit = pickle.load(sdh_phrase_confidence_edit)
-with open("../main/ibm_partial_entropy_sum_edit_num.bin", "rb") as ibm_phrase_confidence_edit:
+with open("../main/ibm_partial_entropy_sum_edit_num_z.bin", "rb") as ibm_phrase_confidence_edit:
     ibm_label_count_partial_entropy_sum_edit = pickle.load(ibm_phrase_confidence_edit)
-
+with open("../main/ibm_partial_entropy_sum_edit_num.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_label_count_partial_entropy_sum_edit_sub = pickle.load(ibm_phrase_confidence_edit)
 
 with open("../main/sod_phrase_acc_partial_entropy_sum.bin", "rb") as sod_phrase_confidence_edit:
     sod_phrase_acc_partial_entropy_sum = pickle.load(sod_phrase_confidence_edit)
 with open("../main/sdh_phrase_acc_partial_entropy_sum.bin", "rb") as sdh_phrase_confidence_edit:
     sdh_phrase_acc_partial_entropy_sum = pickle.load(sdh_phrase_confidence_edit)
-with open("../main/ibm_phrase_acc_partial_entropy_sum.bin", "rb") as ibm_phrase_confidence_edit:
+with open("../main/ibm_phrase_acc_partial_entropy_sum_z.bin", "rb") as ibm_phrase_confidence_edit:
     ibm_phrase_acc_partial_entropy_sum = pickle.load(ibm_phrase_confidence_edit)
+with open("../main/ibm_phrase_acc_partial_entropy_sum.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_phrase_acc_partial_entropy_sum_sub = pickle.load(ibm_phrase_confidence_edit)
 
 with open("../main/sod_partial_entropy_sum_num.bin", "rb") as sod_phrase_confidence_edit:
     sod_label_count_partial_entropy_sum = pickle.load(sod_phrase_confidence_edit)
 with open("../main/sdh_partial_entropy_sum_num.bin", "rb") as sdh_phrase_confidence_edit:
     sdh_label_count_partial_entropy_sum = pickle.load(sdh_phrase_confidence_edit)
-with open("../main/ibm_partial_entropy_sum_num.bin", "rb") as ibm_phrase_confidence_edit:
+with open("../main/ibm_partial_entropy_sum_num_z.bin", "rb") as ibm_phrase_confidence_edit:
     ibm_label_count_partial_entropy_sum = pickle.load(ibm_phrase_confidence_edit)
+with open("../main/ibm_partial_entropy_sum_num.bin", "rb") as ibm_phrase_confidence_edit:
+    ibm_label_count_partial_entropy_sum_sub = pickle.load(ibm_phrase_confidence_edit)
 
 
 # Plot figures.
@@ -141,27 +148,28 @@ ibm_label_count_confidence_edit_av = np.sum(ibm_label_count_confidence_edit, axi
 
 
 sod_phrase_acc_partial_entropy_sum_av = np.sum(sod_phrase_acc_partial_entropy_sum, axis=0)/num_fold
-sod_phrase_acc_partial_entropy_sum_av = [i+0.03 for i in sod_phrase_acc_partial_entropy_sum_av]
 sod_label_count_partial_entropy_sum_av = np.sum(sod_label_count_partial_entropy_sum, axis=0)/num_fold
 
 sdh_phrase_acc_partial_entropy_sum_av = np.sum(sdh_phrase_acc_partial_entropy_sum, axis=0)/num_fold
-sdh_phrase_acc_partial_entropy_sum_av = [i+0.15 for i in sdh_phrase_acc_partial_entropy_sum_av]
 sdh_label_count_partial_entropy_sum_av = np.sum(sdh_label_count_partial_entropy_sum, axis=0)/num_fold
 
 ibm_phrase_acc_partial_entropy_sum_av = np.sum(ibm_phrase_acc_partial_entropy_sum, axis=0)/num_fold
 ibm_label_count_partial_entropy_sum_av = np.sum(ibm_label_count_partial_entropy_sum, axis=0)/num_fold
 
+ibm_phrase_acc_partial_entropy_sum_av_sub = np.sum(ibm_phrase_acc_partial_entropy_sum_sub, axis=0)/num_fold
+ibm_label_count_partial_entropy_sum_av_sub = np.sum(ibm_label_count_partial_entropy_sum_sub, axis=0)/num_fold
 
 sod_phrase_acc_partial_entropy_sum_edit_av = np.sum(sod_phrase_acc_partial_entropy_sum_edit, axis=0)/num_fold
-sod_phrase_acc_partial_entropy_sum_edit_av = [i+0.03 for i in sod_phrase_acc_partial_entropy_sum_edit_av]
 sod_label_count_partial_entropy_sum_edit_av = np.sum(sod_label_count_partial_entropy_sum_edit, axis=0)/num_fold
 
 sdh_phrase_acc_partial_entropy_sum_edit_av = np.sum(sdh_phrase_acc_partial_entropy_sum_edit, axis=0)/num_fold
-sdh_phrase_acc_partial_entropy_sum_edit_av = [i+0.15 for i in sdh_phrase_acc_partial_entropy_sum_edit_av]
 sdh_label_count_partial_entropy_sum_edit_av = np.sum(sdh_label_count_partial_entropy_sum_edit, axis=0)/num_fold
 
 ibm_phrase_acc_partial_entropy_sum_edit_av = np.sum(ibm_phrase_acc_partial_entropy_sum_edit, axis=0)/num_fold
 ibm_label_count_partial_entropy_sum_edit_av = np.sum(ibm_label_count_partial_entropy_sum_edit, axis=0)/num_fold
+
+ibm_phrase_acc_partial_entropy_sum_edit_av_sub = np.sum(ibm_phrase_acc_partial_entropy_sum_edit_sub, axis=0)/num_fold
+ibm_label_count_partial_entropy_sum_edit_av_sub = np.sum(ibm_label_count_partial_entropy_sum_edit_sub, axis=0)/num_fold
 
 
 plt.figure()
@@ -198,10 +206,14 @@ plt.plot(ibm_label_count_uniform_av, ibm_phrase_acc_uniform_av, 'c',
          ibm_label_count_information_density_av, ibm_phrase_acc_information_density_av, 'r',
          ibm_label_count_confidence_edit_av, ibm_phrase_acc_confidence_edit_av, 'k',
          ibm_label_count_partial_entropy_sum_av, ibm_phrase_acc_partial_entropy_sum_av, '--b',
-         ibm_label_count_partial_entropy_sum_edit_av, ibm_phrase_acc_partial_entropy_sum_edit_av, '--k')
+         ibm_label_count_partial_entropy_sum_edit_av, ibm_phrase_acc_partial_entropy_sum_edit_av, '--k',
+         ibm_label_count_partial_entropy_sum_av_sub, ibm_phrase_acc_partial_entropy_sum_av_sub, '--r',
+         ibm_label_count_partial_entropy_sum_edit_av_sub, ibm_phrase_acc_partial_entropy_sum_edit_av_sub, '--y')
 plt.xlabel('number of labeled characters')
 plt.ylabel('testing accuracy')
-plt.legend(['uniform', 'confidence', 'information_density', 'confidence_similarity', 'partial_average_entropy', 'partial_average_entropy_similarity'])
+plt.legend(['uniform', 'confidence', 'information_density', 'confidence_similarity', 'partial_average_entropy',
+            'partial_average_entropy_similarity', 'partial_average_entropy_substring',
+            'partial_average_entropy_similarity_substring'])
 plt.title('IBM')
 plt.grid()
 plt.show()
