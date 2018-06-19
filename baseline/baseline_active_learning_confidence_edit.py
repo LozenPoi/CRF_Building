@@ -289,6 +289,14 @@ def cv_edit_active_learn(args):
 
         # Use the estimator.
         y_pred = crf.predict(X_test)
+        # print('Iteration: ', num_training)
+        # for i in range(10):
+        #     print('\nstring: ', test_string[i])
+        #     print('predction and ground truth:')
+        #     print(y_pred[i])
+        #     print(y_test[i])
+        # print('\n')
+        # print('\n')
         phrase_count, phrase_correct, out_count, out_correct = utils.phrase_acc(y_test, y_pred)
         # print(phrase_count, phrase_correct, out_count, out_correct)
         phrase_acc[num_training+1] = phrase_correct / phrase_count
@@ -299,14 +307,14 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
-    #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/filtered_string.bin", "rb") as my_string:
-    #     strings = pickle.load(my_string)
-    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
         dataset = pickle.load(my_dataset)
-    with open("../dataset/ibm_string.bin", "rb") as my_string:
+    with open("../dataset/filtered_string.bin", "rb") as my_string:
         strings = pickle.load(my_string)
+    # with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    #     dataset = pickle.load(my_dataset)
+    # with open("../dataset/sdh_string.bin", "rb") as my_string:
+    #     strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
     num_fold = 8
@@ -321,6 +329,18 @@ if __name__ == '__main__':
     random.seed(666)
     random.shuffle(combined)
     dataset[:], strings[:] = zip(*combined)
+
+    # train_idx = [i for i in range(1000)]
+    # test_idx = [i+1000 for i in range(200)]
+    # args = {
+    #     'train_idx': train_idx,
+    #     'test_idx': test_idx,
+    #     'dataset': dataset,
+    #     'strings': strings,
+    #     'max_samples_batch': max_samples_batch,
+    #     'batch_size': batch_size,
+    # }
+    # cv_edit_active_learn(args)
 
     pool = multiprocessing.Pool(os.cpu_count())
     args = []
@@ -353,9 +373,9 @@ if __name__ == '__main__':
     plt.legend(['phrase accuracy', 'out-of-phrase accuracy'])
     plt.show()
 
-    with open("ibm_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
+    with open("sod_phrase_acc_confidence_edit.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("ibm_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
+    with open("sod_out_acc_confidence_edit.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("ibm_confidence_edit_num.bin", "wb") as label_count_file:
+    with open("sod_confidence_edit_num.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
