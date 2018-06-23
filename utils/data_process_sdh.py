@@ -156,19 +156,19 @@ with open(filepath, 'r') as fp:
 fp.close()
 
 
-# Store the dictionary as a text file.
-f = open('sdh_dictionary.txt','w')
-for i in dict:
-    f.write(i + '\n')
-f.close()
-
-# Store full labeled strings.
-f = open('sdh_vectors.txt', 'w')
-for i in vector_labeled:
-    for j in i:
-        f.write(str(j)+',')
-    f.write('\n')
-f.close()
+# # Store the dictionary as a text file.
+# f = open('sdh_dictionary.txt','w')
+# for i in dict:
+#     f.write(i + '\n')
+# f.close()
+#
+# # Store full labeled strings.
+# f = open('sdh_vectors.txt', 'w')
+# for i in vector_labeled:
+#     for j in i:
+#         f.write(str(j)+',')
+#     f.write('\n')
+# f.close()
 
 
 # Convert the training and testing data with the format fitting CRFsuite.
@@ -194,7 +194,16 @@ with open(filepath, 'r') as fp:
     print(len(dataset))
 fp.close()
 
-with open("sdh_dataset.bin", "wb") as sdh_dataset:
-    pickle.dump(dataset, sdh_dataset)
-with open("sdh_string.bin", "wb") as sdh_string:
-    pickle.dump(filtered_string, sdh_string)
+min_len = 100
+max_len = 0
+for i in filtered_string:
+    if len(i) > max_len:
+        max_len = len(i)
+    if len(i) < min_len:
+        min_len = len(i)
+print(min_len, max_len)
+
+# with open("sdh_dataset.bin", "wb") as sdh_dataset:
+#     pickle.dump(dataset, sdh_dataset)
+# with open("sdh_string.bin", "wb") as sdh_string:
+#     pickle.dump(filtered_string, sdh_string)

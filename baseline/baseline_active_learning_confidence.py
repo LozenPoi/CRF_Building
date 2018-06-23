@@ -211,14 +211,14 @@ def cv_edit_active_learn(args):
 # This is the main function.
 if __name__ == '__main__':
 
-    with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
-        dataset = pickle.load(my_dataset)
-    with open("../dataset/filtered_string.bin", "rb") as my_string:
-        strings = pickle.load(my_string)
-    # with open("../dataset/sdh_dataset.bin", "rb") as my_dataset:
+    # with open("../dataset/filtered_dataset.bin", "rb") as my_dataset:
     #     dataset = pickle.load(my_dataset)
-    # with open("../dataset/sdh_string.bin", "rb") as my_string:
+    # with open("../dataset/filtered_string.bin", "rb") as my_string:
     #     strings = pickle.load(my_string)
+    with open("../dataset/ibm_dataset.bin", "rb") as my_dataset:
+        dataset = pickle.load(my_dataset)
+    with open("../dataset/ibm_string.bin", "rb") as my_string:
+        strings = pickle.load(my_string)
 
     # Randomly select test set and training pool in the way of cross validation.
     num_fold = 8
@@ -264,9 +264,9 @@ if __name__ == '__main__':
     plt.show()
 
     # Save data for future plotting.
-    with open("sod_phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
+    with open("ibm_phrase_acc_confidence.bin", "wb") as phrase_confidence_file:
         pickle.dump(phrase_acc, phrase_confidence_file)
-    with open("sod_out_acc_confidence.bin", "wb") as out_confidence_file:
+    with open("ibm_out_acc_confidence.bin", "wb") as out_confidence_file:
         pickle.dump(out_acc, out_confidence_file)
-    with open("sod_label_count_confidence.bin", "wb") as label_count_file:
+    with open("ibm_label_count_confidence.bin", "wb") as label_count_file:
         pickle.dump(label_count, label_count_file)
