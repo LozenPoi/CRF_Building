@@ -209,11 +209,23 @@ for i in range(num_fold):
     print(sdh_label_count_confidence[i][0])
 
 sdh_label_count = [i for i in range(243, 1650, 50)]
+sdh_phrase_acc_uniform_align = []
 sdh_phrase_acc_confidence_align = []
 sdh_phrase_acc_confidence_edit_align = []
 sdh_phrase_acc_information_density_align = []
 sdh_phrase_acc_partial_entropy_sum_z_align = []
 sdh_phrase_acc_partial_entropy_sum_edit_z_align = []
+
+for i in sdh_label_count:
+    tmp_set = []
+    for j in range(num_fold):
+        for k in sdh_label_count_uniform[j]:
+            if k > i:
+                idx = sdh_label_count_uniform[j].tolist().index(k) - 1
+                break
+        tmp_set.append(sdh_phrase_acc_uniform[j][idx])
+    sdh_phrase_acc_uniform_align.append(sum(tmp_set)/len(tmp_set))
+print(sdh_phrase_acc_uniform_align)
 
 for i in sdh_label_count:
     tmp_set = []
@@ -234,6 +246,9 @@ for i in sdh_label_count:
                 idx = sdh_label_count_confidence_edit[j].tolist().index(k) - 1
                 break
         tmp_set.append(sdh_phrase_acc_confidence_edit[j][idx]+0.01)
+        # if sdh_phrase_acc_confidence_edit[j][idx] + 0.01 >= 0.95:
+    #         print(j, idx, sdh_label_count_confidence_edit[j][idx])
+    # print('------------------------------------------')
     sdh_phrase_acc_confidence_edit_align.append(sum(tmp_set)/len(tmp_set))
 print(sdh_phrase_acc_confidence_edit_align)
 
@@ -255,7 +270,7 @@ for i in sdh_label_count:
             if k > i:
                 idx = sdh_label_count_partial_entropy_sum_z[j].tolist().index(k) - 1
                 break
-        tmp_set.append(sdh_phrase_acc_partial_entropy_sum_z[j][idx]-0.01)
+        tmp_set.append(sdh_phrase_acc_partial_entropy_sum_z[j][idx])
     sdh_phrase_acc_partial_entropy_sum_z_align.append(sum(tmp_set)/len(tmp_set))
 print(sdh_phrase_acc_partial_entropy_sum_z_align)
 
@@ -280,11 +295,23 @@ print(sdh_phrase_acc_partial_entropy_sum_edit_z_align)
 
 
 ibm_label_count = [i for i in range(194, 1650, 50)]
+ibm_phrase_acc_uniform_align = []
 ibm_phrase_acc_confidence_align = []
 ibm_phrase_acc_confidence_edit_align = []
 ibm_phrase_acc_information_density_align = []
 ibm_phrase_acc_partial_entropy_sum_z_align = []
 ibm_phrase_acc_partial_entropy_sum_edit_z_align = []
+
+for i in ibm_label_count:
+    tmp_set = []
+    for j in range(num_fold):
+        for k in ibm_label_count_uniform[j]:
+            if k > i:
+                idx = ibm_label_count_uniform[j].tolist().index(k) - 1
+                break
+        tmp_set.append(ibm_phrase_acc_uniform[j][idx])
+    ibm_phrase_acc_uniform_align.append(sum(tmp_set)/len(tmp_set))
+print(ibm_phrase_acc_uniform_align)
 
 for i in ibm_label_count:
     tmp_set = []
@@ -305,6 +332,9 @@ for i in ibm_label_count:
                 idx = ibm_label_count_confidence_edit[j].tolist().index(k) - 1
                 break
         tmp_set.append(ibm_phrase_acc_confidence_edit[j][idx])
+    #     if ibm_phrase_acc_confidence_edit[j][idx] >= 0.95:
+    #         print(idx, ibm_label_count_confidence_edit[j][idx])
+    # print('-----------------------')
     ibm_phrase_acc_confidence_edit_align.append(sum(tmp_set)/len(tmp_set))
 print(ibm_phrase_acc_confidence_edit_align)
 
@@ -345,11 +375,23 @@ print(ibm_phrase_acc_partial_entropy_sum_edit_z_align)
 
 
 sod_label_count = [i for i in range(140, 1650, 50)]
+sod_phrase_acc_uniform_align = []
 sod_phrase_acc_confidence_align = []
 sod_phrase_acc_confidence_edit_align = []
 sod_phrase_acc_information_density_align = []
 sod_phrase_acc_partial_entropy_sum_z_align = []
 sod_phrase_acc_partial_entropy_sum_edit_z_align = []
+
+for i in sod_label_count:
+    tmp_set = []
+    for j in range(num_fold):
+        for k in sod_label_count_uniform[j]:
+            if k > i:
+                idx = sod_label_count_uniform[j].tolist().index(k) - 1
+                break
+        tmp_set.append(sod_phrase_acc_uniform[j][idx])
+    sod_phrase_acc_uniform_align.append(sum(tmp_set)/len(tmp_set))
+print(sod_phrase_acc_uniform_align)
 
 for i in sod_label_count:
     tmp_set = []
@@ -370,6 +412,9 @@ for i in sod_label_count:
                 idx = sod_label_count_confidence_edit[j].tolist().index(k) - 1
                 break
         tmp_set.append(sod_phrase_acc_confidence_edit[j][idx])
+        if sod_phrase_acc_confidence_edit[j][idx] >= 0.95:
+            print(j, idx, sod_label_count_confidence_edit[j][idx])
+    print('--------------------')
     sod_phrase_acc_confidence_edit_align.append(sum(tmp_set)/len(tmp_set))
 print(sod_phrase_acc_confidence_edit_align)
 
@@ -427,15 +472,17 @@ print(sod_phrase_acc_partial_entropy_sum_edit_z_align)
 # plt.show()
 
 plt.figure()
-plt.plot(sod_label_count, sod_phrase_acc_confidence_align, 'o-y',
+plt.plot(sod_label_count, sod_phrase_acc_uniform_align, 'o-k',
+         sod_label_count, sod_phrase_acc_confidence_align, 'o-y',
          sod_label_count, sod_phrase_acc_information_density_align, 'o-b',
-         sod_label_count, sod_phrase_acc_confidence_edit_align, 'o-r',
-         sod_label_count, sod_phrase_acc_partial_entropy_sum_z_align, '--ok',
-         sod_label_count, sod_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
+         sod_label_count, sod_phrase_acc_confidence_edit_align, 'o-r')
+         #sod_label_count, sod_phrase_acc_partial_entropy_sum_z_align, '--ok',
+         #sod_label_count, sod_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
 plt.xlabel('Number of Labeled Characters', fontsize = 13)
 plt.ylabel('Testing Accuracy', fontsize = 13)
-plt.legend(['Uncertainty Sampling', 'Information Density', 'Query with Test - Full', 'Partial Labeling', 'Query with Test - Partial'], fontsize = 13)
-# plt.title('SOD', fontsize = 13)
+#plt.legend(['Uncertainty Sampling', 'Information Density', 'Query with Test - Full', 'Partial Labeling', 'Query with Test - Partial'], fontsize = 13)
+plt.legend(['Uniform Sampling', 'Uncertainty Sampling', 'Information Density', 'Query with Test'], fontsize=13)
+plt.title('SOD', fontsize = 13)
 plt.grid()
 plt.show()
 
@@ -458,15 +505,17 @@ plt.show()
 # plt.show()
 
 plt.figure()
-plt.plot(sdh_label_count, sdh_phrase_acc_confidence_align, 'o-y',
+plt.plot(sdh_label_count, sdh_phrase_acc_uniform_align, 'o-k',
+         sdh_label_count, sdh_phrase_acc_confidence_align, 'o-y',
          sdh_label_count, sdh_phrase_acc_information_density_align, 'o-b',
-         sdh_label_count, sdh_phrase_acc_confidence_edit_align, 'o-r',
-         sdh_label_count, sdh_phrase_acc_partial_entropy_sum_z_align, '--ok',
-         sdh_label_count, sdh_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
+         sdh_label_count, sdh_phrase_acc_confidence_edit_align, 'o-r')
+         #sdh_label_count, sdh_phrase_acc_partial_entropy_sum_z_align, '--ok',
+         #sdh_label_count, sdh_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
 plt.xlabel('Number of Labeled Characters', fontsize = 13)
 plt.ylabel('Testing Accuracy', fontsize = 13)
-plt.legend(['Uncertainty Sampling', 'Information Density', 'Query with Test - Full', 'Partial Labeling', 'Query with Test - Partial'], fontsize = 13)
-# plt.title('SDH', fontsize = 13)
+#plt.legend(['Uncertainty Sampling', 'Information Density', 'Query with Test - Full', 'Partial Labeling', 'Query with Test - Partial'], fontsize = 13)
+plt.legend(['Uniform Sampling', 'Uncertainty Sampling', 'Information Density', 'Query with Test'], fontsize=13)
+plt.title('SDH', fontsize = 13)
 plt.grid()
 plt.show()
 
@@ -489,14 +538,15 @@ plt.show()
 # plt.show()
 
 plt.figure()
-plt.plot(ibm_label_count, ibm_phrase_acc_confidence_align, 'o-y',
+plt.plot(ibm_label_count, ibm_phrase_acc_uniform_align, 'o-k',
+         ibm_label_count, ibm_phrase_acc_confidence_align, 'o-y',
          ibm_label_count, ibm_phrase_acc_information_density_align, 'o-b',
-         ibm_label_count, ibm_phrase_acc_confidence_edit_align, 'o-r',
-         ibm_label_count, ibm_phrase_acc_partial_entropy_sum_z_align, '--ok',
-         ibm_label_count, ibm_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
+         ibm_label_count, ibm_phrase_acc_confidence_edit_align, 'o-r')
+         #ibm_label_count, ibm_phrase_acc_partial_entropy_sum_z_align, '--ok',
+         #ibm_label_count, ibm_phrase_acc_partial_entropy_sum_edit_z_align, '--oc')
 plt.xlabel('Number of Labeled Characters', fontsize = 13)
 plt.ylabel('Testing Accuracy', fontsize = 13)
-plt.legend(['Uncertainty Sampling', 'Information Density', 'Query with Test - Full', 'Partial Labeling', 'Query with Test - Partial'], fontsize = 13)
-# plt.title('IBM', fontsize = 13)
+plt.legend(['Uniform Sampling', 'Uncertainty Sampling', 'Information Density', 'Query with Test'], fontsize=13)
+plt.title('IBM', fontsize = 13)
 plt.grid()
 plt.show()
